@@ -18,11 +18,16 @@ const sortedKeys = Array.from(glossaryMap.keys())
 const escapedKeys = sortedKeys.slice(0, 350).map(k => k.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'));
 const glossaryRegex = new RegExp(`\\b(${escapedKeys.join('|')})\\b`, 'gi');
 
+import { HighYieldPoint } from '../types/features';
+import { HIGHLIGHT_TAG_CONFIG } from '../data/highYieldVaultData';
+
 interface TextWithGlossaryProps {
   text: string;
   enabled: boolean;
   bionicEnabled?: boolean;
   onOpenGlossary?: (term: string) => void;
+  highlights?: HighYieldPoint[];
+  onHighlightClick?: (highlight: HighYieldPoint) => void;
 }
 
 // Bionic reading helper: bold the first 2-3 characters of words
@@ -43,7 +48,9 @@ export const TextWithGlossary: React.FC<TextWithGlossaryProps> = ({
   text,
   enabled,
   bionicEnabled = false,
-  onOpenGlossary
+  onOpenGlossary,
+  highlights = [],
+  onHighlightClick
 }) => {
   const [activeTerm, setActiveTerm] = useState<{ term: GlossaryTerm; rect: DOMRect } | null>(null);
   const popoverRef = useRef<HTMLDivElement>(null);
@@ -60,14 +67,14 @@ export const TextWithGlossary: React.FC<TextWithGlossaryProps> = ({
     return () => document.removeEventListener('mousedown', handleClick);
   }, [activeTerm]);
 
-  const parsedContent = useMemo(() => {
+  // Helper to parse glossary terms and bionic words for a chunk of plain text
+  const parseGlossaryAndBionic = (plainChunk: string, chunkKey: string): React.ReactNode[] => {
     if (!enabled) {
-      if (!bionicEnabled) return text;
-      // Bionic reading only
-      const words = text.split(/(\s+)/);
+      if (!bionicEnabled) return [plainChunk];
+      const words = plainChunk.split(/(\s+)/);
       return words.map((w, idx) => {
         if (/^\s+$/.test(w)) return w;
-        return renderBionicWord(w, idx);
+        return renderBionicWord(w, `${chunkKey}-b-${idx}`);
       });
     }
 
@@ -78,17 +85,17 @@ export const TextWithGlossary: React.FC<TextWithGlossaryProps> = ({
     glossaryRegex.lastIndex = 0;
     let matchCount = 0;
 
-    while ((match = glossaryRegex.exec(text)) !== null && matchCount < 10) {
+    while ((match = glossaryRegex.exec(plainChunk)) !== null && matchCount < 10) {
       const matchIndex = match.index;
       const matchWord = match[0];
 
       if (matchIndex > lastIndex) {
-        const plainText = text.substring(lastIndex, matchIndex);
+        const between = plainChunk.substring(lastIndex, matchIndex);
         if (bionicEnabled) {
-          const words = plainText.split(/(\s+)/);
-          elements.push(...words.map((w, i) => /^\s+$/.test(w) ? w : renderBionicWord(w, `b-${lastIndex}-${i}`)));
+          const words = between.split(/(\s+)/);
+          elements.push(...words.map((w, i) => (/^\s+$/.test(w) ? w : renderBionicWord(w, `${chunkKey}-bw-${lastIndex}-${i}`))));
         } else {
-          elements.push(plainText);
+          elements.push(between);
         }
       }
 
@@ -96,7 +103,7 @@ export const TextWithGlossary: React.FC<TextWithGlossaryProps> = ({
       if (termData) {
         elements.push(
           <span
-            key={`g-${matchIndex}`}
+            key={`${chunkKey}-g-${matchIndex}`}
             onClick={(e) => {
               e.stopPropagation();
               const rect = e.currentTarget.getBoundingClientRect();
@@ -116,18 +123,97 @@ export const TextWithGlossary: React.FC<TextWithGlossaryProps> = ({
       lastIndex = matchIndex + matchWord.length;
     }
 
-    if (lastIndex < text.length) {
-      const remaining = text.substring(lastIndex);
+    if (lastIndex < plainChunk.length) {
+      const remaining = plainChunk.substring(lastIndex);
       if (bionicEnabled) {
         const words = remaining.split(/(\s+)/);
-        elements.push(...words.map((w, i) => /^\s+$/.test(w) ? w : renderBionicWord(w, `end-${i}`)));
+        elements.push(...words.map((w, i) => (/^\s+$/.test(w) ? w : renderBionicWord(w, `${chunkKey}-end-${i}`))));
       } else {
         elements.push(remaining);
       }
     }
 
     return elements;
-  }, [text, enabled, bionicEnabled]);
+  };
+
+  const parsedContent = useMemo(() => {
+    // 1. If no highlights provided or none match text, parse directly
+    if (!highlights || highlights.length === 0) {
+      return parseGlossaryAndBionic(text, 'root');
+    }
+
+    // Find all matching highlights in this text
+    interface MatchRange {
+      start: number;
+      end: number;
+      highlight: HighYieldPoint;
+    }
+
+    const matches: MatchRange[] = [];
+    highlights.forEach(hl => {
+      if (!hl.text || hl.text.length < 3) return;
+      const idx = text.indexOf(hl.text);
+      if (idx !== -1) {
+        matches.push({
+          start: idx,
+          end: idx + hl.text.length,
+          highlight: hl
+        });
+      }
+    });
+
+    if (matches.length === 0) {
+      return parseGlossaryAndBionic(text, 'root');
+    }
+
+    // Sort by start index and eliminate overlaps
+    matches.sort((a, b) => a.start - b.start || (b.end - b.start) - (a.end - a.start));
+    const nonOverlapping: MatchRange[] = [];
+    let lastEnd = 0;
+    for (const m of matches) {
+      if (m.start >= lastEnd) {
+        nonOverlapping.push(m);
+        lastEnd = m.end;
+      }
+    }
+
+    // Assemble interleaved nodes
+    const nodes: React.ReactNode[] = [];
+    let cursor = 0;
+
+    nonOverlapping.forEach((range, i) => {
+      if (range.start > cursor) {
+        const plainText = text.substring(cursor, range.start);
+        nodes.push(...parseGlossaryAndBionic(plainText, `plain-${i}`));
+      }
+
+      const hlText = text.substring(range.start, range.end);
+      const hlCfg = HIGHLIGHT_TAG_CONFIG[range.highlight.tagColor] || HIGHLIGHT_TAG_CONFIG.yellow;
+
+      nodes.push(
+        <span
+          key={`hl-${range.start}-${range.highlight.id}`}
+          onClick={(e) => {
+            e.stopPropagation();
+            onHighlightClick?.(range.highlight);
+          }}
+          className={`cursor-pointer transition-all hover:brightness-125 select-text inline rounded px-1 py-0.5 border-b-2 ${hlCfg.highlightClass}`}
+          title={range.highlight.prompt ? `${range.highlight.category}: "${range.highlight.prompt}" (Click to edit or delete)` : `${range.highlight.category} (Click to edit or delete)`}
+        >
+          {parseGlossaryAndBionic(hlText, `hl-inner-${i}`)}
+        </span>
+      );
+
+      cursor = range.end;
+    });
+
+    if (cursor < text.length) {
+      const remainder = text.substring(cursor);
+      nodes.push(...parseGlossaryAndBionic(remainder, 'remainder'));
+    }
+
+    return nodes;
+  }, [text, enabled, bionicEnabled, highlights, onHighlightClick]);
 
   return (
     <>

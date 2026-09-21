@@ -96,26 +96,42 @@ export const MockExamSimulator: React.FC<{ onNavigateToChapter?: (ch: number) =>
         "Increases patient radiation dose without affecting receptor exposure",
         "Requires a minimum tube voltage of 69.5 kVp for activation",
         "Controlled strictly by filtration and collimation parameters",
-        "Decreases subject contrast by generating forward scatter"
+        "Decreases subject contrast by generating forward scatter",
+        "Directly proportional to the square of tube voltage (kVp²)",
+        "Absorbed entirely by the photoelectric effect in high-Z tissues"
       ];
 
-      const pool = otherAnswers.length >= 3 ? otherAnswers : [...otherAnswers, ...standardDistractors];
-      // Deterministic selection of 3 distractors using question number
-      const dist1 = pool[(q.questionNumber * 3) % pool.length];
-      const dist2 = pool[(q.questionNumber * 5 + 1) % pool.length];
-      const dist3 = pool[(q.questionNumber * 7 + 2) % pool.length];
-      
+      // Build distinct pool of candidate distractors
+      const pool = Array.from(new Set([...otherAnswers, ...standardDistractors]))
+        .filter(d => d.trim() !== correctAnswer.trim());
+
+      const chosenDistractors: string[] = [];
+      let offset = 0;
+      while (chosenDistractors.length < 3 && offset < pool.length * 2) {
+        const candidate = pool[(q.questionNumber * 7 + offset * 11) % pool.length];
+        if (candidate && !chosenDistractors.includes(candidate) && candidate !== correctAnswer) {
+          chosenDistractors.push(candidate);
+        }
+        offset++;
+      }
+      while (chosenDistractors.length < 3) {
+        for (const sd of standardDistractors) {
+          if (!chosenDistractors.includes(sd) && sd !== correctAnswer) {
+            chosenDistractors.push(sd);
+            if (chosenDistractors.length === 3) break;
+          }
+        }
+      }
+
       // Determine correct option position (0, 1, 2, or 3)
       const correctIdx = (q.questionNumber * 13) % 4;
       const opts: string[] = [];
-      const distList = [dist1, dist2, dist3];
       let distPointer = 0;
       for (let i = 0; i < 4; i++) {
         if (i === correctIdx) {
           opts.push(correctAnswer);
         } else {
-          opts.push(distList[distPointer] || standardDistractors[distPointer % standardDistractors.length]);
-          distPointer++;
+          opts.push(chosenDistractors[distPointer++] || standardDistractors[0]);
         }
       }
 
@@ -156,25 +172,28 @@ export const MockExamSimulator: React.FC<{ onNavigateToChapter?: (ch: number) =>
     setPhase('exam');
   };
 
-  // Timer Countdown Effect
+  // Timer Countdown Effect (stable 1-second interval without re-creation drift)
   useEffect(() => {
     if (phase !== 'exam' || isTimerPaused) return;
-    if (timeRemainingSeconds <= 0) {
-      handleFinishExam();
-      return;
-    }
+
     const timer = setInterval(() => {
       setTimeRemainingSeconds(prev => {
         if (prev <= 1) {
-          clearInterval(timer);
-          handleFinishExam();
           return 0;
         }
         return prev - 1;
       });
     }, 1000);
+
     return () => clearInterval(timer);
-  }, [phase, isTimerPaused, timeRemainingSeconds]);
+  }, [phase, isTimerPaused]);
+
+  // Handle exam completion when timer reaches zero
+  useEffect(() => {
+    if (phase === 'exam' && timeRemainingSeconds === 0 && activeQuestions.length > 0) {
+      handleFinishExam();
+    }
+  }, [phase, timeRemainingSeconds, activeQuestions.length]);
 
   const handleSelectOption = (qId: string, optIdx: number) => {
     setUserAnswers(prev => ({

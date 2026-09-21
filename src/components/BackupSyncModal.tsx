@@ -30,11 +30,14 @@ export const BackupSyncModal: React.FC<BackupSyncModalProps> = ({ onClose, onDat
         }
       }
 
-      const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(backupData, null, 2));
+      const jsonStr = JSON.stringify(backupData, null, 2);
+      const blob = new Blob([jsonStr], { type: 'application/json;charset=utf-8' });
+      const url = URL.createObjectURL(blob);
       const dlAnchorElem = document.createElement('a');
-      dlAnchorElem.setAttribute("href", dataStr);
+      dlAnchorElem.setAttribute("href", url);
       dlAnchorElem.setAttribute("download", `bushong_full_backup_${new Date().toISOString().slice(0, 10)}.json`);
       dlAnchorElem.click();
+      URL.revokeObjectURL(url);
 
       setStatusMsg({ type: 'success', text: 'Full JSON backup downloaded successfully!' });
     } catch (err) {

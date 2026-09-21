@@ -59,8 +59,20 @@ export const StudyDeck: React.FC<{ onNavigateToChapter: (ch: number) => void }> 
   });
 
   // Formula State
+  const [formulaIdx, setFormulaIdx] = useState(0);
+  const [showFormulaEquation, setShowFormulaEquation] = useState(false);
+  const [formulaViewMode, setFormulaViewMode] = useState<'drill' | 'grid'>('drill');
   const [formulaChapterFilter, setFormulaChapterFilter] = useState<number | 'all'>('all');
   const [formulaSearch, setFormulaSearch] = useState<string>('');
+  const [filterFormulaBookmarksOnly, setFilterFormulaBookmarksOnly] = useState(false);
+  const [bookmarkedFormulas, setBookmarkedFormulas] = useState<string[]>(() => {
+    try {
+      const saved = localStorage.getItem('rad_bookmarked_formulas');
+      return saved ? JSON.parse(saved) : [];
+    } catch {
+      return [];
+    }
+  });
 
   // Handle SRS Rating Action
   const handleRateCard = (id: string, type: 'penguin' | 'question' | 'formula', rating: SrsRating) => {
@@ -70,6 +82,8 @@ export const StudyDeck: React.FC<{ onNavigateToChapter: (ch: number) => void }> 
       nextPenguin();
     } else if (mode === 'questions') {
       nextQuestion();
+    } else if (mode === 'formulas') {
+      nextFormula();
     }
   };
 
@@ -190,9 +204,27 @@ export const StudyDeck: React.FC<{ onNavigateToChapter: (ch: number) => void }> 
     setShowAnswer(false);
   };
 
+  const toggleFormulaBookmark = (id: string) => {
+    const updated = bookmarkedFormulas.includes(id)
+      ? bookmarkedFormulas.filter(x => x !== id)
+      : [...bookmarkedFormulas, id];
+    setBookmarkedFormulas(updated);
+    try {
+      localStorage.setItem('rad_bookmarked_formulas', JSON.stringify(updated));
+    } catch {}
+  };
+
+  const handleToggleFilterFormulaBookmarks = () => {
+    setFilterFormulaBookmarksOnly(prev => !prev);
+    setFormulaIdx(0);
+    setShowFormulaEquation(false);
+  };
+
   // Filtered Formulas
   const filteredFormulas = useMemo(() => {
     return ALL_FORMULAS.filter(f => {
+      if (filterFormulaBookmarksOnly && !bookmarkedFormulas.includes(f.id)) return false;
+      if (filterDueOnly && !isCardDue(srsMap[f.id])) return false;
       if (formulaChapterFilter !== 'all' && f.chapterNumber !== formulaChapterFilter) return false;
       if (formulaSearch.trim()) {
         const s = formulaSearch.toLowerCase();
@@ -200,7 +232,33 @@ export const StudyDeck: React.FC<{ onNavigateToChapter: (ch: number) => void }> 
       }
       return true;
     });
-  }, [formulaChapterFilter, formulaSearch]);
+  }, [filterFormulaBookmarksOnly, bookmarkedFormulas, filterDueOnly, srsMap, formulaChapterFilter, formulaSearch]);
+
+  const safeFormulaIdx = Math.min(formulaIdx, Math.max(0, filteredFormulas.length - 1));
+  const currentFormula: Formula | undefined = filteredFormulas[safeFormulaIdx];
+
+  const nextFormula = () => {
+    setShowFormulaEquation(false);
+    if (safeFormulaIdx < filteredFormulas.length - 1) setFormulaIdx(safeFormulaIdx + 1);
+    else setFormulaIdx(0);
+  };
+
+  const prevFormula = () => {
+    setShowFormulaEquation(false);
+    if (safeFormulaIdx > 0) setFormulaIdx(safeFormulaIdx - 1);
+    else setFormulaIdx(filteredFormulas.length - 1);
+  };
+
+  const shuffleFormulas = () => {
+    if (filteredFormulas.length > 1) {
+      let randomIdx = safeFormulaIdx;
+      while (randomIdx === safeFormulaIdx) {
+        randomIdx = Math.floor(Math.random() * filteredFormulas.length);
+      }
+      setFormulaIdx(randomIdx);
+      setShowFormulaEquation(false);
+    }
+  };
 
   // Keyboard navigation & SRS ratings
   useEffect(() => {
@@ -228,12 +286,24 @@ export const StudyDeck: React.FC<{ onNavigateToChapter: (ch: number) => void }> 
         else if (e.key === '2') handleRateCard(currentQuestion.id, 'question', 2);
         else if (e.key === '3') handleRateCard(currentQuestion.id, 'question', 3);
         else if (e.key === '4') handleRateCard(currentQuestion.id, 'question', 4);
+      } else if (mode === 'formulas' && currentFormula) {
+        if (e.key === ' ' || e.key === 'Enter') {
+          e.preventDefault();
+          setShowFormulaEquation(prev => !prev);
+        } else if (e.key === 'ArrowRight' || e.key === 'j') nextFormula();
+        else if (e.key === 'ArrowLeft' || e.key === 'k') prevFormula();
+        else if (e.key === 's' || e.key === 'S') toggleFormulaBookmark(currentFormula.id);
+        else if (e.key === 'r' || e.key === 'R') shuffleFormulas();
+        else if (e.key === '1') handleRateCard(currentFormula.id, 'formula', 1);
+        else if (e.key === '2') handleRateCard(currentFormula.id, 'formula', 2);
+        else if (e.key === '3') handleRateCard(currentFormula.id, 'formula', 3);
+        else if (e.key === '4') handleRateCard(currentFormula.id, 'formula', 4);
       }
     };
 
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [mode, safePenguinIdx, safeQIdx, currentPenguin, currentQuestion, showAnswer]);
+  }, [mode, safePenguinIdx, safeQIdx, safeFormulaIdx, currentPenguin, currentQuestion, currentFormula, showAnswer, showFormulaEquation]);
 
   return (
     <div className="space-y-6 max-w-5xl mx-auto pb-16">
@@ -710,10 +780,14 @@ export const StudyDeck: React.FC<{ onNavigateToChapter: (ch: number) => void }> 
       {mode === 'formulas' && (
         <div className="space-y-4">
           <div className="grid grid-cols-1 sm:grid-cols-12 gap-2.5">
-            <div className="sm:col-span-6">
+            <div className="sm:col-span-5">
               <select
                 value={formulaChapterFilter}
-                onChange={(e) => setFormulaChapterFilter(e.target.value === 'all' ? 'all' : Number(e.target.value))}
+                onChange={(e) => {
+                  setFormulaChapterFilter(e.target.value === 'all' ? 'all' : Number(e.target.value));
+                  setFormulaIdx(0);
+                  setShowFormulaEquation(false);
+                }}
                 className="w-full bg-slate-950 border border-slate-800 text-slate-200 rounded-lg px-3 py-2 text-xs focus:outline-none focus:border-emerald-500"
               >
                 <option value="all">All Chapters ({ALL_FORMULAS.length} Formulas)</option>
@@ -724,55 +798,323 @@ export const StudyDeck: React.FC<{ onNavigateToChapter: (ch: number) => void }> 
                 ))}
               </select>
             </div>
-            <div className="sm:col-span-6 relative">
+            <div className="sm:col-span-4 relative">
               <Search className="w-3.5 h-3.5 text-slate-500 absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" />
               <input
                 type="text"
                 placeholder="Search formulas by name or symbol..."
                 value={formulaSearch}
-                onChange={(e) => setFormulaSearch(e.target.value)}
+                onChange={(e) => {
+                  setFormulaSearch(e.target.value);
+                  setFormulaIdx(0);
+                  setShowFormulaEquation(false);
+                }}
                 className="w-full bg-slate-950 border border-slate-800 text-slate-200 rounded-lg pl-8 pr-3 py-2 text-xs focus:outline-none focus:border-emerald-500"
               />
             </div>
+            <div className="sm:col-span-3 flex items-center gap-1.5 justify-end">
+              <div className="flex rounded-lg bg-slate-950 p-0.5 border border-slate-800 text-[11px]">
+                <button
+                  onClick={() => setFormulaViewMode('drill')}
+                  className={`px-2 py-1 rounded font-semibold transition-all ${
+                    formulaViewMode === 'drill'
+                      ? 'bg-emerald-500 text-slate-950 font-bold'
+                      : 'text-slate-400 hover:text-white'
+                  }`}
+                  title="Flashcard Active Recall Drill"
+                >
+                  SRS Drill
+                </button>
+                <button
+                  onClick={() => setFormulaViewMode('grid')}
+                  className={`px-2 py-1 rounded font-semibold transition-all ${
+                    formulaViewMode === 'grid'
+                      ? 'bg-emerald-500 text-slate-950 font-bold'
+                      : 'text-slate-400 hover:text-white'
+                  }`}
+                  title="Formula Grid View"
+                >
+                  Grid
+                </button>
+              </div>
+
+              <button
+                onClick={handleToggleFilterFormulaBookmarks}
+                className={`p-2 rounded-lg border text-xs flex items-center justify-center gap-1 transition-all ${
+                  filterFormulaBookmarksOnly
+                    ? 'bg-emerald-500/20 text-emerald-300 border-emerald-500/40'
+                    : 'bg-slate-950 text-slate-400 border-slate-800 hover:text-white'
+                }`}
+                title="Filter Bookmarked Formulas"
+              >
+                <Bookmark className="w-4 h-4" />
+                {bookmarkedFormulas.length > 0 && (
+                  <span className="text-[10px] font-mono font-bold text-emerald-400">{bookmarkedFormulas.length}</span>
+                )}
+              </button>
+              <button
+                onClick={shuffleFormulas}
+                className="p-2 rounded-lg bg-slate-950 text-slate-400 border border-slate-800 hover:text-emerald-400 transition-all"
+                title="Random Formula Drill (R key)"
+              >
+                <Shuffle className="w-4 h-4" />
+              </button>
+            </div>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {filteredFormulas.map(formula => (
-              <div
-                key={formula.id}
-                className="bg-slate-950 border border-slate-800/90 rounded-xl p-4 hover:border-emerald-500/30 transition-all flex flex-col justify-between shadow-sm"
-              >
+          {/* View 1: Active Recall Flashcard Drill */}
+          {formulaViewMode === 'drill' && (
+            <div>
+              {currentFormula ? (
                 <div>
-                  <div className="flex items-center justify-between mb-2">
-                    <span className="text-xs font-bold text-emerald-400">{formula.name}</span>
+                  <div className="flex items-center justify-between mb-3 text-xs">
+                    <div className="flex items-center gap-2">
+                      <span className="text-xs text-emerald-400 font-bold uppercase tracking-wider bg-emerald-500/10 px-2.5 py-1 rounded border border-emerald-500/20">
+                        Formula {safeFormulaIdx + 1} of {filteredFormulas.length}
+                      </span>
+                      <button
+                        onClick={() => onNavigateToChapter(currentFormula.chapterNumber)}
+                        className="text-slate-400 hover:text-emerald-400 underline font-medium"
+                      >
+                        Chapter {currentFormula.chapterNumber}
+                      </button>
+                    </div>
+
+                    <div className="flex items-center gap-2">
+                      {srsMap[currentFormula.id] && srsMap[currentFormula.id].lastReviewDate && (
+                        <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-slate-800 text-slate-300 border border-slate-700">
+                          Interval: {srsMap[currentFormula.id].interval}d (Rep: {srsMap[currentFormula.id].repetition})
+                        </span>
+                      )}
+                      <button
+                        onClick={() => toggleFormulaBookmark(currentFormula.id)}
+                        className={`px-2.5 py-1 rounded-lg border flex items-center gap-1 transition-all ${
+                          bookmarkedFormulas.includes(currentFormula.id)
+                            ? 'bg-emerald-500 text-slate-950 border-emerald-400 font-semibold'
+                            : 'bg-slate-950 text-slate-400 border-slate-800 hover:text-white'
+                        }`}
+                      >
+                        <Bookmark className="w-3.5 h-3.5" />
+                        {bookmarkedFormulas.includes(currentFormula.id) ? 'Saved' : 'Save'}
+                      </button>
+                    </div>
+                  </div>
+
+                  <div className="min-h-[220px] bg-slate-950 border border-slate-800 rounded-2xl p-6 flex flex-col justify-between shadow-lg">
+                    <div>
+                      <div className="flex items-start justify-between gap-3 mb-3">
+                        <h3 className="text-lg font-bold text-emerald-400">{currentFormula.name}</h3>
+                        <span className="text-[10px] px-2 py-0.5 rounded bg-slate-800 text-slate-400 font-mono">
+                          Eq. {currentFormula.id}
+                        </span>
+                      </div>
+                      <p className="text-sm text-slate-300 leading-relaxed mb-4">{currentFormula.description}</p>
+
+                      {showFormulaEquation ? (
+                        <div className="space-y-4 animate-fadeIn">
+                          <div className="bg-slate-900 border border-emerald-500/40 rounded-xl p-4 font-mono text-base sm:text-lg text-emerald-300 font-bold tracking-wider shadow-inner text-center">
+                            {currentFormula.formula}
+                          </div>
+
+                          <div className="space-y-1.5 p-3 rounded-xl bg-slate-900/60 border border-slate-800">
+                            <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block mb-1">
+                              Variable Definitions & Physical Units:
+                            </span>
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs">
+                              {currentFormula.variables.map((v, i) => (
+                                <div key={i} className="flex items-baseline justify-between bg-slate-950/80 p-2 rounded border border-slate-800/80">
+                                  <span className="font-mono text-cyan-300 font-bold">{v.symbol}</span>
+                                  <span className="text-slate-300 text-[11px]">{v.meaning} {v.unit ? `(${v.unit})` : ''}</span>
+                                </div>
+                              ))}
+                            </div>
+                          </div>
+                        </div>
+                      ) : (
+                        <div className="mt-8 flex justify-center">
+                          <button
+                            onClick={() => setShowFormulaEquation(true)}
+                            className="px-5 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-emerald-300 hover:text-emerald-200 text-xs font-bold border border-slate-700 flex items-center gap-2 transition-all shadow-md"
+                          >
+                            <CheckCircle2 className="w-4 h-4 text-emerald-400" /> Reveal Formula Equation & Variables
+                          </button>
+                        </div>
+                      )}
+                    </div>
+
+                    <div className="mt-6 pt-4 border-t border-slate-800/80 flex items-center justify-between text-xs">
+                      <span className="text-slate-500">
+                        Chapter {currentFormula.chapterNumber} • Radiologic Physics Formula
+                      </span>
+                      {showFormulaEquation && (
+                        <button
+                          onClick={() => setShowFormulaEquation(false)}
+                          className="text-slate-400 hover:text-white flex items-center gap-1"
+                        >
+                          <RotateCcw className="w-3.5 h-3.5" /> Hide Equation
+                        </button>
+                      )}
+                    </div>
+                  </div>
+
+                  {/* SM-2 Rating for Formulas */}
+                  {showFormulaEquation && (
+                    <div className="mt-4 p-3 bg-slate-900 border border-slate-800 rounded-xl space-y-2 animate-fadeIn">
+                      <div className="flex items-center justify-between text-xs font-semibold text-slate-300 px-1">
+                        <span>Rate formula recall to schedule next review:</span>
+                        <span className="text-slate-500 text-[10px] hidden sm:inline">Keys 1, 2, 3, 4</span>
+                      </div>
+                      <div className="grid grid-cols-4 gap-2 text-xs font-bold">
+                        <button
+                          onClick={() => handleRateCard(currentFormula.id, 'formula', 1)}
+                          className="py-2.5 rounded-lg bg-rose-950/40 hover:bg-rose-900/60 border border-rose-500/40 text-rose-300 transition-all text-center"
+                        >
+                          Again (1d)
+                        </button>
+                        <button
+                          onClick={() => handleRateCard(currentFormula.id, 'formula', 2)}
+                          className="py-2.5 rounded-lg bg-amber-950/40 hover:bg-amber-900/60 border border-amber-500/40 text-amber-300 transition-all text-center"
+                        >
+                          Hard (2d)
+                        </button>
+                        <button
+                          onClick={() => handleRateCard(currentFormula.id, 'formula', 3)}
+                          className="py-2.5 rounded-lg bg-emerald-950/40 hover:bg-emerald-900/60 border border-emerald-500/40 text-emerald-300 transition-all text-center"
+                        >
+                          Good (4d)
+                        </button>
+                        <button
+                          onClick={() => handleRateCard(currentFormula.id, 'formula', 4)}
+                          className="py-2.5 rounded-lg bg-cyan-950/40 hover:bg-cyan-900/60 border border-cyan-500/40 text-cyan-300 transition-all text-center"
+                        >
+                          Easy (7d)
+                        </button>
+                      </div>
+                    </div>
+                  )}
+
+                  <div className="flex items-center justify-between mt-4">
                     <button
-                      onClick={() => onNavigateToChapter(formula.chapterNumber)}
-                      className="text-[10px] px-2 py-0.5 rounded bg-slate-800 text-slate-400 hover:text-white"
+                      onClick={prevFormula}
+                      className="flex items-center gap-1.5 px-4 py-2 rounded-lg bg-slate-950 hover:bg-slate-800 text-slate-200 text-xs font-semibold border border-slate-800 transition-all"
                     >
-                      Ch. {formula.chapterNumber}
+                      <ChevronLeft className="w-4 h-4" /> Previous
+                    </button>
+                    <span className="text-xs text-slate-500 font-mono">
+                      {safeFormulaIdx + 1} / {filteredFormulas.length}
+                    </span>
+                    <button
+                      onClick={nextFormula}
+                      className="flex items-center gap-1.5 px-4 py-2 rounded-lg bg-emerald-500 hover:bg-emerald-400 text-slate-950 text-xs font-bold transition-all shadow-md shadow-emerald-500/20"
+                    >
+                      Next <ChevronRight className="w-4 h-4" />
                     </button>
                   </div>
-                  <div className="bg-slate-900/90 px-3 py-2 rounded-lg font-mono text-sm text-amber-300 mb-2 border border-slate-800 shadow-inner">
-                    {formula.formula}
-                  </div>
-                  <p className="text-xs text-slate-300 leading-relaxed mb-3">{formula.description}</p>
                 </div>
+              ) : (
+                <div className="text-center py-12 text-slate-400 bg-slate-950/50 rounded-2xl border border-slate-800">
+                  <HelpCircle className="w-8 h-8 text-slate-600 mx-auto mb-2" />
+                  <p className="text-sm">No formulas match your current filter or due date.</p>
+                </div>
+              )}
+            </div>
+          )}
 
-                <div className="space-y-1 pt-2 border-t border-slate-900 text-[11px] text-slate-400">
-                  {formula.variables.map((v, i) => (
-                    <div key={i} className="flex items-baseline justify-between">
-                      <span className="font-mono text-cyan-300">{v.symbol}</span>
-                      <span className="text-slate-300">{v.meaning} {v.unit ? `(${v.unit})` : ''}</span>
+          {/* View 2: Formula Grid Reference with SRS Badges */}
+          {formulaViewMode === 'grid' && (
+            <div>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {filteredFormulas.map(formula => (
+                  <div
+                    key={formula.id}
+                    className="bg-slate-950 border border-slate-800/90 rounded-xl p-4 hover:border-emerald-500/30 transition-all flex flex-col justify-between shadow-sm"
+                  >
+                    <div>
+                      <div className="flex items-center justify-between mb-2">
+                        <div className="flex items-center gap-2">
+                          <span className="text-xs font-bold text-emerald-400">{formula.name}</span>
+                          {srsMap[formula.id]?.lastReviewDate && (
+                            <span className="text-[9px] font-mono px-1.5 py-0.2 rounded bg-slate-800 text-slate-300 border border-slate-700">
+                              {srsMap[formula.id].interval}d
+                            </span>
+                          )}
+                        </div>
+                        <div className="flex items-center gap-1.5">
+                          <button
+                            onClick={() => toggleFormulaBookmark(formula.id)}
+                            className={`p-1 rounded ${bookmarkedFormulas.includes(formula.id) ? 'text-emerald-400' : 'text-slate-600 hover:text-slate-300'}`}
+                            title="Bookmark"
+                          >
+                            <Bookmark className="w-3.5 h-3.5" />
+                          </button>
+                          <button
+                            onClick={() => onNavigateToChapter(formula.chapterNumber)}
+                            className="text-[10px] px-2 py-0.5 rounded bg-slate-800 text-slate-400 hover:text-white"
+                          >
+                            Ch. {formula.chapterNumber}
+                          </button>
+                        </div>
+                      </div>
+                      <div className="bg-slate-900/90 px-3 py-2 rounded-lg font-mono text-sm text-amber-300 mb-2 border border-slate-800 shadow-inner">
+                        {formula.formula}
+                      </div>
+                      <p className="text-xs text-slate-300 leading-relaxed mb-3">{formula.description}</p>
                     </div>
-                  ))}
-                </div>
-              </div>
-            ))}
-          </div>
 
-          {filteredFormulas.length === 0 && (
-            <div className="text-center py-12 text-slate-400 bg-slate-950/50 rounded-2xl border border-slate-800">
-              <p className="text-sm">No formulas match your search.</p>
+                    <div className="space-y-2 pt-2 border-t border-slate-900">
+                      <div className="space-y-1 text-[11px] text-slate-400">
+                        {formula.variables.map((v, i) => (
+                          <div key={i} className="flex items-baseline justify-between">
+                            <span className="font-mono text-cyan-300">{v.symbol}</span>
+                            <span className="text-slate-300">{v.meaning} {v.unit ? `(${v.unit})` : ''}</span>
+                          </div>
+                        ))}
+                      </div>
+
+                      {/* Quick SM-2 rating bar on card */}
+                      <div className="pt-2 border-t border-slate-900/80 flex items-center justify-between">
+                        <span className="text-[10px] text-slate-500 font-semibold">SRS Review:</span>
+                        <div className="flex items-center gap-1">
+                          <button
+                            onClick={() => handleRateCard(formula.id, 'formula', 1)}
+                            className="px-1.5 py-0.5 rounded text-[10px] font-bold bg-rose-950/40 text-rose-300 border border-rose-500/30 hover:bg-rose-900/60"
+                            title="Again (1d)"
+                          >
+                            Again
+                          </button>
+                          <button
+                            onClick={() => handleRateCard(formula.id, 'formula', 2)}
+                            className="px-1.5 py-0.5 rounded text-[10px] font-bold bg-amber-950/40 text-amber-300 border border-amber-500/30 hover:bg-amber-900/60"
+                            title="Hard (2d)"
+                          >
+                            Hard
+                          </button>
+                          <button
+                            onClick={() => handleRateCard(formula.id, 'formula', 3)}
+                            className="px-1.5 py-0.5 rounded text-[10px] font-bold bg-emerald-950/40 text-emerald-300 border border-emerald-500/30 hover:bg-emerald-900/60"
+                            title="Good (4d)"
+                          >
+                            Good
+                          </button>
+                          <button
+                            onClick={() => handleRateCard(formula.id, 'formula', 4)}
+                            className="px-1.5 py-0.5 rounded text-[10px] font-bold bg-cyan-950/40 text-cyan-300 border border-cyan-500/30 hover:bg-cyan-900/60"
+                            title="Easy (7d)"
+                          >
+                            Easy
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+
+              {filteredFormulas.length === 0 && (
+                <div className="text-center py-12 text-slate-400 bg-slate-950/50 rounded-2xl border border-slate-800">
+                  <p className="text-sm">No formulas match your search or due filter.</p>
+                </div>
+              )}
             </div>
           )}
         </div>

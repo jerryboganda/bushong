@@ -5,7 +5,14 @@ import { HighlightToolbar } from './HighlightToolbar';
 import { TextWithGlossary } from './GlossaryTooltip';
 import { ReaderSettingsModal } from './ReaderSettingsModal';
 import { tts, TtsState } from '../utils/textToSpeech';
-import { getStoredHighlights, deleteHighlight, HIGHLIGHT_TAG_CONFIG } from '../data/highYieldVaultData';
+import { 
+  getStoredHighlights, 
+  deleteHighlight, 
+  updateHighlightNote, 
+  toggleStarHighlight, 
+  HIGHLIGHT_TAG_CONFIG 
+} from '../data/highYieldVaultData';
+import { HighlightColor } from '../types/features';
 import { 
   BookOpen, 
   CheckCircle, 
@@ -27,7 +34,10 @@ import {
   Settings,
   Highlighter,
   Trash2,
-  Star
+  Star,
+  Edit3,
+  X,
+  Check
 } from 'lucide-react';
 
 interface ChapterReaderProps {
@@ -99,6 +109,38 @@ export const ChapterReader: React.FC<ChapterReaderProps> = ({
   const refreshHighlights = () => {
     const all = getStoredHighlights();
     setChapterHighlights(all.filter(h => h.chapterNumber === chapter.number));
+  };
+
+  // Highlight edit modal state
+  const [editingHighlight, setEditingHighlight] = useState<HighYieldPoint | null>(null);
+  const [editPrompt, setEditPrompt] = useState<string>('');
+  const [editTag, setEditTag] = useState<HighlightColor>('yellow');
+
+  const handleOpenEditHighlight = (hl: HighYieldPoint) => {
+    setEditingHighlight(hl);
+    setEditPrompt(hl.prompt || '');
+    setEditTag(hl.tagColor);
+  };
+
+  const handleSaveHighlightEdit = () => {
+    if (!editingHighlight) return;
+    updateHighlightNote(editingHighlight.id, editPrompt.trim(), HIGHLIGHT_TAG_CONFIG[editTag].label, editTag);
+    setEditingHighlight(null);
+    refreshHighlights();
+  };
+
+  const handleDeleteFromEdit = () => {
+    if (!editingHighlight) return;
+    deleteHighlight(editingHighlight.id);
+    setEditingHighlight(null);
+    refreshHighlights();
+  };
+
+  const handleToggleStarFromEdit = () => {
+    if (!editingHighlight) return;
+    toggleStarHighlight(editingHighlight.id);
+    setEditingHighlight(prev => prev ? { ...prev, starred: !prev.starred } : null);
+    refreshHighlights();
   };
 
   useEffect(() => {
@@ -219,6 +261,111 @@ export const ChapterReader: React.FC<ChapterReaderProps> = ({
           onUpdatePreferences={updatePreferences}
           onClose={() => setShowSettingsModal(false)}
         />
+      )}
+
+      {/* Edit Highlight / One-Liner Modal */}
+      {editingHighlight && (
+        <div className="fixed inset-0 z-50 bg-black/70 backdrop-blur-sm flex items-center justify-center p-4">
+          <div className="bg-slate-900 border border-slate-800 rounded-2xl max-w-md w-full p-6 space-y-4 shadow-2xl animate-fadeIn">
+            <div className="flex items-center justify-between pb-3 border-b border-slate-800">
+              <div className="flex items-center gap-2">
+                <Highlighter className="w-4 h-4 text-amber-400" />
+                <h3 className="text-sm font-bold text-white">Edit High-Yield One-Liner</h3>
+              </div>
+              <button
+                onClick={() => setEditingHighlight(null)}
+                className="p-1 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+
+            {/* Selected Text Preview */}
+            <div className="bg-slate-950 border border-slate-800 rounded-xl p-3 text-xs text-slate-200 italic leading-relaxed max-h-32 overflow-y-auto">
+              "{editingHighlight.text}"
+            </div>
+
+            {/* Prompt / Mnemonic Input */}
+            <div className="space-y-1">
+              <label className="text-xs font-bold text-slate-300">
+                Question Stem / Mnemonic / Prompt:
+              </label>
+              <input
+                type="text"
+                value={editPrompt}
+                onChange={e => setEditPrompt(e.target.value)}
+                placeholder="e.g. What is the formula or key board rule?"
+                className="w-full bg-slate-950 border border-slate-700 rounded-lg p-2 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-cyan-400"
+              />
+            </div>
+
+            {/* Color / Category Tag */}
+            <div className="space-y-1.5">
+              <label className="text-xs font-bold text-slate-300">Category / Tag Color:</label>
+              <div className="grid grid-cols-5 gap-1.5">
+                {(['yellow', 'red', 'green', 'purple', 'blue'] as HighlightColor[]).map(c => {
+                  const cfg = HIGHLIGHT_TAG_CONFIG[c];
+                  const isSelected = editTag === c;
+                  return (
+                    <button
+                      key={c}
+                      type="button"
+                      onClick={() => setEditTag(c)}
+                      className={`p-1.5 rounded-lg border text-[10px] font-bold flex flex-col items-center gap-1 transition-all ${
+                        isSelected ? `${cfg.bg} ${cfg.text} ${cfg.border} ring-2 ring-cyan-400` : 'bg-slate-950 text-slate-400 border-slate-800'
+                      }`}
+                    >
+                      <span className={`w-3 h-3 rounded-full ${c === 'yellow' ? 'bg-amber-400' : c === 'red' ? 'bg-rose-500' : c === 'green' ? 'bg-emerald-400' : c === 'purple' ? 'bg-purple-400' : 'bg-cyan-400'}`} />
+                      <span className="truncate max-w-full">{cfg.label.split(' ')[0]}</span>
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+
+            {/* Actions */}
+            <div className="pt-3 border-t border-slate-800 flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <button
+                  type="button"
+                  onClick={handleDeleteFromEdit}
+                  className="px-3 py-1.5 rounded-lg bg-rose-950/40 hover:bg-rose-900/60 text-rose-300 border border-rose-500/30 text-xs font-bold flex items-center gap-1 transition-colors"
+                >
+                  <Trash2 className="w-3.5 h-3.5" /> Delete
+                </button>
+                <button
+                  type="button"
+                  onClick={handleToggleStarFromEdit}
+                  className={`p-1.5 rounded-lg border text-xs transition-colors ${
+                    editingHighlight.starred
+                      ? 'bg-amber-500/20 text-amber-300 border-amber-500/40'
+                      : 'bg-slate-950 text-slate-400 border-slate-800 hover:text-white'
+                  }`}
+                  title={editingHighlight.starred ? 'Starred' : 'Star this item'}
+                >
+                  <Star className={`w-4 h-4 ${editingHighlight.starred ? 'fill-amber-400 text-amber-400' : ''}`} />
+                </button>
+              </div>
+
+              <div className="flex items-center gap-2">
+                <button
+                  type="button"
+                  onClick={() => setEditingHighlight(null)}
+                  className="px-3 py-1.5 rounded-lg bg-slate-800 text-slate-300 hover:text-white text-xs font-semibold"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="button"
+                  onClick={handleSaveHighlightEdit}
+                  className="px-3.5 py-1.5 rounded-lg bg-cyan-500 hover:bg-cyan-400 text-slate-950 text-xs font-bold shadow flex items-center gap-1"
+                >
+                  <Check className="w-3.5 h-3.5" /> Save
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
       )}
 
       {/* Persistent Audio TTS Control Bar */}
@@ -376,16 +523,25 @@ export const ChapterReader: React.FC<ChapterReaderProps> = ({
                     <span className={`text-[10px] font-bold px-2 py-0.2 rounded-full border ${tagCfg.bg} ${tagCfg.text} ${tagCfg.border}`}>
                       {h.category}
                     </span>
-                    <button
-                      onClick={() => {
-                        deleteHighlight(h.id);
-                        refreshHighlights();
-                      }}
-                      className="text-slate-500 hover:text-rose-400 opacity-0 group-hover:opacity-100 transition-opacity"
-                      title="Delete highlight"
-                    >
-                      <Trash2 className="w-3 h-3" />
-                    </button>
+                    <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                      <button
+                        onClick={() => handleOpenEditHighlight(h)}
+                        className="p-1 text-slate-400 hover:text-cyan-300 rounded transition-colors"
+                        title="Edit highlight note or tag"
+                      >
+                        <Edit3 className="w-3.5 h-3.5" />
+                      </button>
+                      <button
+                        onClick={() => {
+                          deleteHighlight(h.id);
+                          refreshHighlights();
+                        }}
+                        className="p-1 text-slate-400 hover:text-rose-400 rounded transition-colors"
+                        title="Delete highlight"
+                      >
+                        <Trash2 className="w-3.5 h-3.5" />
+                      </button>
+                    </div>
                   </div>
 
                   {h.prompt && (
@@ -441,6 +597,8 @@ export const ChapterReader: React.FC<ChapterReaderProps> = ({
                     enabled={readerPrefs.glossaryTooltips}
                     bionicEnabled={readerPrefs.bionicReading}
                     onOpenGlossary={onOpenGlossary}
+                    highlights={chapterHighlights}
+                    onHighlightClick={handleOpenEditHighlight}
                   />
                 </span>
               </label>
@@ -485,6 +643,8 @@ export const ChapterReader: React.FC<ChapterReaderProps> = ({
                     enabled={readerPrefs.glossaryTooltips}
                     bionicEnabled={readerPrefs.bionicReading}
                     onOpenGlossary={onOpenGlossary}
+                    highlights={chapterHighlights}
+                    onHighlightClick={handleOpenEditHighlight}
                   />
                 </div>
               </div>
@@ -582,6 +742,8 @@ export const ChapterReader: React.FC<ChapterReaderProps> = ({
                     enabled={readerPrefs.glossaryTooltips}
                     bionicEnabled={readerPrefs.bionicReading}
                     onOpenGlossary={onOpenGlossary}
+                    highlights={chapterHighlights}
+                    onHighlightClick={handleOpenEditHighlight}
                   />
                 </p>
               ))}
@@ -599,6 +761,8 @@ export const ChapterReader: React.FC<ChapterReaderProps> = ({
                         enabled={readerPrefs.glossaryTooltips}
                         bionicEnabled={readerPrefs.bionicReading}
                         onOpenGlossary={onOpenGlossary}
+                        highlights={chapterHighlights}
+                        onHighlightClick={handleOpenEditHighlight}
                       />
                     </p>
                   ))}
@@ -662,6 +826,8 @@ export const ChapterReader: React.FC<ChapterReaderProps> = ({
                   enabled={readerPrefs.glossaryTooltips}
                   bionicEnabled={readerPrefs.bionicReading}
                   onOpenGlossary={onOpenGlossary}
+                  highlights={chapterHighlights}
+                  onHighlightClick={handleOpenEditHighlight}
                 />
               </span>
             </li>

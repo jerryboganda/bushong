@@ -162,11 +162,14 @@ export const HighYieldVault: React.FC<HighYieldVaultProps> = ({ onNavigateToChap
 
   // Export handlers
   const exportJSON = () => {
-    const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(points, null, 2));
-    const dlAnchorElem = document.createElement('a');
-    dlAnchorElem.setAttribute("href", dataStr);
-    dlAnchorElem.setAttribute("download", `bushong_high_yield_vault_${new Date().toISOString().slice(0, 10)}.json`);
-    dlAnchorElem.click();
+    const jsonStr = JSON.stringify(points, null, 2);
+    const blob = new Blob([jsonStr], { type: 'application/json;charset=utf-8' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = `bushong_high_yield_vault_${new Date().toISOString().slice(0, 10)}.json`;
+    link.click();
+    URL.revokeObjectURL(url);
   };
 
   const exportCSV = () => {
@@ -181,12 +184,14 @@ export const HighYieldVault: React.FC<HighYieldVaultProps> = ({ onNavigateToChap
       `"${(p.text || '').replace(/"/g, '""')}"`,
       p.createdAt
     ]);
-    const csvContent = "data:text/csv;charset=utf-8," + [headers.join(','), ...rows.map(e => e.join(','))].join('\n');
-    const encodedUri = encodeURI(csvContent);
+    const csvContent = [headers.join(','), ...rows.map(e => e.join(','))].join('\n');
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
     const link = document.createElement("a");
-    link.setAttribute("href", encodedUri);
-    link.setAttribute("download", `bushong_high_yield_vault_${new Date().toISOString().slice(0, 10)}.csv`);
+    link.href = url;
+    link.download = `bushong_high_yield_vault_${new Date().toISOString().slice(0, 10)}.csv`;
     link.click();
+    URL.revokeObjectURL(url);
   };
 
   const exportAnki = () => {
@@ -200,9 +205,11 @@ export const HighYieldVault: React.FC<HighYieldVaultProps> = ({ onNavigateToChap
     const content = "#separator:tab\n#html:true\n#tags column:3\n" + lines.join('\n');
     const blob = new Blob([content], { type: 'text/plain;charset=utf-8' });
     const link = document.createElement("a");
-    link.href = URL.createObjectURL(blob);
+    const url = URL.createObjectURL(blob);
+    link.href = url;
     link.download = `bushong_anki_deck_${new Date().toISOString().slice(0, 10)}.txt`;
     link.click();
+    URL.revokeObjectURL(url);
   };
 
   // Helper for Cloze deletion mode: blanks out key numbers, formulas, terms

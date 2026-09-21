@@ -3,7 +3,9 @@ import { Zap, Activity, Sliders, Info, RotateCcw } from 'lucide-react';
 
 export const SpectrumSimulator: React.FC = () => {
   const [kvp, setKvp] = useState<number>(80);
-  const [mas, setMas] = useState<number>(20);
+  const [ma, setMa] = useState<number>(200);
+  const [exposureTime, setExposureTime] = useState<number>(0.1);
+  const mas = useMemo(() => parseFloat((ma * exposureTime).toFixed(1)), [ma, exposureTime]);
   const [filtration, setFiltration] = useState<number>(2.5); // mm Al equivalent
   const [generator, setGenerator] = useState<'single' | 'three6' | 'three12' | 'hf'>('hf');
   const [target, setTarget] = useState<'tungsten' | 'moly' | 'rhodium'>('tungsten');
@@ -97,14 +99,15 @@ export const SpectrumSimulator: React.FC = () => {
         <button
           onClick={() => {
             setKvp(80);
-            setMas(20);
+            setMa(200);
+            setExposureTime(0.1);
             setFiltration(2.5);
             setGenerator('hf');
             setTarget('tungsten');
           }}
           className="px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-semibold flex items-center gap-1.5 self-start sm:self-auto transition-colors"
         >
-          <RotateCcw className="w-3.5 h-3.5" /> Reset Standard (80 kVp / 20 mAs)
+          <RotateCcw className="w-3.5 h-3.5" /> Reset Standard (80 kVp / 200 mA @ 0.1s)
         </button>
       </div>
 
@@ -291,25 +294,49 @@ export const SpectrumSimulator: React.FC = () => {
             </div>
           </div>
 
-          {/* mAs Slider */}
+          {/* Tube Current (mA) Slider */}
           <div className="space-y-1.5">
             <div className="flex items-center justify-between text-xs font-semibold">
-              <span className="text-slate-200">Current-Time Product (mAs)</span>
-              <span className="text-cyan-400 font-mono font-bold text-sm">{mas} mAs</span>
+              <span className="text-slate-200">Tube Current (mA)</span>
+              <span className="text-cyan-400 font-mono font-bold text-sm">{ma} mA</span>
             </div>
             <input
               type="range"
-              min={1}
-              max={200}
-              step={1}
-              value={mas}
-              onChange={e => setMas(parseInt(e.target.value))}
+              min={50}
+              max={1000}
+              step={25}
+              value={ma}
+              onChange={e => setMa(parseInt(e.target.value))}
               className="w-full h-2 bg-slate-800 rounded-lg appearance-none cursor-pointer accent-cyan-400"
             />
             <div className="flex justify-between text-[10px] text-slate-500 font-mono">
-              <span>1 mAs</span>
-              <span>100 mAs</span>
-              <span>200 mAs</span>
+              <span>50 mA</span>
+              <span>500 mA</span>
+              <span>1000 mA</span>
+            </div>
+          </div>
+
+          {/* Exposure Time & mAs Product Slider */}
+          <div className="space-y-1.5">
+            <div className="flex items-center justify-between text-xs font-semibold">
+              <span className="text-slate-200">Exposure Time & Product (mAs)</span>
+              <span className="text-cyan-400 font-mono font-bold text-sm">
+                {exposureTime.toFixed(2)} s <span className="text-slate-400 font-normal">({mas} mAs)</span>
+              </span>
+            </div>
+            <input
+              type="range"
+              min={0.01}
+              max={1.0}
+              step={0.01}
+              value={exposureTime}
+              onChange={e => setExposureTime(parseFloat(e.target.value))}
+              className="w-full h-2 bg-slate-800 rounded-lg appearance-none cursor-pointer accent-cyan-400"
+            />
+            <div className="flex justify-between text-[10px] text-slate-500 font-mono">
+              <span>0.01 s</span>
+              <span>0.50 s</span>
+              <span>1.00 s</span>
             </div>
           </div>
 
