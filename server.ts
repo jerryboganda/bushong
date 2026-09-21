@@ -95,9 +95,29 @@ export const auth = betterAuth({
 
 const PORT = Number(process.env.PORT) || 3001;
 
+export async function seedDemoUser() {
+  try {
+    const existing = db.query('SELECT id FROM user WHERE email = ?').get('demo@radiology.edu');
+    if (!existing) {
+      await auth.api.signUpEmail({
+        body: {
+          email: 'demo@radiology.edu',
+          password: 'Bushong2026!',
+          name: 'Demo Technologist'
+        }
+      });
+      console.log('[Bushong Server] Seeded default demo user: demo@radiology.edu');
+    }
+  } catch (err) {
+    console.warn('[Bushong Server] Demo seed notice:', err);
+  }
+}
+
 export function startServer(port = PORT) {
   console.log(`[Bushong Server] Starting on port ${port}...`);
   console.log(`[Bushong Server] Better Auth configured with baseURL: ${baseURL}`);
+
+  seedDemoUser();
 
   const server = Bun.serve({
     port,

@@ -15,6 +15,7 @@ import { ExamTrapsCenter } from './components/ExamTrapsCenter';
 import { MasteryDashboard } from './components/MasteryDashboard';
 import { BackupSyncModal } from './components/BackupSyncModal';
 import { AuthModal } from './components/AuthModal';
+import { AuthGate } from './components/AuthGate';
 import { ProtectedGate } from './components/ProtectedGate';
 import { authClient, signOut } from './lib/auth-client';
 import { loadHighlightsFromServer, clearUserHighlights } from './data/highYieldVaultData';
@@ -40,11 +41,12 @@ import {
   HardDrive,
   Lock,
   User as UserIcon,
-  LogOut
+  LogOut,
+  Loader2
 } from 'lucide-react';
 
 export default function App() {
-  const { data: session } = authClient.useSession();
+  const { data: session, isPending, refetch } = authClient.useSession();
   const user = session?.user;
   const isAuthenticated = !!user;
 
@@ -143,6 +145,44 @@ export default function App() {
   };
 
   const currentChapter = ALL_CHAPTERS.find(ch => ch.number === currentChapterNum) || ALL_CHAPTERS[0];
+
+  // Clean initial loading screen while session is being verified
+  if (isPending) {
+    return (
+      <div className="min-h-screen bg-slate-950 flex flex-col items-center justify-center p-6 text-center select-none font-sans relative overflow-hidden">
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(6,182,212,0.08)_0%,transparent_70%)] pointer-events-none" />
+        
+        <div className="relative mb-6">
+          <div className="w-20 h-20 rounded-3xl bg-cyan-500/20 animate-pulse blur-xl absolute inset-0 -m-2" />
+          <div className="relative w-20 h-20 rounded-2xl bg-gradient-to-tr from-cyan-600 via-cyan-500 to-indigo-600 flex items-center justify-center shadow-xl shadow-cyan-500/25 border border-cyan-400/40">
+            <BookOpen className="w-10 h-10 text-white animate-pulse" />
+          </div>
+        </div>
+
+        <div className="space-y-1.5 z-10 max-w-sm">
+          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-cyan-500/10 text-cyan-400 text-xs font-semibold border border-cyan-500/20 mb-1">
+            <Sparkles className="w-3.5 h-3.5" /> 11th Edition Interactive Suite
+          </div>
+          <h1 className="text-2xl font-black text-white tracking-tight">
+            Bushong Radiologic Science
+          </h1>
+          <p className="text-xs text-slate-400 font-medium">
+            Physics, Biology, and Protection
+          </p>
+        </div>
+
+        <div className="flex items-center gap-2.5 text-xs text-slate-300 mt-8 px-4 py-2.5 rounded-xl bg-slate-900/90 border border-slate-800 shadow-lg backdrop-blur-sm z-10">
+          <Loader2 className="w-4 h-4 text-cyan-400 animate-spin" />
+          <span className="font-medium">Verifying credentials & session...</span>
+        </div>
+      </div>
+    );
+  }
+
+  // Strictly enforce full-screen Login / Registration Gate for unauthenticated visitors
+  if (!isAuthenticated) {
+    return <AuthGate onSuccess={() => refetch?.()} />;
+  }
 
   return (
     <div className="min-h-screen bg-slate-950 text-slate-100 flex flex-col font-sans">
@@ -358,6 +398,7 @@ export default function App() {
                         setUserDropdownOpen(false);
                         clearUserHighlights();
                         await signOut();
+                        refetch?.();
                       }}
                       className="w-full text-left px-2 py-1.5 rounded-lg text-rose-400 hover:bg-rose-950/30 hover:text-rose-300 flex items-center gap-2 transition-colors font-semibold"
                     >
