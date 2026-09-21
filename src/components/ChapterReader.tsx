@@ -47,6 +47,8 @@ interface ChapterReaderProps {
   onOpenCalculators: () => void;
   onOpenGlossary?: (term?: string) => void;
   onOpenVault?: () => void;
+  isAuthenticated?: boolean;
+  onRequireAuth?: (featureTitle: string) => void;
 }
 
 export const ChapterReader: React.FC<ChapterReaderProps> = ({
@@ -55,7 +57,9 @@ export const ChapterReader: React.FC<ChapterReaderProps> = ({
   allChaptersCount,
   onOpenCalculators,
   onOpenGlossary,
-  onOpenVault
+  onOpenVault,
+  isAuthenticated = true,
+  onRequireAuth
 }) => {
   // Learning objectives completion state
   const [completedObjectives, setCompletedObjectives] = useState<number[]>(() => {
@@ -117,6 +121,10 @@ export const ChapterReader: React.FC<ChapterReaderProps> = ({
   const [editTag, setEditTag] = useState<HighlightColor>('yellow');
 
   const handleOpenEditHighlight = (hl: HighYieldPoint) => {
+    if (!isAuthenticated && onRequireAuth) {
+      onRequireAuth('Edit High-Yield Note');
+      return;
+    }
     setEditingHighlight(hl);
     setEditPrompt(hl.prompt || '');
     setEditTag(hl.tagColor);
@@ -145,6 +153,10 @@ export const ChapterReader: React.FC<ChapterReaderProps> = ({
 
   useEffect(() => {
     refreshHighlights();
+    const handleUpdate = () => refreshHighlights();
+    window.addEventListener('rad_highlights_updated', handleUpdate);
+    window.addEventListener('storage', handleUpdate);
+
     // Reset revealed questions on chapter change
     setRevealedQuestions({});
     // Load objectives for this chapter
@@ -162,6 +174,11 @@ export const ChapterReader: React.FC<ChapterReaderProps> = ({
     } catch {
       setBookmarked(false);
     }
+
+    return () => {
+      window.removeEventListener('rad_highlights_updated', handleUpdate);
+      window.removeEventListener('storage', handleUpdate);
+    };
   }, [chapter.number]);
 
   const toggleObjective = (idx: number) => {
@@ -252,6 +269,8 @@ export const ChapterReader: React.FC<ChapterReaderProps> = ({
         chapterNumber={chapter.number}
         chapterTitle={chapter.title}
         onHighlightSaved={refreshHighlights}
+        isAuthenticated={isAuthenticated}
+        onRequireAuth={onRequireAuth}
       />
 
       {/* Reader Appearance Settings Modal */}
@@ -684,12 +703,30 @@ export const ChapterReader: React.FC<ChapterReaderProps> = ({
                 <div className="bg-slate-900 px-4 py-2.5 rounded-lg font-mono text-sm sm:text-base text-cyan-300 font-bold border border-slate-800 mb-2">
                   {f.formula}
                 </div>
-                <p className="text-xs text-slate-400 mb-3">{f.description}</p>
+                <div className="text-xs text-slate-400 mb-3">
+                  <TextWithGlossary
+                    text={f.description}
+                    enabled={readerPrefs.glossaryTooltips}
+                    bionicEnabled={readerPrefs.bionicReading}
+                    onOpenGlossary={onOpenGlossary}
+                    highlights={chapterHighlights}
+                    onHighlightClick={handleOpenEditHighlight}
+                  />
+                </div>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-1 text-[11px] text-slate-400 pt-2 border-t border-slate-900">
                   {f.variables.map((v, i) => (
                     <div key={i} className="flex items-center gap-1.5">
                       <span className="font-mono text-amber-300 font-semibold">{v.symbol}:</span>
-                      <span className="text-slate-300">{v.meaning}</span>
+                      <span className="text-slate-300">
+                        <TextWithGlossary
+                          text={v.meaning}
+                          enabled={readerPrefs.glossaryTooltips}
+                          bionicEnabled={readerPrefs.bionicReading}
+                          onOpenGlossary={onOpenGlossary}
+                          highlights={chapterHighlights}
+                          onHighlightClick={handleOpenEditHighlight}
+                        />
+                      </span>
                       {v.unit && <span className="text-slate-500">({v.unit})</span>}
                     </div>
                   ))}
@@ -870,7 +907,16 @@ export const ChapterReader: React.FC<ChapterReaderProps> = ({
                       <span className="text-xs font-bold px-2.5 py-1 rounded bg-slate-800 text-cyan-400 font-mono flex-shrink-0 mt-0.5 border border-slate-700">
                         Q{q.questionNumber}
                       </span>
-                      <p className="text-sm font-medium text-slate-100 leading-snug">{q.question}</p>
+                      <div className="text-sm font-medium text-slate-100 leading-snug">
+                        <TextWithGlossary
+                          text={q.question}
+                          enabled={readerPrefs.glossaryTooltips}
+                          bionicEnabled={readerPrefs.bionicReading}
+                          onOpenGlossary={onOpenGlossary}
+                          highlights={chapterHighlights}
+                          onHighlightClick={handleOpenEditHighlight}
+                        />
+                      </div>
                     </div>
                     <button
                       onClick={() => toggleQuestion(q.id)}
@@ -889,13 +935,31 @@ export const ChapterReader: React.FC<ChapterReaderProps> = ({
                       {q.answer && (
                         <div className="p-3 rounded-lg bg-emerald-950/30 border border-emerald-500/30">
                           <strong className="text-emerald-400 block mb-1 text-[11px] font-bold uppercase tracking-wider">High-Yield Answer:</strong>
-                          <p className="text-emerald-100 font-semibold text-sm leading-relaxed">{q.answer}</p>
+                          <div className="text-emerald-100 font-semibold text-sm leading-relaxed">
+                            <TextWithGlossary
+                              text={q.answer}
+                              enabled={readerPrefs.glossaryTooltips}
+                              bionicEnabled={readerPrefs.bionicReading}
+                              onOpenGlossary={onOpenGlossary}
+                              highlights={chapterHighlights}
+                              onHighlightClick={handleOpenEditHighlight}
+                            />
+                          </div>
                         </div>
                       )}
                       {q.explanation && (
                         <div>
                           <strong className="text-cyan-400 block mb-1.5 text-xs font-bold uppercase tracking-wider">Detailed Explanation & Clinical Rationale:</strong>
-                          <p className="text-slate-200 leading-relaxed">{q.explanation}</p>
+                          <div className="text-slate-200 leading-relaxed">
+                            <TextWithGlossary
+                              text={q.explanation}
+                              enabled={readerPrefs.glossaryTooltips}
+                              bionicEnabled={readerPrefs.bionicReading}
+                              onOpenGlossary={onOpenGlossary}
+                              highlights={chapterHighlights}
+                              onHighlightClick={handleOpenEditHighlight}
+                            />
+                          </div>
                         </div>
                       )}
                     </div>

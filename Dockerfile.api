@@ -1,0 +1,22 @@
+FROM oven/bun:1-alpine
+WORKDIR /app
+
+# Copy dependency files
+COPY package.json bun.lock ./
+
+# Install dependencies (better-auth requires production packages)
+RUN bun install --production
+
+# Copy server implementation
+COPY server.ts ./
+
+# Ensure data directory exists
+RUN mkdir -p /app/data
+
+EXPOSE 3001
+
+ENV NODE_ENV=production
+ENV PORT=3001
+ENV DATABASE_PATH=/app/data/bushong_auth.db
+
+CMD ["bun", "run", "server.ts"]

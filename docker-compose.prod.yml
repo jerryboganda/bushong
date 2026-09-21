@@ -1,0 +1,42 @@
+name: bushong
+
+services:
+  web:
+    image: nginx:alpine
+    container_name: bushong-web
+    restart: unless-stopped
+    cpus: "0.25"
+    mem_limit: 128m
+    volumes:
+      - ./dist:/usr/share/nginx/html:ro
+      - ./nginx.conf:/etc/nginx/conf.d/default.conf:ro
+    depends_on:
+      - api
+    networks:
+      - nginx-proxy-manager_default
+      - bushong-internal
+
+  api:
+    build:
+      context: ./repo
+      dockerfile: Dockerfile.api
+    container_name: bushong-api
+    restart: unless-stopped
+    cpus: "0.25"
+    mem_limit: 192m
+    volumes:
+      - ./data:/app/data
+    environment:
+      - NODE_ENV=production
+      - PORT=3001
+      - BETTER_AUTH_SECRET=bushong_radsci_super_secret_key_2026_xray_vault
+      - BETTER_AUTH_URL=https://bushong.polytronx.com
+      - DATABASE_PATH=/app/data/bushong_auth.db
+    networks:
+      - bushong-internal
+
+networks:
+  nginx-proxy-manager_default:
+    external: true
+  bushong-internal:
+    driver: bridge

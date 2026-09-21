@@ -7,12 +7,16 @@ interface HighlightToolbarProps {
   chapterNumber: number;
   chapterTitle: string;
   onHighlightSaved?: () => void;
+  isAuthenticated?: boolean;
+  onRequireAuth?: (featureTitle: string) => void;
 }
 
 export const HighlightToolbar: React.FC<HighlightToolbarProps> = ({
   chapterNumber,
   chapterTitle,
-  onHighlightSaved
+  onHighlightSaved,
+  isAuthenticated = true,
+  onRequireAuth
 }) => {
   const [position, setPosition] = useState<{ x: number; y: number } | null>(null);
   const [selectedText, setSelectedText] = useState<string>('');
@@ -33,7 +37,7 @@ export const HighlightToolbar: React.FC<HighlightToolbarProps> = ({
       }
 
       const text = selection.toString().trim();
-      if (text.length < 5) {
+      if (text.length < 3) {
         if (!showPromptInput) {
           setPosition(null);
           setSelectedText('');
@@ -41,16 +45,17 @@ export const HighlightToolbar: React.FC<HighlightToolbarProps> = ({
         return;
       }
 
-      // Check if selection is within the reader container
+      // Check if selection has a bounding rect
       const range = selection.getRangeAt(0);
       const rect = range.getBoundingClientRect();
-      if (rect.width === 0 || rect.height === 0) return;
+      if (rect.width === 0 && rect.height === 0) return;
 
       setSelectedText(text);
-      setPosition({
-        x: Math.max(10, Math.min(window.innerWidth - 300, rect.left + rect.width / 2 - 150)),
-        y: Math.max(10, rect.top - 54 + window.scrollY)
-      });
+      const toolbarWidth = 300;
+      const toolbarHeight = 48;
+      const x = Math.max(12, Math.min(window.innerWidth - toolbarWidth - 12, rect.left + rect.width / 2 - toolbarWidth / 2));
+      const y = rect.top >= toolbarHeight + 16 ? rect.top - toolbarHeight - 10 : rect.bottom + 10;
+      setPosition({ x, y });
     };
 
     document.addEventListener('mouseup', handleSelection);
@@ -64,6 +69,11 @@ export const HighlightToolbar: React.FC<HighlightToolbarProps> = ({
   const handleSave = (color: HighlightColor) => {
     if (!selectedText) return;
 
+    if (!isAuthenticated && onRequireAuth) {
+      onRequireAuth('Personal High-Yield Highlights');
+      return;
+    }
+
     addHighlight({
       chapterNumber,
       chapterTitle,
@@ -74,6 +84,9 @@ export const HighlightToolbar: React.FC<HighlightToolbarProps> = ({
       starred: color === 'red' // auto-star high-yield exam traps
     });
 
+    // Notify listeners immediately so highlight appears in-text without delay!
+    onHighlightSaved?.();
+
     setSuccessNotice(true);
     setTimeout(() => {
       setSuccessNotice(false);
@@ -82,15 +95,14 @@ export const HighlightToolbar: React.FC<HighlightToolbarProps> = ({
       setSelectedText('');
       setPrompt('');
       window.getSelection()?.removeAllRanges();
-      onHighlightSaved?.();
-    }, 900);
+    }, 750);
   };
 
   if (!position || !selectedText) return null;
 
   return (
     <div
-      className="absolute z-50 transition-all duration-150 animate-fadeIn"
+      className="fixed z-50 transition-all duration-150 animate-fadeIn"
       style={{ top: `${position.y}px`, left: `${position.x}px` }}
     >
       <div className="bg-slate-900 text-slate-100 border border-slate-700/80 rounded-xl shadow-2xl p-2 flex flex-col gap-2 backdrop-blur-md min-w-[280px]">
@@ -124,7 +136,13 @@ export const HighlightToolbar: React.FC<HighlightToolbarProps> = ({
             <div className="h-4 w-px bg-slate-700 mx-1" />
 
             <button
-              onClick={() => setShowPromptInput(true)}
+              onClick={() => {
+                if (!isAuthenticated && onRequireAuth) {
+                  onRequireAuth('Personal High-Yield Highlights');
+                  return;
+                }
+                setShowPromptInput(true);
+              }}
               className="text-[11px] font-semibold text-cyan-300 hover:text-white px-2 py-1 rounded bg-slate-800 hover:bg-slate-700 flex items-center gap-1 transition-colors"
               title="Add a question prompt or note"
             >

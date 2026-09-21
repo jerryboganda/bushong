@@ -14,6 +14,9 @@ import { MockExamSimulator } from './components/MockExamSimulator';
 import { ExamTrapsCenter } from './components/ExamTrapsCenter';
 import { MasteryDashboard } from './components/MasteryDashboard';
 import { BackupSyncModal } from './components/BackupSyncModal';
+import { AuthModal } from './components/AuthModal';
+import { ProtectedGate } from './components/ProtectedGate';
+import { authClient, signOut } from './lib/auth-client';
 import { 
   BookOpen, 
   Search, 
@@ -33,10 +36,26 @@ import {
   Highlighter,
   AlertTriangle,
   TrendingUp,
-  HardDrive
+  HardDrive,
+  Lock,
+  User as UserIcon,
+  LogOut
 } from 'lucide-react';
 
 export default function App() {
+  const { data: session } = authClient.useSession();
+  const user = session?.user;
+  const isAuthenticated = !!user;
+
+  const [showAuthModal, setShowAuthModal] = useState<boolean>(false);
+  const [authFeatureTitle, setAuthFeatureTitle] = useState<string | undefined>(undefined);
+  const [userDropdownOpen, setUserDropdownOpen] = useState<boolean>(false);
+
+  const openAuth = (featureTitle?: string) => {
+    setAuthFeatureTitle(featureTitle);
+    setShowAuthModal(true);
+  };
+
   const [activeView, setActiveView] = useState<
     'overview' | 'reader' | 'search' | 'study' | 'calculators' | 'glossary' | 'reference' | 'vault' | 'mock-exam' | 'traps' | 'mastery'
   >('overview');
@@ -123,6 +142,13 @@ export default function App() {
       {showBackupModal && (
         <BackupSyncModal onClose={() => setShowBackupModal(false)} />
       )}
+
+      {/* Better Auth Modal */}
+      <AuthModal
+        isOpen={showAuthModal}
+        onClose={() => setShowAuthModal(false)}
+        featureTitle={authFeatureTitle}
+      />
 
       {/* Top Header Bar */}
       <header className="sticky top-0 z-40 bg-slate-900/90 backdrop-blur-md border-b border-slate-800">
@@ -295,6 +321,51 @@ export default function App() {
             >
               <HardDrive className="w-4 h-4" />
             </button>
+
+            {/* Better Auth Account Button */}
+            {isAuthenticated ? (
+              <div className="relative">
+                <button
+                  onClick={() => setUserDropdownOpen(p => !p)}
+                  className="flex items-center gap-1.5 px-2 py-1 rounded-lg bg-slate-950 hover:bg-slate-800 border border-slate-800 text-xs font-semibold text-slate-200 transition-colors"
+                  title="Account Profile"
+                >
+                  <div className="w-5 h-5 rounded-full bg-cyan-500/20 text-cyan-400 border border-cyan-500/30 flex items-center justify-center text-[10px] font-bold">
+                    {user?.name ? user.name.charAt(0).toUpperCase() : 'U'}
+                  </div>
+                  <span className="max-w-[75px] truncate hidden sm:inline text-[11px] font-medium text-slate-300">
+                    {user?.name?.split(' ')[0] || 'User'}
+                  </span>
+                  <ChevronDown className="w-3 h-3 text-slate-400" />
+                </button>
+
+                {userDropdownOpen && (
+                  <div className="absolute right-0 mt-1.5 w-48 bg-slate-900 border border-slate-800 rounded-xl shadow-2xl p-2 text-xs z-50 space-y-1 animate-fadeIn">
+                    <div className="px-2 py-1.5 border-b border-slate-800">
+                      <p className="font-bold text-white truncate">{user?.name}</p>
+                      <p className="text-[10px] text-slate-400 truncate">{user?.email}</p>
+                    </div>
+                    <button
+                      onClick={async () => {
+                        setUserDropdownOpen(false);
+                        await signOut();
+                      }}
+                      className="w-full text-left px-2 py-1.5 rounded-lg text-rose-400 hover:bg-rose-950/30 hover:text-rose-300 flex items-center gap-2 transition-colors font-semibold"
+                    >
+                      <LogOut className="w-3.5 h-3.5" /> Sign Out
+                    </button>
+                  </div>
+                )}
+              </div>
+            ) : (
+              <button
+                onClick={() => openAuth()}
+                className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-cyan-500 hover:bg-cyan-400 text-slate-950 font-bold text-xs shadow transition-all"
+              >
+                <Lock className="w-3.5 h-3.5" />
+                <span>Sign In</span>
+              </button>
+            )}
 
             {/* Install PWA Button */}
             {installPrompt && !installed && (
@@ -499,28 +570,82 @@ export default function App() {
                 setActiveView('glossary');
               }}
               onOpenVault={() => setActiveView('vault')}
+              isAuthenticated={isAuthenticated}
+              onRequireAuth={openAuth}
             />
           )}
 
           {activeView === 'vault' && (
-            <HighYieldVault onNavigateToChapter={handleSelectChapter} />
+            <ProtectedGate
+              isAuthenticated={isAuthenticated}
+              onOpenAuth={openAuth}
+              featureTitle="High-Yield MCQ Revision Vault & One-Liners"
+              featureDescription="Access all 40 chapters of curated high-yield clinical points, one-liner flashcards, cloze recall testing, and your personal highlighted study vault."
+              benefits={[
+                'Save and synchronize custom highlights and high-yield notes across devices',
+                'One-click revision vault and exam traps matrices',
+                'Cloze recall mode for rapid active-recall studying',
+                'Cram mode with keyboard shortcuts (Space/J/K)'
+              ]}
+            >
+              <HighYieldVault onNavigateToChapter={handleSelectChapter} />
+            </ProtectedGate>
           )}
 
           {activeView === 'mock-exam' && (
-            <MockExamSimulator onNavigateToChapter={handleSelectChapter} />
+            <ProtectedGate
+              isAuthenticated={isAuthenticated}
+              onOpenAuth={openAuth}
+              featureTitle="Timed ARRT Board Mock Exam Simulator"
+              featureDescription="Test yourself with timed ARRT registry-standard multiple-choice questions, detailed explanations, and performance tracking across physics domains."
+              benefits={[
+                'Full ARRT registry-standard timed testing with instant grading',
+                'Category breakdown across Radiation Protection, Equipment, Image Production, and Physics',
+                'Detailed clinical rationales and equation breakdowns for every question',
+                'Personalized exam history and score tracking'
+              ]}
+            >
+              <MockExamSimulator onNavigateToChapter={handleSelectChapter} />
+            </ProtectedGate>
           )}
 
           {activeView === 'traps' && (
-            <ExamTrapsCenter />
+            <ProtectedGate
+              isAuthenticated={isAuthenticated}
+              onOpenAuth={openAuth}
+              featureTitle="Exam Traps & Clinical Pitfalls Center"
+              featureDescription="Review high-frequency board traps, confusing terminology pairs, and comparative matrices to avoid common test traps."
+              benefits={[
+                'Detailed comparative tables (e.g. Photoelectric vs Compton, Grid Cutoff vs Anode Heel)',
+                'Board pitfall alerts highlighting what examiners frequently test',
+                'Clinical scenarios and physics trap explanations',
+                'Synced with your personal exam study checklist'
+              ]}
+            >
+              <ExamTrapsCenter />
+            </ProtectedGate>
           )}
 
           {activeView === 'mastery' && (
-            <MasteryDashboard
-              onNavigateToChapter={handleSelectChapter}
-              onOpenMockExam={() => setActiveView('mock-exam')}
-              onOpenStudyDeck={() => setActiveView('study')}
-              onOpenVault={() => setActiveView('vault')}
-            />
+            <ProtectedGate
+              isAuthenticated={isAuthenticated}
+              onOpenAuth={openAuth}
+              featureTitle="Mastery & Progress Dashboard"
+              featureDescription="Track your syllabus completion percentage, mock exam averages, learning objectives mastered, and review velocity."
+              benefits={[
+                'Holistic readiness gauge across all 8 textbook parts',
+                'Visual progress tracking for learning objectives and challenge questions',
+                'Weak-spot radar to direct study time where it matters most',
+                'Exportable study audit and device synchronization'
+              ]}
+            >
+              <MasteryDashboard
+                onNavigateToChapter={handleSelectChapter}
+                onOpenMockExam={() => setActiveView('mock-exam')}
+                onOpenStudyDeck={() => setActiveView('study')}
+                onOpenVault={() => setActiveView('vault')}
+              />
+            </ProtectedGate>
           )}
 
           {activeView === 'search' && (
@@ -534,7 +659,20 @@ export default function App() {
           )}
 
           {activeView === 'study' && (
-            <StudyDeck onNavigateToChapter={handleSelectChapter} />
+            <ProtectedGate
+              isAuthenticated={isAuthenticated}
+              onOpenAuth={openAuth}
+              featureTitle="Spaced Repetition SRS Study Deck"
+              featureDescription="Retain physics formulas, penguins, and questions using the SM-2 spaced repetition memory algorithm."
+              benefits={[
+                'SuperMemo SM-2 spaced repetition memory scheduling',
+                'Over 900+ flashcards covering every chapter concept, penguin, and formula',
+                'Tracks interval (days), ease factor, and due dates across study sessions',
+                'Daily streak tracking and retention velocity'
+              ]}
+            >
+              <StudyDeck onNavigateToChapter={handleSelectChapter} />
+            </ProtectedGate>
           )}
 
           {activeView === 'glossary' && (

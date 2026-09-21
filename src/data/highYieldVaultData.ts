@@ -413,6 +413,7 @@ export function saveStoredHighlights(points: HighYieldPoint[]): void {
   if (typeof window === 'undefined') return;
   try {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(points));
+    window.dispatchEvent(new CustomEvent('rad_highlights_updated', { detail: points }));
   } catch (err) {
     console.error('Failed to save highlights to localStorage', err);
   }

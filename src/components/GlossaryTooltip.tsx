@@ -20,6 +20,7 @@ const glossaryRegex = new RegExp(`\\b(${escapedKeys.join('|')})\\b`, 'gi');
 
 import { HighYieldPoint } from '../types/features';
 import { HIGHLIGHT_TAG_CONFIG } from '../data/highYieldVaultData';
+import { findHighlightMatches } from '../utils/textHighlighting';
 
 interface TextWithGlossaryProps {
   text: string;
@@ -142,39 +143,10 @@ export const TextWithGlossary: React.FC<TextWithGlossaryProps> = ({
       return parseGlossaryAndBionic(text, 'root');
     }
 
-    // Find all matching highlights in this text
-    interface MatchRange {
-      start: number;
-      end: number;
-      highlight: HighYieldPoint;
-    }
+    const nonOverlapping = findHighlightMatches(text, highlights);
 
-    const matches: MatchRange[] = [];
-    highlights.forEach(hl => {
-      if (!hl.text || hl.text.length < 3) return;
-      const idx = text.indexOf(hl.text);
-      if (idx !== -1) {
-        matches.push({
-          start: idx,
-          end: idx + hl.text.length,
-          highlight: hl
-        });
-      }
-    });
-
-    if (matches.length === 0) {
+    if (nonOverlapping.length === 0) {
       return parseGlossaryAndBionic(text, 'root');
-    }
-
-    // Sort by start index and eliminate overlaps
-    matches.sort((a, b) => a.start - b.start || (b.end - b.start) - (a.end - a.start));
-    const nonOverlapping: MatchRange[] = [];
-    let lastEnd = 0;
-    for (const m of matches) {
-      if (m.start >= lastEnd) {
-        nonOverlapping.push(m);
-        lastEnd = m.end;
-      }
     }
 
     // Assemble interleaved nodes
@@ -192,7 +164,7 @@ export const TextWithGlossary: React.FC<TextWithGlossaryProps> = ({
 
       nodes.push(
         <span
-          key={`hl-${range.start}-${range.highlight.id}`}
+          key={`hl-${range.start}-${range.highlight.id}-${i}`}
           onClick={(e) => {
             e.stopPropagation();
             onHighlightClick?.(range.highlight);

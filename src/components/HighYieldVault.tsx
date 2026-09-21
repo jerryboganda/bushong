@@ -68,6 +68,17 @@ export const HighYieldVault: React.FC<HighYieldVaultProps> = ({ onNavigateToChap
     setPoints(getStoredHighlights());
   };
 
+  useEffect(() => {
+    refresh();
+    const handleUpdate = () => refresh();
+    window.addEventListener('rad_highlights_updated', handleUpdate);
+    window.addEventListener('storage', handleUpdate);
+    return () => {
+      window.removeEventListener('rad_highlights_updated', handleUpdate);
+      window.removeEventListener('storage', handleUpdate);
+    };
+  }, []);
+
   const filteredPoints = useMemo(() => {
     return points.filter(p => {
       if (onlyStarred && !p.starred) return false;
