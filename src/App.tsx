@@ -45,10 +45,43 @@ import {
   Loader2
 } from 'lucide-react';
 
+type AppView = 'overview' | 'reader' | 'search' | 'study' | 'calculators' | 'glossary' | 'reference' | 'vault' | 'mock-exam' | 'traps' | 'mastery';
+
+const VALID_VIEWS: AppView[] = [
+  'overview', 'reader', 'search', 'study', 'calculators', 'glossary', 'reference', 'vault', 'mock-exam', 'traps', 'mastery'
+];
+
+function getViewFromLocation(): { view: AppView; authMode?: 'signin' | 'signup'; chapter?: number } {
+  if (typeof window === 'undefined') return { view: 'overview' };
+  const pathname = window.location.pathname.toLowerCase().replace(/^\/+/, '').replace(/\/+$/, '');
+  const hash = window.location.hash.toLowerCase().replace(/^#\/?/, '');
+  const target = pathname || hash;
+
+  if (target === 'register' || target === 'signup') {
+    return { view: 'overview', authMode: 'signup' };
+  }
+  if (target === 'login' || target === 'signin') {
+    return { view: 'overview', authMode: 'signin' };
+  }
+
+  const chMatch = target.match(/(?:chapter|ch)[/-]?(\d+)/);
+  const chapter = chMatch ? parseInt(chMatch[1], 10) : undefined;
+
+  if (VALID_VIEWS.includes(target as AppView)) {
+    return { view: target as AppView, chapter };
+  }
+  return { view: chapter ? 'reader' : 'overview', chapter };
+}
+
 export default function App() {
   const { data: session, isPending, refetch } = authClient.useSession();
   const user = session?.user;
   const isAuthenticated = !!user;
+
+  const initialNav = getViewFromLocation();
+  const [activeView, setActiveView] = useState<AppView>(initialNav.view);
+  const [currentChapterNum, setCurrentChapterNum] = useState<number>(initialNav.chapter || 1);
+  const [authMode, setAuthMode] = useState<'signin' | 'signup'>(initialNav.authMode || 'signin');
 
   const [showAuthModal, setShowAuthModal] = useState<boolean>(false);
   const [authFeatureTitle, setAuthFeatureTitle] = useState<string | undefined>(undefined);
@@ -66,10 +99,64 @@ export default function App() {
     }
   }, [isAuthenticated, user?.id]);
 
-  const [activeView, setActiveView] = useState<
-    'overview' | 'reader' | 'search' | 'study' | 'calculators' | 'glossary' | 'reference' | 'vault' | 'mock-exam' | 'traps' | 'mastery'
-  >('overview');
-  const [currentChapterNum, setCurrentChapterNum] = useState<number>(1);
+  // Sync URL history state when authenticated view changes
+  useEffect(() => {
+    if (!isPending && isAuthenticated && typeof window !== 'undefined') {
+      const target = activeView === 'overview' ? '/' : `/${activeView}`;
+      if (window.location.pathname !== target && window.location.pathname !== '/login' && window.location.pathname !== '/register') {
+        window.history.pushState(null, '', target);
+      }
+    }
+  }, [activeView, isPending, isAuthenticated]);
+
+  // Handle browser popstate navigation (Back / Forward)
+  useEffect(() => {
+    const handlePopState = () => {
+      const nav = getViewFromLocation();
+      if (nav.authMode) setAuthMode(nav.authMode);
+      setActiveView(nav.view);
+      if (nav.chapter) setCurrentChapterNum(nav.chapter);
+    };
+    window.addEventListener('popstate', handlePopState);
+    return () => window.removeEventListener('popstate', handlePopState);
+  }, []);
+
+  // Enforce redirection to /login or /register when unauthenticated
+  useEffect(() => {
+    if (!isPending && !isAuthenticated && typeof window !== 'undefined') {
+      const pathname = window.location.pathname.toLowerCase();
+      if (pathname.includes('register') || pathname.includes('signup')) {
+        setAuthMode('signup');
+        if (pathname !== '/register') {
+          window.history.replaceState(null, '', '/register');
+        }
+      } else {
+        if (pathname !== '/login') {
+          const search = pathname !== '/' && pathname !== '' ? `?redirect=${encodeURIComponent(pathname)}` : '';
+          window.history.replaceState(null, '', `/login${search}`);
+        }
+      }
+    }
+  }, [isPending, isAuthenticated]);
+
+  // Clean redirection from /login or /register to destination when authenticated
+  useEffect(() => {
+    if (!isPending && isAuthenticated && typeof window !== 'undefined') {
+      const pathname = window.location.pathname.toLowerCase();
+      if (pathname === '/login' || pathname === '/register' || pathname === '/signin' || pathname === '/signup') {
+        const urlParams = new URLSearchParams(window.location.search);
+        const redirect = urlParams.get('redirect');
+        if (redirect && VALID_VIEWS.includes(redirect.replace(/^\/+/, '') as AppView)) {
+          const targetView = redirect.replace(/^\/+/, '') as AppView;
+          setActiveView(targetView);
+          window.history.replaceState(null, '', `/${targetView}`);
+        } else {
+          window.history.replaceState(null, '', '/');
+        }
+      }
+    }
+  }, [isPending, isAuthenticated]);
+
   const [sidebarOpen, setSidebarOpen] = useState<boolean>(() => {
     if (typeof window !== 'undefined') {
       return window.innerWidth >= 1024;
@@ -144,6 +231,20 @@ export default function App() {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
+  const handleSignOut = async () => {
+    setUserDropdownOpen(false);
+    clearUserHighlights();
+    try {
+      await signOut();
+    } catch (err) {
+      console.warn('Sign out error:', err);
+    }
+    await refetch?.();
+    if (typeof window !== 'undefined') {
+      window.history.replaceState(null, '', '/login');
+    }
+  };
+
   const currentChapter = ALL_CHAPTERS.find(ch => ch.number === currentChapterNum) || ALL_CHAPTERS[0];
 
   // Clean initial loading screen while session is being verified
@@ -181,7 +282,25 @@ export default function App() {
 
   // Strictly enforce full-screen Login / Registration Gate for unauthenticated visitors
   if (!isAuthenticated) {
-    return <AuthGate onSuccess={() => refetch?.()} />;
+    return (
+      <AuthGate
+        initialMode={authMode}
+        onSuccess={async () => {
+          await refetch?.();
+          if (typeof window !== 'undefined') {
+            const urlParams = new URLSearchParams(window.location.search);
+            const redirect = urlParams.get('redirect');
+            if (redirect && VALID_VIEWS.includes(redirect.replace(/^\/+/, '') as AppView)) {
+              const target = redirect.replace(/^\/+/, '') as AppView;
+              setActiveView(target);
+              window.history.replaceState(null, '', `/${target}`);
+            } else {
+              window.history.replaceState(null, '', '/');
+            }
+          }
+        }}
+      />
+    );
   }
 
   return (
@@ -394,12 +513,7 @@ export default function App() {
                       <p className="text-[10px] text-slate-400 truncate">{user?.email}</p>
                     </div>
                     <button
-                      onClick={async () => {
-                        setUserDropdownOpen(false);
-                        clearUserHighlights();
-                        await signOut();
-                        refetch?.();
-                      }}
+                      onClick={handleSignOut}
                       className="w-full text-left px-2 py-1.5 rounded-lg text-rose-400 hover:bg-rose-950/30 hover:text-rose-300 flex items-center gap-2 transition-colors font-semibold"
                     >
                       <LogOut className="w-3.5 h-3.5" /> Sign Out
@@ -579,6 +693,27 @@ export default function App() {
               );
             })}
           </div>
+
+          {/* User Account & Sign Out in Drawer */}
+          {isAuthenticated && (
+            <div className="pt-4 mt-4 border-t border-slate-800 space-y-2">
+              <div className="flex items-center gap-2.5 px-3 py-2 rounded-xl bg-slate-950/80 border border-slate-800">
+                <div className="w-7 h-7 rounded-full bg-cyan-500/20 text-cyan-400 border border-cyan-500/30 flex items-center justify-center text-xs font-bold flex-shrink-0">
+                  {user?.name ? user.name.charAt(0).toUpperCase() : 'U'}
+                </div>
+                <div className="min-w-0 flex-1">
+                  <p className="text-xs font-bold text-white truncate">{user?.name || 'Technologist'}</p>
+                  <p className="text-[10px] text-slate-400 truncate">{user?.email}</p>
+                </div>
+              </div>
+              <button
+                onClick={handleSignOut}
+                className="w-full text-left px-3 py-2 rounded-xl text-xs font-bold text-rose-400 hover:bg-rose-950/30 hover:text-rose-300 flex items-center gap-2 transition-colors border border-rose-900/40 bg-rose-950/10"
+              >
+                <LogOut className="w-3.5 h-3.5" /> Sign Out
+              </button>
+            </div>
+          )}
         </aside>
 
         {/* Backdrop for mobile drawer */}

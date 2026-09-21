@@ -24,14 +24,15 @@ import {
 
 interface AuthGateProps {
   onSuccess?: () => void;
+  initialMode?: 'signin' | 'signup';
 }
 
 const DEMO_EMAIL = 'demo@radiology.edu';
 const DEMO_PASSWORD = 'Bushong2026!';
 const DEMO_NAME = 'Demo Technologist';
 
-export const AuthGate: React.FC<AuthGateProps> = ({ onSuccess }) => {
-  const [mode, setMode] = useState<'signin' | 'signup'>('signin');
+export const AuthGate: React.FC<AuthGateProps> = ({ onSuccess, initialMode = 'signin' }) => {
+  const [mode, setMode] = useState<'signin' | 'signup'>(initialMode);
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -41,9 +42,22 @@ export const AuthGate: React.FC<AuthGateProps> = ({ onSuccess }) => {
   const [error, setError] = useState<string | null>(null);
   const [successMsg, setSuccessMsg] = useState<string | null>(null);
 
+  const switchMode = (newMode: 'signin' | 'signup') => {
+    setMode(newMode);
+    setError(null);
+    if (typeof window !== 'undefined') {
+      const target = newMode === 'signup' ? '/register' : '/login';
+      if (window.location.pathname !== target) {
+        window.history.replaceState(null, '', target);
+      }
+    }
+  };
+
   const fillDemoCredentials = () => {
     setEmail(DEMO_EMAIL);
     setPassword(DEMO_PASSWORD);
+    setName(DEMO_NAME);
+    switchMode('signin');
     setError(null);
   };
 
@@ -262,7 +276,7 @@ export const AuthGate: React.FC<AuthGateProps> = ({ onSuccess }) => {
             <div className="grid grid-cols-2 p-1 bg-slate-950 rounded-xl border border-slate-800 text-xs font-semibold">
               <button
                 type="button"
-                onClick={() => { setMode('signin'); setError(null); }}
+                onClick={() => switchMode('signin')}
                 className={`py-2 rounded-lg transition-all ${
                   mode === 'signin'
                     ? 'bg-slate-800 text-cyan-300 shadow-sm'
@@ -273,7 +287,7 @@ export const AuthGate: React.FC<AuthGateProps> = ({ onSuccess }) => {
               </button>
               <button
                 type="button"
-                onClick={() => { setMode('signup'); setError(null); }}
+                onClick={() => switchMode('signup')}
                 className={`py-2 rounded-lg transition-all ${
                   mode === 'signup'
                     ? 'bg-slate-800 text-cyan-300 shadow-sm'
@@ -352,6 +366,7 @@ export const AuthGate: React.FC<AuthGateProps> = ({ onSuccess }) => {
                   <input
                     type="text"
                     required
+                    autoComplete="name"
                     value={name}
                     onChange={e => setName(e.target.value)}
                     placeholder="e.g. Dr. Stewart Bushong"
@@ -367,6 +382,7 @@ export const AuthGate: React.FC<AuthGateProps> = ({ onSuccess }) => {
                 <input
                   type="email"
                   required
+                  autoComplete="email"
                   value={email}
                   onChange={e => setEmail(e.target.value)}
                   placeholder="technologist@hospital.edu"
@@ -386,6 +402,7 @@ export const AuthGate: React.FC<AuthGateProps> = ({ onSuccess }) => {
                     type={showPassword ? 'text' : 'password'}
                     required
                     minLength={8}
+                    autoComplete={mode === 'signup' ? 'new-password' : 'current-password'}
                     value={password}
                     onChange={e => setPassword(e.target.value)}
                     placeholder="At least 8 characters..."

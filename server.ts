@@ -125,9 +125,9 @@ export function startServer(port = PORT) {
       const url = new URL(req.url);
 
       // Set CORS headers
-      const origin = req.headers.get('origin');
+      const origin = req.headers.get('origin') || 'https://bushong.polytronx.com';
       const corsHeaders: Record<string, string> = {
-        'Access-Control-Allow-Origin': origin || '*',
+        'Access-Control-Allow-Origin': origin,
         'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
         'Access-Control-Allow-Headers': 'Content-Type, Authorization, Cookie',
         'Access-Control-Allow-Credentials': 'true',
