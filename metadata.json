@@ -1,0 +1,6 @@
+{
+  "name": "Radiologic Science Reference & PWA Reader",
+  "description": "Offline-ready PWA for Radiologic Science for Technologists (11th Ed.) with full-text search, formulas, glossary, and ARRT study tools.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

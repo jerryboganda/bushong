@@ -1,0 +1,422 @@
+import React, { useState } from 'react';
+import { Chapter } from '../types/book';
+import { 
+  BookOpen, 
+  CheckCircle, 
+  Lightbulb, 
+  HelpCircle, 
+  ChevronRight, 
+  ChevronLeft, 
+  Bookmark, 
+  BookmarkCheck,
+  Calculator,
+  Layers,
+  Sparkles,
+  Info
+} from 'lucide-react';
+
+interface ChapterReaderProps {
+  chapter: Chapter;
+  onSelectChapter: (num: number) => void;
+  allChaptersCount: number;
+  onOpenCalculators: () => void;
+}
+
+export const ChapterReader: React.FC<ChapterReaderProps> = ({
+  chapter,
+  onSelectChapter,
+  allChaptersCount,
+  onOpenCalculators
+}) => {
+  const [completedObjectives, setCompletedObjectives] = useState<number[]>(() => {
+    try {
+      const saved = localStorage.getItem(`rad_obj_${chapter.number}`);
+      return saved ? JSON.parse(saved) : [];
+    } catch {
+      return [];
+    }
+  });
+
+  const [bookmarked, setBookmarked] = useState<boolean>(() => {
+    try {
+      const saved = localStorage.getItem('rad_bookmarked_chapters');
+      const list = saved ? JSON.parse(saved) : [];
+      return list.includes(chapter.number);
+    } catch {
+      return false;
+    }
+  });
+
+  const [revealedQuestions, setRevealedQuestions] = useState<Record<string, boolean>>({});
+
+  const toggleObjective = (idx: number) => {
+    const next = completedObjectives.includes(idx)
+      ? completedObjectives.filter(i => i !== idx)
+      : [...completedObjectives, idx];
+    setCompletedObjectives(next);
+    try {
+      localStorage.setItem(`rad_obj_${chapter.number}`, JSON.stringify(next));
+    } catch {}
+  };
+
+  const toggleBookmark = () => {
+    try {
+      const saved = localStorage.getItem('rad_bookmarked_chapters');
+      const list: number[] = saved ? JSON.parse(saved) : [];
+      const updated = list.includes(chapter.number)
+        ? list.filter(n => n !== chapter.number)
+        : [...list, chapter.number];
+      localStorage.setItem('rad_bookmarked_chapters', JSON.stringify(updated));
+      setBookmarked(!bookmarked);
+    } catch {}
+  };
+
+  const toggleQuestion = (id: string) => {
+    setRevealedQuestions(prev => ({ ...prev, [id]: !prev[id] }));
+  };
+
+  const allQuestionsRevealed = chapter.challengeQuestions.length > 0 && chapter.challengeQuestions.every(q => revealedQuestions[q.id]);
+  const toggleAllQuestions = () => {
+    if (allQuestionsRevealed) {
+      setRevealedQuestions({});
+    } else {
+      const updated: Record<string, boolean> = {};
+      chapter.challengeQuestions.forEach(q => { updated[q.id] = true; });
+      setRevealedQuestions(updated);
+    }
+  };
+
+  return (
+    <article className="space-y-8 max-w-4xl mx-auto pb-16">
+      {/* Chapter Header Banner */}
+      <div className="bg-slate-900/90 border border-slate-800 rounded-2xl p-6 sm:p-8 shadow-xl relative overflow-hidden backdrop-blur-sm">
+        <div className="absolute -top-12 -right-12 w-48 h-48 bg-cyan-500/10 rounded-full blur-3xl pointer-events-none" />
+
+        <div className="flex flex-wrap items-center justify-between gap-3 mb-3 text-xs">
+          <div className="flex items-center gap-2">
+            <span className="px-2.5 py-1 rounded-md bg-cyan-500/10 text-cyan-400 font-semibold border border-cyan-500/20">
+              {chapter.partTitle}
+            </span>
+            <span className="text-slate-500 font-mono">{chapter.pages}</span>
+          </div>
+
+          <button
+            onClick={toggleBookmark}
+            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg border text-xs font-medium transition-all ${
+              bookmarked
+                ? 'bg-amber-500/20 text-amber-300 border-amber-500/40'
+                : 'bg-slate-800 text-slate-400 border-slate-700 hover:text-white'
+            }`}
+          >
+            {bookmarked ? (
+              <>
+                <BookmarkCheck className="w-3.5 h-3.5 text-amber-400" /> Bookmarked
+              </>
+            ) : (
+              <>
+                <Bookmark className="w-3.5 h-3.5" /> Bookmark Chapter
+              </>
+            )}
+          </button>
+        </div>
+
+        <h1 className="text-2xl sm:text-3xl font-extrabold text-white tracking-tight leading-tight">
+          Chapter {chapter.number}: {chapter.title}
+        </h1>
+
+        {/* Outline chips */}
+        <div className="mt-4 pt-4 border-t border-slate-800/80 flex flex-wrap gap-1.5">
+          {chapter.outline.map((topic, i) => (
+            <span
+              key={i}
+              className="text-[11px] px-2.5 py-1 rounded bg-slate-950 text-slate-300 border border-slate-800"
+            >
+              {topic}
+            </span>
+          ))}
+        </div>
+      </div>
+
+      {/* Learning Objectives */}
+      <section className="bg-slate-900/60 border border-slate-800/80 rounded-xl p-6 shadow-md">
+        <div className="flex items-center justify-between mb-4">
+          <h2 className="text-base font-bold text-white flex items-center gap-2">
+            <CheckCircle className="w-4 h-4 text-cyan-400" />
+            Learning Objectives & Clinical Competencies
+          </h2>
+          <span className="text-xs text-slate-400 font-mono">
+            {completedObjectives.length} / {chapter.objectives.length} Mastered
+          </span>
+        </div>
+
+        <div className="space-y-2.5">
+          {chapter.objectives.map((obj, idx) => {
+            const isDone = completedObjectives.includes(idx);
+            return (
+              <label
+                key={idx}
+                onClick={() => toggleObjective(idx)}
+                className={`flex items-start gap-3 p-3 rounded-lg border text-xs sm:text-sm cursor-pointer transition-all ${
+                  isDone
+                    ? 'bg-emerald-950/20 border-emerald-500/30 text-emerald-200'
+                    : 'bg-slate-950/60 border-slate-800/60 text-slate-300 hover:border-slate-700'
+                }`}
+              >
+                <input
+                  type="checkbox"
+                  checked={isDone}
+                  onChange={() => {}}
+                  className="mt-0.5 rounded border-slate-700 text-cyan-500 focus:ring-0 focus:ring-offset-0 bg-slate-800 cursor-pointer"
+                />
+                <span className={`leading-relaxed ${isDone ? 'line-through opacity-80' : ''}`}>{obj}</span>
+              </label>
+            );
+          })}
+        </div>
+      </section>
+
+      {/* Penguins / Golden Key Concepts */}
+      {chapter.penguins.length > 0 && (
+        <section className="space-y-3">
+          <div className="flex items-center justify-between">
+            <h2 className="text-sm font-bold uppercase tracking-wider text-amber-400 flex items-center gap-2">
+              <Sparkles className="w-4 h-4" />
+              Bushong "Penguin" Key Points ({chapter.penguins.length})
+            </h2>
+            <span className="text-[11px] text-slate-400">High-Yield Board Concepts</span>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+            {chapter.penguins.map(p => (
+              <div
+                key={p.id}
+                className="bg-gradient-to-br from-amber-950/30 to-slate-900 border border-amber-500/30 rounded-xl p-4 shadow-sm relative overflow-hidden"
+              >
+                <div className="flex items-start gap-2 mb-1.5">
+                  <Lightbulb className="w-4 h-4 text-amber-400 flex-shrink-0 mt-0.5" />
+                  <h3 className="text-xs font-bold text-amber-200 uppercase tracking-wide">{p.title}</h3>
+                </div>
+                <p className="text-xs text-slate-200 leading-relaxed pl-6">
+                  {p.content}
+                </p>
+              </div>
+            ))}
+          </div>
+        </section>
+      )}
+
+      {/* Essential Formulas */}
+      {chapter.formulas.length > 0 && (
+        <section className="bg-slate-900/60 border border-slate-800/80 rounded-xl p-6 shadow-md">
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="text-base font-bold text-white flex items-center gap-2">
+              <Calculator className="w-4 h-4 text-cyan-400" />
+              Formulas & Mathematical Relationships
+            </h2>
+            <button
+              onClick={onOpenCalculators}
+              className="text-xs text-cyan-400 hover:text-cyan-300 flex items-center gap-1 font-semibold"
+            >
+              Open Interactive Tools <ChevronRight className="w-3 h-3" />
+            </button>
+          </div>
+
+          <div className="space-y-4">
+            {chapter.formulas.map(f => (
+              <div
+                key={f.id}
+                className="bg-slate-950 border border-slate-800 rounded-xl p-4"
+              >
+                <div className="flex items-center justify-between mb-2">
+                  <span className="text-xs font-bold text-white">{f.name}</span>
+                  <span className="text-[10px] px-2 py-0.5 rounded bg-slate-900 text-slate-400 border border-slate-800">
+                    Equation
+                  </span>
+                </div>
+                <div className="bg-slate-900 px-4 py-2.5 rounded-lg font-mono text-sm sm:text-base text-cyan-300 font-bold border border-slate-800 mb-2">
+                  {f.formula}
+                </div>
+                <p className="text-xs text-slate-400 mb-3">{f.description}</p>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-1 text-[11px] text-slate-400 pt-2 border-t border-slate-900">
+                  {f.variables.map((v, i) => (
+                    <div key={i} className="flex items-center gap-1.5">
+                      <span className="font-mono text-amber-300 font-semibold">{v.symbol}:</span>
+                      <span className="text-slate-300">{v.meaning}</span>
+                      {v.unit && <span className="text-slate-500">({v.unit})</span>}
+                    </div>
+                  ))}
+                </div>
+              </div>
+            ))}
+          </div>
+        </section>
+      )}
+
+      {/* Structured Sections & Clinical Content */}
+      <section className="space-y-6">
+        <div className="flex items-center gap-2 pb-2 border-b border-slate-800">
+          <BookOpen className="w-4 h-4 text-cyan-400" />
+          <h2 className="text-base font-bold text-white">Detailed Core Concepts & Clinical Physics</h2>
+        </div>
+
+        {chapter.sections.map(section => (
+          <div
+            key={section.id}
+            className="bg-slate-900/70 border border-slate-800/90 rounded-xl p-6 space-y-4"
+          >
+            <h3 className="text-base font-bold text-white tracking-tight flex items-center gap-2">
+              <span className="w-2 h-2 rounded-full bg-cyan-400 inline-block" />
+              {section.title}
+            </h3>
+
+            <div className="space-y-3 text-sm text-slate-300 leading-relaxed">
+              {section.paragraphs.map((para, pIdx) => (
+                <p key={pIdx}>{para}</p>
+              ))}
+            </div>
+
+            {/* Optional Table */}
+            {section.tableData && (
+              <div className="mt-4 pt-4 border-t border-slate-800 overflow-x-auto">
+                <span className="text-xs font-bold text-slate-200 block mb-2">
+                  {section.tableData.title}
+                </span>
+                <table className="w-full text-left text-xs border border-slate-800 rounded-lg overflow-hidden">
+                  <thead className="bg-slate-950 text-slate-300 font-semibold border-b border-slate-800">
+                    <tr>
+                      {section.tableData.headers.map((h, i) => (
+                        <th key={i} className="px-3 py-2.5 border-r border-slate-800 last:border-0">{h}</th>
+                      ))}
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-slate-800/60 bg-slate-900/40">
+                    {section.tableData.rows.map((row, rIdx) => (
+                      <tr key={rIdx} className="hover:bg-slate-800/40 transition-colors">
+                        {row.map((cell, cIdx) => (
+                          <td key={cIdx} className="px-3 py-2 text-slate-300 border-r border-slate-800/60 last:border-0 font-mono text-[11px]">
+                            {cell}
+                          </td>
+                        ))}
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            )}
+          </div>
+        ))}
+      </section>
+
+      {/* Chapter Summary */}
+      <section className="bg-slate-950 border border-slate-800 rounded-xl p-6 shadow-md">
+        <h2 className="text-sm font-bold uppercase tracking-wider text-slate-300 mb-3 flex items-center gap-2">
+          <Info className="w-4 h-4 text-cyan-400" />
+          Chapter Takeaways & Summary
+        </h2>
+        <ul className="space-y-2">
+          {chapter.summary.map((pt, i) => (
+            <li key={i} className="text-xs sm:text-sm text-slate-300 flex items-start gap-2">
+              <span className="text-cyan-400 font-bold mt-0.5">•</span>
+              <span>{pt}</span>
+            </li>
+          ))}
+        </ul>
+      </section>
+
+      {/* Challenge Questions */}
+      {chapter.challengeQuestions.length > 0 && (
+        <section className="space-y-4">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-2 border-b border-slate-800/80">
+            <div>
+              <h2 className="text-base font-bold text-white flex items-center gap-2">
+                <HelpCircle className="w-4 h-4 text-amber-400" />
+                Chapter Challenge Questions & Review Problems ({chapter.challengeQuestions.length})
+              </h2>
+              <p className="text-xs text-slate-400 mt-0.5">Authoritative Bushong 11th Edition end-of-chapter problems & board-exam review</p>
+            </div>
+            <div className="flex items-center gap-2 self-start sm:self-auto">
+              <span className="text-[11px] font-semibold text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded border border-emerald-500/20">ARRT Practice</span>
+              <button
+                onClick={toggleAllQuestions}
+                className="text-xs px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-cyan-300 hover:text-white border border-slate-700 font-medium transition-colors"
+              >
+                {allQuestionsRevealed ? 'Hide All Solutions' : 'Reveal All Solutions'}
+              </button>
+            </div>
+          </div>
+
+          <div className="space-y-3">
+            {chapter.challengeQuestions.map(q => {
+              const isOpen = !!revealedQuestions[q.id];
+              return (
+                <div
+                  key={q.id}
+                  className="bg-slate-900/90 border border-slate-800 rounded-xl p-5 space-y-3 hover:border-slate-700 transition-colors shadow-sm"
+                >
+                  <div className="flex items-start justify-between gap-3">
+                    <div className="flex items-start gap-2.5">
+                      <span className="text-xs font-bold px-2.5 py-1 rounded bg-slate-800 text-cyan-400 font-mono flex-shrink-0 mt-0.5 border border-slate-700">
+                        Q{q.questionNumber}
+                      </span>
+                      <p className="text-sm font-medium text-slate-100 leading-snug">{q.question}</p>
+                    </div>
+                    <button
+                      onClick={() => toggleQuestion(q.id)}
+                      className={`text-xs px-3 py-1.5 rounded-lg font-medium flex-shrink-0 transition-colors border ${
+                        isOpen
+                          ? 'bg-slate-800 text-slate-300 border-slate-700 hover:text-white'
+                          : 'bg-cyan-500/10 text-cyan-300 border-cyan-500/30 hover:bg-cyan-500/20'
+                      }`}
+                    >
+                      {isOpen ? 'Hide Solution' : 'Show Solution'}
+                    </button>
+                  </div>
+
+                  {isOpen && (
+                    <div className="p-4 rounded-xl bg-slate-950/70 border border-cyan-500/20 text-xs sm:text-sm text-slate-300 leading-relaxed space-y-3 animate-fadeIn">
+                      {q.answer && (
+                        <div className="p-3 rounded-lg bg-emerald-950/30 border border-emerald-500/30">
+                          <strong className="text-emerald-400 block mb-1 text-[11px] font-bold uppercase tracking-wider">High-Yield Answer:</strong>
+                          <p className="text-emerald-100 font-semibold text-sm leading-relaxed">{q.answer}</p>
+                        </div>
+                      )}
+                      {q.explanation && (
+                        <div>
+                          <strong className="text-cyan-400 block mb-1.5 text-xs font-bold uppercase tracking-wider">Detailed Explanation & Clinical Rationale:</strong>
+                          <p className="text-slate-200 leading-relaxed">{q.explanation}</p>
+                        </div>
+                      )}
+                    </div>
+                  )}
+                </div>
+              );
+            })}
+          </div>
+        </section>
+      )}
+
+      {/* Prev / Next Chapter Navigation */}
+      <div className="flex items-center justify-between pt-6 border-t border-slate-800">
+        <button
+          disabled={chapter.number <= 1}
+          onClick={() => onSelectChapter(chapter.number - 1)}
+          className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-slate-900 border border-slate-800 hover:bg-slate-800 text-xs sm:text-sm text-slate-200 disabled:opacity-40 disabled:pointer-events-none transition-all"
+        >
+          <ChevronLeft className="w-4 h-4" /> Previous Chapter
+        </button>
+
+        <span className="text-xs text-slate-500 font-mono">
+          Chapter {chapter.number} of {allChaptersCount}
+        </span>
+
+        <button
+          disabled={chapter.number >= allChaptersCount}
+          onClick={() => onSelectChapter(chapter.number + 1)}
+          className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-cyan-500 hover:bg-cyan-400 text-slate-950 text-xs sm:text-sm font-bold disabled:opacity-40 disabled:pointer-events-none transition-all shadow-md shadow-cyan-500/20"
+        >
+          Next Chapter <ChevronRight className="w-4 h-4" />
+        </button>
+      </div>
+    </article>
+  );
+};

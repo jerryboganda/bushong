@@ -1,0 +1,654 @@
+import React, { useState, useMemo, useEffect } from 'react';
+import { ALL_PENGUINS, ALL_QUESTIONS, ALL_FORMULAS, ALL_CHAPTERS } from '../data/allChapters';
+import { Penguin, ChallengeQuestion, Formula } from '../types/book';
+import { Sparkles, HelpCircle, CheckCircle2, ChevronRight, ChevronLeft, Bookmark, RotateCcw, Lightbulb, Search, Shuffle, Filter, Check } from 'lucide-react';
+
+export const StudyDeck: React.FC<{ onNavigateToChapter: (ch: number) => void }> = ({ onNavigateToChapter }) => {
+  const [mode, setMode] = useState<'penguins' | 'questions' | 'formulas'>('penguins');
+
+  // Penguin Flashcards State
+  const [penguinIdx, setPenguinIdx] = useState(0);
+  const [penguinChapterFilter, setPenguinChapterFilter] = useState<number | 'all'>('all');
+  const [penguinSearch, setPenguinSearch] = useState<string>('');
+  const [filterBookmarksOnly, setFilterBookmarksOnly] = useState(false);
+  const [bookmarkedPenguins, setBookmarkedPenguins] = useState<string[]>(() => {
+    try {
+      const saved = localStorage.getItem('rad_bookmarked_penguins');
+      return saved ? JSON.parse(saved) : [];
+    } catch {
+      return [];
+    }
+  });
+
+  // Questions State
+  const [qIdx, setQIdx] = useState(0);
+  const [showAnswer, setShowAnswer] = useState(false);
+  const [questionChapterFilter, setQuestionChapterFilter] = useState<number | 'all'>('all');
+  const [questionSearch, setQuestionSearch] = useState<string>('');
+  const [filterQuestionBookmarksOnly, setFilterQuestionBookmarksOnly] = useState(false);
+  const [bookmarkedQuestions, setBookmarkedQuestions] = useState<string[]>(() => {
+    try {
+      const saved = localStorage.getItem('rad_bookmarked_questions');
+      return saved ? JSON.parse(saved) : [];
+    } catch {
+      return [];
+    }
+  });
+
+  // Formula State
+  const [formulaChapterFilter, setFormulaChapterFilter] = useState<number | 'all'>('all');
+  const [formulaSearch, setFormulaSearch] = useState<string>('');
+
+  // Filtered Penguins
+  const filteredPenguins = useMemo(() => {
+    return ALL_PENGUINS.filter(p => {
+      if (filterBookmarksOnly && !bookmarkedPenguins.includes(p.id)) return false;
+      if (penguinChapterFilter !== 'all' && p.chapterNumber !== penguinChapterFilter) return false;
+      if (penguinSearch.trim()) {
+        const s = penguinSearch.toLowerCase();
+        return p.title.toLowerCase().includes(s) || p.content.toLowerCase().includes(s);
+      }
+      return true;
+    });
+  }, [filterBookmarksOnly, bookmarkedPenguins, penguinChapterFilter, penguinSearch]);
+
+  const safePenguinIdx = Math.min(penguinIdx, Math.max(0, filteredPenguins.length - 1));
+  const currentPenguin: Penguin | undefined = filteredPenguins[safePenguinIdx];
+
+  const togglePenguinBookmark = (id: string) => {
+    const updated = bookmarkedPenguins.includes(id)
+      ? bookmarkedPenguins.filter(x => x !== id)
+      : [...bookmarkedPenguins, id];
+    setBookmarkedPenguins(updated);
+    try {
+      localStorage.setItem('rad_bookmarked_penguins', JSON.stringify(updated));
+    } catch {}
+  };
+
+  const nextPenguin = () => {
+    if (safePenguinIdx < filteredPenguins.length - 1) {
+      setPenguinIdx(safePenguinIdx + 1);
+    } else {
+      setPenguinIdx(0);
+    }
+  };
+
+  const prevPenguin = () => {
+    if (safePenguinIdx > 0) {
+      setPenguinIdx(safePenguinIdx - 1);
+    } else {
+      setPenguinIdx(filteredPenguins.length - 1);
+    }
+  };
+
+  const shufflePenguins = () => {
+    if (filteredPenguins.length > 1) {
+      let randomIdx = safePenguinIdx;
+      while (randomIdx === safePenguinIdx) {
+        randomIdx = Math.floor(Math.random() * filteredPenguins.length);
+      }
+      setPenguinIdx(randomIdx);
+    }
+  };
+
+  const handleToggleFilterPenguinBookmarks = () => {
+    setFilterBookmarksOnly(prev => !prev);
+    setPenguinIdx(0);
+  };
+
+  // Filtered Questions
+  const filteredQuestions = useMemo(() => {
+    return ALL_QUESTIONS.filter(q => {
+      if (filterQuestionBookmarksOnly && !bookmarkedQuestions.includes(q.id)) return false;
+      if (questionChapterFilter !== 'all' && q.chapterNumber !== questionChapterFilter) return false;
+      if (questionSearch.trim()) {
+        const s = questionSearch.toLowerCase();
+        const matchQ = q.question.toLowerCase().includes(s);
+        const matchA = q.answer ? q.answer.toLowerCase().includes(s) : false;
+        const matchE = q.explanation ? q.explanation.toLowerCase().includes(s) : false;
+        if (!matchQ && !matchA && !matchE) return false;
+      }
+      return true;
+    });
+  }, [filterQuestionBookmarksOnly, bookmarkedQuestions, questionChapterFilter, questionSearch]);
+
+  const safeQIdx = Math.min(qIdx, Math.max(0, filteredQuestions.length - 1));
+  const currentQuestion: ChallengeQuestion | undefined = filteredQuestions[safeQIdx];
+
+  const toggleQuestionBookmark = (id: string) => {
+    const updated = bookmarkedQuestions.includes(id)
+      ? bookmarkedQuestions.filter(x => x !== id)
+      : [...bookmarkedQuestions, id];
+    setBookmarkedQuestions(updated);
+    try {
+      localStorage.setItem('rad_bookmarked_questions', JSON.stringify(updated));
+    } catch {}
+  };
+
+  const nextQuestion = () => {
+    setShowAnswer(false);
+    if (safeQIdx < filteredQuestions.length - 1) setQIdx(safeQIdx + 1);
+    else setQIdx(0);
+  };
+
+  const prevQuestion = () => {
+    setShowAnswer(false);
+    if (safeQIdx > 0) setQIdx(safeQIdx - 1);
+    else setQIdx(filteredQuestions.length - 1);
+  };
+
+  const shuffleQuestions = () => {
+    if (filteredQuestions.length > 1) {
+      setShowAnswer(false);
+      let randomIdx = safeQIdx;
+      while (randomIdx === safeQIdx) {
+        randomIdx = Math.floor(Math.random() * filteredQuestions.length);
+      }
+      setQIdx(randomIdx);
+    }
+  };
+
+  const handleToggleFilterQuestionBookmarks = () => {
+    setFilterQuestionBookmarksOnly(prev => !prev);
+    setQIdx(0);
+    setShowAnswer(false);
+  };
+
+  // Keyboard navigation for power-study sessions
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      const target = e.target as HTMLElement | null;
+      if (target?.tagName === 'INPUT' || target?.tagName === 'TEXTAREA' || target?.tagName === 'SELECT') {
+        return;
+      }
+      if (mode === 'questions') {
+        if (e.key === 'ArrowRight') {
+          e.preventDefault();
+          nextQuestion();
+        } else if (e.key === 'ArrowLeft') {
+          e.preventDefault();
+          prevQuestion();
+        } else if (e.key === ' ' || e.key === 'Enter') {
+          e.preventDefault();
+          setShowAnswer(prev => !prev);
+        } else if (e.key.toLowerCase() === 'b' || e.key.toLowerCase() === 's') {
+          e.preventDefault();
+          if (currentQuestion) toggleQuestionBookmark(currentQuestion.id);
+        } else if (e.key.toLowerCase() === 'r') {
+          e.preventDefault();
+          shuffleQuestions();
+        }
+      } else if (mode === 'penguins') {
+        if (e.key === 'ArrowRight') {
+          e.preventDefault();
+          nextPenguin();
+        } else if (e.key === 'ArrowLeft') {
+          e.preventDefault();
+          prevPenguin();
+        } else if (e.key.toLowerCase() === 'b' || e.key.toLowerCase() === 's') {
+          e.preventDefault();
+          if (currentPenguin) togglePenguinBookmark(currentPenguin.id);
+        } else if (e.key.toLowerCase() === 'r') {
+          e.preventDefault();
+          shufflePenguins();
+        }
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [mode, safeQIdx, safePenguinIdx, filteredQuestions.length, filteredPenguins.length, currentQuestion, currentPenguin]);
+
+  // Filtered Formulas
+  const filteredFormulas = useMemo(() => {
+    return ALL_FORMULAS.filter(formula => {
+      if (formulaChapterFilter !== 'all' && formula.chapterNumber !== formulaChapterFilter) return false;
+      if (formulaSearch.trim()) {
+        const s = formulaSearch.toLowerCase();
+        const matchN = formula.name.toLowerCase().includes(s);
+        const matchF = formula.formula.toLowerCase().includes(s);
+        const matchD = formula.description.toLowerCase().includes(s);
+        if (!matchN && !matchF && !matchD) return false;
+      }
+      return true;
+    });
+  }, [formulaChapterFilter, formulaSearch]);
+
+  return (
+    <div className="bg-slate-900 border border-slate-800 rounded-2xl p-4 sm:p-6 text-slate-100 shadow-xl space-y-6">
+      {/* Header */}
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-4 border-b border-slate-800">
+        <div>
+          <h2 className="text-xl font-bold tracking-tight text-white flex items-center gap-2">
+            <Sparkles className="w-5 h-5 text-amber-400" />
+            Registry Review & Study Deck
+          </h2>
+          <p className="text-xs text-slate-400 mt-0.5">Authoritative Bushong 11th Edition ARRT Exam Prep: 795 Challenge Problems, 226 Penguin Insights & 88 Physics Formulas</p>
+        </div>
+        <div className="flex items-center gap-1.5 bg-slate-950 p-1 rounded-xl border border-slate-800 self-start md:self-auto flex-wrap">
+          <button
+            onClick={() => setMode('penguins')}
+            className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${
+              mode === 'penguins' ? 'bg-amber-500 text-slate-950 shadow-md shadow-amber-500/20' : 'text-slate-400 hover:text-white'
+            }`}
+          >
+            Penguin Rules ({ALL_PENGUINS.length})
+          </button>
+          <button
+            onClick={() => setMode('questions')}
+            className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${
+              mode === 'questions' ? 'bg-cyan-500 text-slate-950 shadow-md shadow-cyan-500/20' : 'text-slate-400 hover:text-white'
+            }`}
+          >
+            Challenge Problems ({ALL_QUESTIONS.length})
+          </button>
+          <button
+            onClick={() => setMode('formulas')}
+            className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${
+              mode === 'formulas' ? 'bg-emerald-500 text-slate-950 shadow-md shadow-emerald-500/20' : 'text-slate-400 hover:text-white'
+            }`}
+          >
+            Formula Bank ({ALL_FORMULAS.length})
+          </button>
+        </div>
+      </div>
+
+      {/* Mode 1: Penguins */}
+      {mode === 'penguins' && (
+        <div className="space-y-4">
+          {/* Controls Bar */}
+          <div className="grid grid-cols-1 sm:grid-cols-12 gap-2.5">
+            <div className="sm:col-span-6 flex items-center gap-2">
+              <select
+                value={penguinChapterFilter}
+                onChange={(e) => {
+                  setPenguinChapterFilter(e.target.value === 'all' ? 'all' : Number(e.target.value));
+                  setPenguinIdx(0);
+                }}
+                className="w-full bg-slate-950 border border-slate-800 text-slate-200 rounded-lg px-3 py-2 text-xs focus:outline-none focus:border-amber-500"
+              >
+                <option value="all">All 40 Chapters ({ALL_PENGUINS.length} Penguins)</option>
+                {ALL_CHAPTERS.map(ch => (
+                  <option key={ch.number} value={ch.number}>
+                    Ch. {ch.number}: {ch.title} ({ch.penguins.length})
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            <div className="sm:col-span-4 relative">
+              <Search className="w-3.5 h-3.5 text-slate-500 absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" />
+              <input
+                type="text"
+                placeholder="Search penguins..."
+                value={penguinSearch}
+                onChange={(e) => {
+                  setPenguinSearch(e.target.value);
+                  setPenguinIdx(0);
+                }}
+                className="w-full bg-slate-950 border border-slate-800 text-slate-200 rounded-lg pl-8 pr-3 py-2 text-xs focus:outline-none focus:border-amber-500"
+              />
+            </div>
+
+            <div className="sm:col-span-2 flex items-center gap-1.5 justify-end">
+              <button
+                onClick={handleToggleFilterPenguinBookmarks}
+                className={`p-2 rounded-lg border text-xs flex items-center justify-center gap-1 transition-all ${
+                  filterBookmarksOnly
+                    ? 'bg-amber-500/20 text-amber-300 border-amber-500/40'
+                    : 'bg-slate-950 text-slate-400 border-slate-800 hover:text-white'
+                }`}
+                title="Filter Bookmarked Penguins"
+              >
+                <Bookmark className="w-4 h-4" />
+                {bookmarkedPenguins.length > 0 && (
+                  <span className="text-[10px] font-mono font-bold text-amber-400">{bookmarkedPenguins.length}</span>
+                )}
+              </button>
+              <button
+                onClick={shufflePenguins}
+                className="p-2 rounded-lg bg-slate-950 text-slate-400 border border-slate-800 hover:text-amber-400 transition-all"
+                title="Shuffle Flashcards (R key)"
+              >
+                <Shuffle className="w-4 h-4" />
+              </button>
+            </div>
+          </div>
+
+          {currentPenguin ? (
+            <div>
+              <div className="flex items-center justify-between mb-3 text-xs">
+                <div className="flex items-center gap-2">
+                  <span className="text-amber-400 font-bold uppercase tracking-wider bg-amber-500/10 px-2.5 py-1 rounded border border-amber-500/20">
+                    Card {safePenguinIdx + 1} of {filteredPenguins.length}
+                  </span>
+                  <button
+                    onClick={() => onNavigateToChapter(currentPenguin.chapterNumber)}
+                    className="text-slate-400 hover:text-amber-400 underline font-medium"
+                  >
+                    Chapter {currentPenguin.chapterNumber}
+                  </button>
+                </div>
+                <button
+                  onClick={() => togglePenguinBookmark(currentPenguin.id)}
+                  className={`px-2.5 py-1 rounded-lg border flex items-center gap-1 transition-all ${
+                    bookmarkedPenguins.includes(currentPenguin.id)
+                      ? 'bg-amber-500 text-slate-950 border-amber-400 font-semibold'
+                      : 'bg-slate-950 text-slate-400 border-slate-800 hover:text-white'
+                  }`}
+                >
+                  <Bookmark className="w-3.5 h-3.5" />
+                  {bookmarkedPenguins.includes(currentPenguin.id) ? 'Saved' : 'Save'}
+                </button>
+              </div>
+
+              <div className="min-h-[220px] bg-gradient-to-br from-slate-950 via-slate-900 to-amber-950/20 border border-amber-500/30 rounded-2xl p-6 flex flex-col justify-between shadow-lg relative overflow-hidden">
+                <div className="absolute top-0 right-0 w-32 h-32 bg-amber-500/5 rounded-full blur-2xl pointer-events-none" />
+                <div>
+                  <div className="flex items-center gap-2 text-amber-400 mb-2">
+                    <Lightbulb className="w-5 h-5 flex-shrink-0" />
+                    <h3 className="text-lg font-bold text-white tracking-tight">{currentPenguin.title}</h3>
+                  </div>
+                  <p className="text-base text-slate-200 leading-relaxed font-serif mt-3 pl-7">
+                    "{currentPenguin.content}"
+                  </p>
+                </div>
+
+                <div className="mt-6 pt-4 border-t border-slate-800/80 flex items-center justify-between text-xs">
+                  <span className="text-slate-400">
+                    Bushong Key Concept • ARRT Radiography Core Insight
+                  </span>
+                  <button
+                    onClick={() => onNavigateToChapter(currentPenguin.chapterNumber)}
+                    className="text-amber-400 hover:text-amber-300 flex items-center gap-1 font-medium"
+                  >
+                    Open Full Chapter <ChevronRight className="w-3.5 h-3.5" />
+                  </button>
+                </div>
+              </div>
+
+              <div className="flex items-center justify-between mt-4">
+                <button
+                  onClick={prevPenguin}
+                  className="flex items-center gap-1.5 px-4 py-2 rounded-lg bg-slate-950 hover:bg-slate-800 text-slate-200 text-xs font-semibold border border-slate-800 transition-all"
+                >
+                  <ChevronLeft className="w-4 h-4" /> Previous
+                </button>
+                <span className="text-xs text-slate-500 font-mono">
+                  {safePenguinIdx + 1} / {filteredPenguins.length}
+                </span>
+                <button
+                  onClick={nextPenguin}
+                  className="flex items-center gap-1.5 px-4 py-2 rounded-lg bg-amber-500 hover:bg-amber-400 text-slate-950 text-xs font-bold transition-all shadow-md shadow-amber-500/20"
+                >
+                  Next <ChevronRight className="w-4 h-4" />
+                </button>
+              </div>
+
+              <div className="flex items-center justify-between text-[11px] text-slate-500 pt-2 px-1 font-mono">
+                <span>
+                  Keyboard: <kbd className="px-1.5 py-0.5 rounded bg-slate-950 border border-slate-800 text-slate-400">←</kbd> <kbd className="px-1.5 py-0.5 rounded bg-slate-950 border border-slate-800 text-slate-400">→</kbd> navigate • <kbd className="px-1.5 py-0.5 rounded bg-slate-950 border border-slate-800 text-slate-400">S</kbd> bookmark • <kbd className="px-1.5 py-0.5 rounded bg-slate-950 border border-slate-800 text-slate-400">R</kbd> shuffle flashcards
+                </span>
+              </div>
+            </div>
+          ) : (
+            <div className="text-center py-12 text-slate-400 bg-slate-950/50 rounded-2xl border border-slate-800">
+              <Lightbulb className="w-8 h-8 text-slate-600 mx-auto mb-2" />
+              <p className="text-sm">No penguins match your current filter or search.</p>
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* Mode 2: Questions */}
+      {mode === 'questions' && (
+        <div className="space-y-4">
+          {/* Controls Bar */}
+          <div className="grid grid-cols-1 sm:grid-cols-12 gap-2.5">
+            <div className="sm:col-span-6 flex items-center gap-2">
+              <select
+                value={questionChapterFilter}
+                onChange={(e) => {
+                  setQuestionChapterFilter(e.target.value === 'all' ? 'all' : Number(e.target.value));
+                  setQIdx(0);
+                  setShowAnswer(false);
+                }}
+                className="w-full bg-slate-950 border border-slate-800 text-slate-200 rounded-lg px-3 py-2 text-xs focus:outline-none focus:border-cyan-500"
+              >
+                <option value="all">All 40 Chapters ({ALL_QUESTIONS.length} Questions)</option>
+                {ALL_CHAPTERS.map(ch => (
+                  <option key={ch.number} value={ch.number}>
+                    Ch. {ch.number}: {ch.title} ({ch.challengeQuestions.length} Qs)
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            <div className="sm:col-span-4 relative">
+              <Search className="w-3.5 h-3.5 text-slate-500 absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" />
+              <input
+                type="text"
+                placeholder="Search questions or answers..."
+                value={questionSearch}
+                onChange={(e) => {
+                  setQuestionSearch(e.target.value);
+                  setQIdx(0);
+                  setShowAnswer(false);
+                }}
+                className="w-full bg-slate-950 border border-slate-800 text-slate-200 rounded-lg pl-8 pr-3 py-2 text-xs focus:outline-none focus:border-cyan-500"
+              />
+            </div>
+
+            <div className="sm:col-span-2 flex items-center gap-1.5 justify-end">
+              <button
+                onClick={handleToggleFilterQuestionBookmarks}
+                className={`p-2 rounded-lg border text-xs flex items-center justify-center gap-1 transition-all ${
+                  filterQuestionBookmarksOnly
+                    ? 'bg-cyan-500/20 text-cyan-300 border-cyan-500/40'
+                    : 'bg-slate-950 text-slate-400 border-slate-800 hover:text-white'
+                }`}
+                title="Filter Bookmarked Questions"
+              >
+                <Bookmark className="w-4 h-4" />
+                {bookmarkedQuestions.length > 0 && (
+                  <span className="text-[10px] font-mono font-bold text-cyan-400">{bookmarkedQuestions.length}</span>
+                )}
+              </button>
+              <button
+                onClick={shuffleQuestions}
+                className="p-2 rounded-lg bg-slate-950 text-slate-400 border border-slate-800 hover:text-cyan-400 transition-all"
+                title="Random Question Drill (R key)"
+              >
+                <Shuffle className="w-4 h-4" />
+              </button>
+            </div>
+          </div>
+
+          {currentQuestion ? (
+            <div>
+              <div className="flex items-center justify-between mb-3 text-xs">
+                <div className="flex items-center gap-2">
+                  <span className="text-xs text-cyan-400 font-bold uppercase tracking-wider bg-cyan-500/10 px-2.5 py-1 rounded border border-cyan-500/20">
+                    Question {safeQIdx + 1} of {filteredQuestions.length}
+                  </span>
+                  <button
+                    onClick={() => onNavigateToChapter(currentQuestion.chapterNumber)}
+                    className="text-slate-400 hover:text-cyan-400 underline font-medium"
+                  >
+                    Chapter {currentQuestion.chapterNumber}
+                  </button>
+                </div>
+                <button
+                  onClick={() => toggleQuestionBookmark(currentQuestion.id)}
+                  className={`px-2.5 py-1 rounded-lg border flex items-center gap-1 transition-all ${
+                    bookmarkedQuestions.includes(currentQuestion.id)
+                      ? 'bg-cyan-500 text-slate-950 border-cyan-400 font-semibold'
+                      : 'bg-slate-950 text-slate-400 border-slate-800 hover:text-white'
+                  }`}
+                >
+                  <Bookmark className="w-3.5 h-3.5" />
+                  {bookmarkedQuestions.includes(currentQuestion.id) ? 'Saved' : 'Save'}
+                </button>
+              </div>
+
+              <div className="min-h-[220px] bg-slate-950 border border-slate-800 rounded-2xl p-6 flex flex-col justify-between shadow-lg">
+                <div>
+                  <div className="flex items-start gap-3 mb-4">
+                    <span className="text-xs font-bold px-2 py-0.5 rounded bg-slate-800 text-cyan-400 font-mono flex-shrink-0 mt-0.5 border border-slate-700">
+                      Q{currentQuestion.questionNumber}
+                    </span>
+                    <h3 className="text-base font-semibold text-white leading-relaxed">{currentQuestion.question}</h3>
+                  </div>
+
+                  {showAnswer ? (
+                    <div className="mt-4 p-4 rounded-xl bg-slate-900 border border-cyan-500/30 text-slate-200 text-sm leading-relaxed space-y-3 animate-fadeIn">
+                      {currentQuestion.answer && (
+                        <div className="p-3.5 rounded-lg bg-emerald-950/40 border border-emerald-500/30">
+                          <strong className="text-emerald-400 block mb-1 text-xs uppercase tracking-wider flex items-center gap-1.5">
+                            <CheckCircle2 className="w-4 h-4 text-emerald-400" /> High-Yield Board Answer:
+                          </strong>
+                          <p className="text-emerald-100 font-semibold text-sm leading-snug">{currentQuestion.answer}</p>
+                        </div>
+                      )}
+                      {currentQuestion.explanation && (
+                        <div>
+                          <strong className="text-cyan-400 block mb-1 text-xs uppercase tracking-wider">
+                            Detailed Explanation & Clinical Rationale:
+                          </strong>
+                          <p className="text-slate-300 leading-relaxed text-xs sm:text-sm">{currentQuestion.explanation}</p>
+                        </div>
+                      )}
+                    </div>
+                  ) : (
+                    <div className="mt-8 flex justify-center">
+                      <button
+                        onClick={() => setShowAnswer(true)}
+                        className="px-5 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-cyan-300 hover:text-cyan-200 text-xs font-bold border border-slate-700 flex items-center gap-2 transition-all shadow-md"
+                      >
+                        <CheckCircle2 className="w-4 h-4 text-cyan-400" /> Reveal Solution & Detailed Rationale
+                      </button>
+                    </div>
+                  )}
+                </div>
+
+                <div className="mt-6 pt-4 border-t border-slate-800/80 flex items-center justify-between text-xs">
+                  <span className="text-slate-400">
+                    Chapter {currentQuestion.chapterNumber} Challenge Problem {currentQuestion.questionNumber}
+                  </span>
+                  {showAnswer && (
+                    <button
+                      onClick={() => setShowAnswer(false)}
+                      className="text-slate-400 hover:text-white flex items-center gap-1"
+                    >
+                      <RotateCcw className="w-3.5 h-3.5" /> Hide Solution
+                    </button>
+                  )}
+                </div>
+              </div>
+
+              <div className="flex items-center justify-between mt-4">
+                <button
+                  onClick={prevQuestion}
+                  className="flex items-center gap-1.5 px-4 py-2 rounded-lg bg-slate-950 hover:bg-slate-800 text-slate-200 text-xs font-semibold border border-slate-800 transition-all"
+                >
+                  <ChevronLeft className="w-4 h-4" /> Previous
+                </button>
+                <span className="text-xs text-slate-500 font-mono">
+                  {safeQIdx + 1} / {filteredQuestions.length}
+                </span>
+                <button
+                  onClick={nextQuestion}
+                  className="flex items-center gap-1.5 px-4 py-2 rounded-lg bg-cyan-500 hover:bg-cyan-400 text-slate-950 text-xs font-bold transition-all shadow-md shadow-cyan-500/20"
+                >
+                  Next <ChevronRight className="w-4 h-4" />
+                </button>
+              </div>
+
+              <div className="flex items-center justify-between text-[11px] text-slate-500 pt-2 px-1 font-mono">
+                <span>
+                  Keyboard: <kbd className="px-1.5 py-0.5 rounded bg-slate-950 border border-slate-800 text-slate-400">←</kbd> <kbd className="px-1.5 py-0.5 rounded bg-slate-950 border border-slate-800 text-slate-400">→</kbd> navigate • <kbd className="px-1.5 py-0.5 rounded bg-slate-950 border border-slate-800 text-slate-400">Space</kbd> reveal solution • <kbd className="px-1.5 py-0.5 rounded bg-slate-950 border border-slate-800 text-slate-400">S</kbd> bookmark • <kbd className="px-1.5 py-0.5 rounded bg-slate-950 border border-slate-800 text-slate-400">R</kbd> shuffle drill
+                </span>
+              </div>
+            </div>
+          ) : (
+            <div className="text-center py-12 text-slate-400 bg-slate-950/50 rounded-2xl border border-slate-800">
+              <HelpCircle className="w-8 h-8 text-slate-600 mx-auto mb-2" />
+              <p className="text-sm">No challenge questions match your current filter or search.</p>
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* Mode 3: Formulas */}
+      {mode === 'formulas' && (
+        <div className="space-y-4">
+          <div className="grid grid-cols-1 sm:grid-cols-12 gap-2.5">
+            <div className="sm:col-span-6">
+              <select
+                value={formulaChapterFilter}
+                onChange={(e) => setFormulaChapterFilter(e.target.value === 'all' ? 'all' : Number(e.target.value))}
+                className="w-full bg-slate-950 border border-slate-800 text-slate-200 rounded-lg px-3 py-2 text-xs focus:outline-none focus:border-emerald-500"
+              >
+                <option value="all">All Chapters ({ALL_FORMULAS.length} Formulas)</option>
+                {ALL_CHAPTERS.filter(ch => ch.formulas.length > 0).map(ch => (
+                  <option key={ch.number} value={ch.number}>
+                    Ch. {ch.number}: {ch.title} ({ch.formulas.length})
+                  </option>
+                ))}
+              </select>
+            </div>
+            <div className="sm:col-span-6 relative">
+              <Search className="w-3.5 h-3.5 text-slate-500 absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" />
+              <input
+                type="text"
+                placeholder="Search formulas by name or symbol..."
+                value={formulaSearch}
+                onChange={(e) => setFormulaSearch(e.target.value)}
+                className="w-full bg-slate-950 border border-slate-800 text-slate-200 rounded-lg pl-8 pr-3 py-2 text-xs focus:outline-none focus:border-emerald-500"
+              />
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {filteredFormulas.map(formula => (
+              <div
+                key={formula.id}
+                className="bg-slate-950 border border-slate-800/90 rounded-xl p-4 hover:border-emerald-500/30 transition-all flex flex-col justify-between shadow-sm"
+              >
+                <div>
+                  <div className="flex items-center justify-between mb-2">
+                    <span className="text-xs font-bold text-emerald-400">{formula.name}</span>
+                    <button
+                      onClick={() => onNavigateToChapter(formula.chapterNumber)}
+                      className="text-[10px] px-2 py-0.5 rounded bg-slate-800 text-slate-400 hover:text-white"
+                    >
+                      Ch. {formula.chapterNumber}
+                    </button>
+                  </div>
+                  <div className="bg-slate-900/90 px-3 py-2 rounded-lg font-mono text-sm text-amber-300 mb-2 border border-slate-800 shadow-inner">
+                    {formula.formula}
+                  </div>
+                  <p className="text-xs text-slate-300 leading-relaxed mb-3">{formula.description}</p>
+                </div>
+
+                <div className="space-y-1 pt-2 border-t border-slate-900 text-[11px] text-slate-400">
+                  {formula.variables.map((v, i) => (
+                    <div key={i} className="flex items-baseline justify-between">
+                      <span className="font-mono text-cyan-300">{v.symbol}</span>
+                      <span className="text-slate-300">{v.meaning} {v.unit ? `(${v.unit})` : ''}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            ))}
+          </div>
+
+          {filteredFormulas.length === 0 && (
+            <div className="text-center py-12 text-slate-400 bg-slate-950/50 rounded-2xl border border-slate-800">
+              <p className="text-sm">No formulas match your search.</p>
+            </div>
+          )}
+        </div>
+      )}
+    </div>
+  );
+};
