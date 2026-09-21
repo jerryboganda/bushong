@@ -131,11 +131,11 @@ export const MasteryDashboard: React.FC<MasteryDashboardProps> = ({
   return (
     <div className="space-y-6 max-w-6xl mx-auto pb-16">
       {/* Top Banner */}
-      <div className="bg-gradient-to-r from-slate-900 via-cyan-950/30 to-slate-900 border border-slate-800 rounded-2xl p-6 sm:p-8 shadow-xl">
+      <div className="bg-gradient-to-r from-slate-900 via-cyan-950/30 to-slate-900 border border-slate-800 rounded-2xl p-4 xs:p-6 sm:p-8 shadow-xl">
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
           <div className="space-y-2">
             <div className="flex items-center gap-2">
-              <div className="w-10 h-10 rounded-xl bg-cyan-500/20 border border-cyan-500/30 flex items-center justify-center text-cyan-400">
+              <div className="w-10 h-10 rounded-xl bg-cyan-500/20 border border-cyan-500/30 flex items-center justify-center text-cyan-400 shrink-0">
                 <TrendingUp className="w-5 h-5" />
               </div>
               <h1 className="text-xl sm:text-2xl font-black text-white tracking-tight">
@@ -148,8 +148,8 @@ export const MasteryDashboard: React.FC<MasteryDashboardProps> = ({
           </div>
 
           {/* Study Streak Badge */}
-          <div className="flex items-center gap-3 bg-slate-950/80 border border-amber-500/30 rounded-2xl p-4 self-start md:self-auto shadow-inner">
-            <div className="w-10 h-10 rounded-xl bg-amber-500/20 flex items-center justify-center text-amber-400">
+          <div className="flex items-center gap-3 bg-slate-950/80 border border-amber-500/30 rounded-2xl p-3.5 xs:p-4 self-start md:self-auto shadow-inner">
+            <div className="w-10 h-10 rounded-xl bg-amber-500/20 flex items-center justify-center text-amber-400 shrink-0">
               <Flame className="w-6 h-6" />
             </div>
             <div>
@@ -160,14 +160,14 @@ export const MasteryDashboard: React.FC<MasteryDashboardProps> = ({
         </div>
 
         {/* 4 Metric Quick-Stat Cards */}
-        <div className="mt-8 pt-6 border-t border-slate-800/80 grid grid-cols-2 lg:grid-cols-4 gap-4">
-          <div className="bg-slate-950/70 border border-slate-800 rounded-xl p-4 space-y-1">
+        <div className="mt-6 sm:mt-8 pt-6 border-t border-slate-800/80 grid grid-cols-1 xs:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
+          <div className="bg-slate-950/70 border border-slate-800 rounded-xl p-3.5 xs:p-4 space-y-1">
             <span className="text-[11px] font-semibold text-slate-400">Syllabus Completion</span>
             <div className="text-2xl font-black text-cyan-400 font-mono">{syllabusProgress}%</div>
             <span className="text-[10px] text-slate-500">{completedObjectivesCount} / {totalObjectivesCount} Objectives</span>
           </div>
 
-          <div className="bg-slate-950/70 border border-slate-800 rounded-xl p-4 space-y-1">
+          <div className="bg-slate-950/70 border border-slate-800 rounded-xl p-3.5 xs:p-4 space-y-1">
             <span className="text-[11px] font-semibold text-slate-400">ARRT Mock Score</span>
             <div className="text-2xl font-black text-white font-mono">
               {latestExam ? latestExam.scaledScore : '—'} <span className="text-xs text-slate-400 font-normal">/ 99</span>
@@ -177,13 +177,13 @@ export const MasteryDashboard: React.FC<MasteryDashboardProps> = ({
             </span>
           </div>
 
-          <div className="bg-slate-950/70 border border-slate-800 rounded-xl p-4 space-y-1">
+          <div className="bg-slate-950/70 border border-slate-800 rounded-xl p-3.5 xs:p-4 space-y-1">
             <span className="text-[11px] font-semibold text-slate-400">SRS Spaced Retention</span>
             <div className="text-2xl font-black text-amber-400 font-mono">{srsStats.learnedCount}</div>
             <span className="text-[10px] text-slate-500">{srsStats.dueCount} Cards Due Today</span>
           </div>
 
-          <div className="bg-slate-950/70 border border-slate-800 rounded-xl p-4 space-y-1">
+          <div className="bg-slate-950/70 border border-slate-800 rounded-xl p-3.5 xs:p-4 space-y-1">
             <span className="text-[11px] font-semibold text-slate-400">High-Yield Vault</span>
             <div className="text-2xl font-black text-purple-400 font-mono">{savedVaultPoints}</div>
             <span className="text-[10px] text-slate-500">One-Liner MCQ Pearls</span>
@@ -193,7 +193,7 @@ export const MasteryDashboard: React.FC<MasteryDashboardProps> = ({
 
       {/* Recommended Next Action Card */}
       {weakestPart && (
-        <div className="bg-gradient-to-r from-amber-950/20 via-slate-900 to-slate-900 border border-amber-500/30 rounded-2xl p-6 flex flex-col sm:flex-row sm:items-center justify-between gap-4 shadow-lg">
+        <div className="bg-gradient-to-r from-amber-950/20 via-slate-900 to-slate-900 border border-amber-500/30 rounded-2xl p-4 xs:p-6 flex flex-col sm:flex-row sm:items-center justify-between gap-4 shadow-lg">
           <div className="flex items-start gap-3">
             <div className="w-9 h-9 rounded-xl bg-amber-500/20 border border-amber-500/30 flex items-center justify-center text-amber-400 flex-shrink-0 mt-0.5">
               <AlertCircle className="w-5 h-5" />
@@ -216,7 +216,7 @@ export const MasteryDashboard: React.FC<MasteryDashboardProps> = ({
               const firstCh = ALL_CHAPTERS.find(c => c.partId === weakestPart.part.id);
               if (firstCh) onNavigateToChapter(firstCh.number);
             }}
-            className="px-4 py-2 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold text-xs shadow transition-all flex items-center gap-1.5 self-start sm:self-auto flex-shrink-0"
+            className="px-4 py-2.5 min-h-[44px] rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold text-xs shadow transition-all flex items-center justify-center gap-1.5 self-start sm:self-auto flex-shrink-0"
           >
             Study {weakestPart.part.partNumber} <ChevronRight className="w-4 h-4" />
           </button>
@@ -224,7 +224,7 @@ export const MasteryDashboard: React.FC<MasteryDashboardProps> = ({
       )}
 
       {/* Part-by-Part Mastery Progress */}
-      <div className="bg-slate-900 border border-slate-800 rounded-2xl p-6 sm:p-8 space-y-6 shadow-xl">
+      <div className="bg-slate-900 border border-slate-800 rounded-2xl p-4 xs:p-6 sm:p-8 space-y-6 shadow-xl">
         <div className="flex items-center justify-between pb-4 border-b border-slate-800">
           <div>
             <h2 className="text-lg font-bold text-white flex items-center gap-2">

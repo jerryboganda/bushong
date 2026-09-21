@@ -44,9 +44,9 @@ export const BookOverview: React.FC<BookOverviewProps> = ({
   onOpenBackupSync
 }) => {
   return (
-    <div className="space-y-8 max-w-4xl mx-auto pb-16">
+    <div className="space-y-6 sm:space-y-8 max-w-4xl mx-auto pb-16">
       {/* Book Hero Card */}
-      <div className="bg-gradient-to-br from-slate-900 via-slate-900 to-cyan-950/40 border border-slate-800 rounded-3xl p-6 sm:p-8 shadow-2xl relative overflow-hidden">
+      <div className="bg-gradient-to-br from-slate-900 via-slate-900 to-cyan-950/40 border border-slate-800 rounded-3xl p-4 xs:p-6 sm:p-8 shadow-2xl relative overflow-hidden">
         <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
           <div className="space-y-3 max-w-xl">
             <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-cyan-500/10 border border-cyan-500/30 text-cyan-400 text-xs font-semibold">
@@ -56,7 +56,7 @@ export const BookOverview: React.FC<BookOverviewProps> = ({
             <h1 className="text-2xl sm:text-4xl font-extrabold text-white tracking-tight leading-tight">
               {BOOK_METADATA.title}
             </h1>
-            <p className="text-sm text-cyan-200 font-medium">
+            <p className="text-xs sm:text-sm text-cyan-200 font-medium">
               {BOOK_METADATA.subtitle}
             </p>
 
@@ -65,7 +65,7 @@ export const BookOverview: React.FC<BookOverviewProps> = ({
               The quintessential curriculum guide for radiologic technology students preparing for the ARRT certification examination and practicing radiographers.
             </p>
 
-            <div className="flex flex-wrap items-center gap-2.5 pt-2 text-xs">
+            <div className="flex flex-wrap items-center gap-2 pt-2 text-xs">
               <span className="px-2.5 py-1 rounded-lg bg-slate-950 border border-slate-800 text-slate-300 font-mono">
                 {BOOK_PARTS.length} Parts • {ALL_CHAPTERS.length} Chapters
               </span>
@@ -87,7 +87,7 @@ export const BookOverview: React.FC<BookOverviewProps> = ({
           <div className="flex flex-col gap-2.5 w-full md:w-auto flex-shrink-0">
             <button
               onClick={() => onSelectChapter(1)}
-              className="px-5 py-2.5 rounded-xl bg-cyan-500 hover:bg-cyan-400 text-slate-950 font-bold text-xs sm:text-sm flex items-center justify-center gap-2 transition-all shadow-lg shadow-cyan-500/20"
+              className="w-full px-5 py-3 min-h-[44px] rounded-xl bg-cyan-500 hover:bg-cyan-400 text-slate-950 font-bold text-xs sm:text-sm flex items-center justify-center gap-2 transition-all shadow-lg shadow-cyan-500/20"
             >
               <Book className="w-4 h-4" /> Start Reading Ch. 1
             </button>
@@ -95,7 +95,7 @@ export const BookOverview: React.FC<BookOverviewProps> = ({
             {onOpenVault && (
               <button
                 onClick={onOpenVault}
-                className="px-5 py-2.5 rounded-xl bg-purple-500/20 hover:bg-purple-500/30 text-purple-300 font-bold text-xs sm:text-sm flex items-center justify-center gap-2 border border-purple-500/40 transition-all shadow-sm"
+                className="w-full px-5 py-3 min-h-[44px] rounded-xl bg-purple-500/20 hover:bg-purple-500/30 text-purple-300 font-bold text-xs sm:text-sm flex items-center justify-center gap-2 border border-purple-500/40 transition-all shadow-sm"
               >
                 <Highlighter className="w-4 h-4 text-purple-400" /> High-Yield Vault & Cloze Mode
               </button>
@@ -104,7 +104,7 @@ export const BookOverview: React.FC<BookOverviewProps> = ({
             {onOpenMockExam && (
               <button
                 onClick={onOpenMockExam}
-                className="px-5 py-2.5 rounded-xl bg-rose-500/20 hover:bg-rose-500/30 text-rose-300 font-bold text-xs sm:text-sm flex items-center justify-center gap-2 border border-rose-500/40 transition-all"
+                className="w-full px-5 py-3 min-h-[44px] rounded-xl bg-rose-500/20 hover:bg-rose-500/30 text-rose-300 font-bold text-xs sm:text-sm flex items-center justify-center gap-2 border border-rose-500/40 transition-all"
               >
                 <Award className="w-4 h-4 text-rose-400" /> ARRT Mock Exam Simulator
               </button>
@@ -112,7 +112,7 @@ export const BookOverview: React.FC<BookOverviewProps> = ({
 
             <button
               onClick={onOpenStudyDeck}
-              className="px-5 py-2.5 rounded-xl bg-amber-500/20 hover:bg-amber-500/30 text-amber-300 font-bold text-xs sm:text-sm flex items-center justify-center gap-2 border border-amber-500/40 transition-all"
+              className="w-full px-5 py-3 min-h-[44px] rounded-xl bg-amber-500/20 hover:bg-amber-500/30 text-amber-300 font-bold text-xs sm:text-sm flex items-center justify-center gap-2 border border-amber-500/40 transition-all"
             >
               <Sparkles className="w-4 h-4 text-amber-400" /> SM-2 Study Deck ({ALL_QUESTIONS.length} Qs)
             </button>
@@ -121,7 +121,7 @@ export const BookOverview: React.FC<BookOverviewProps> = ({
               {onOpenExamTraps && (
                 <button
                   onClick={onOpenExamTraps}
-                  className="flex-1 px-3 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 font-semibold text-xs flex items-center justify-center gap-1.5 border border-slate-700 transition-all"
+                  className="flex-1 px-3 py-2.5 min-h-[40px] rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 font-semibold text-xs flex items-center justify-center gap-1.5 border border-slate-700 transition-all"
                 >
                   <AlertTriangle className="w-3.5 h-3.5 text-amber-400" /> Exam Traps
                 </button>
@@ -129,7 +129,7 @@ export const BookOverview: React.FC<BookOverviewProps> = ({
               {onOpenMastery && (
                 <button
                   onClick={onOpenMastery}
-                  className="flex-1 px-3 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 font-semibold text-xs flex items-center justify-center gap-1.5 border border-slate-700 transition-all"
+                  className="flex-1 px-3 py-2.5 min-h-[40px] rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 font-semibold text-xs flex items-center justify-center gap-1.5 border border-slate-700 transition-all"
                 >
                   <TrendingUp className="w-3.5 h-3.5 text-cyan-400" /> Mastery
                 </button>
@@ -205,7 +205,7 @@ export const BookOverview: React.FC<BookOverviewProps> = ({
             return (
               <div
                 key={part.id}
-                className="bg-slate-900 border border-slate-800 rounded-2xl p-5 sm:p-6 shadow-md"
+                className="bg-slate-900 border border-slate-800 rounded-2xl p-4 xs:p-5 sm:p-6 shadow-md"
               >
                 <div className="flex flex-col sm:flex-row sm:items-baseline justify-between gap-1 mb-2">
                   <h3 className="text-base font-bold text-cyan-400 flex items-center gap-2">
@@ -221,7 +221,7 @@ export const BookOverview: React.FC<BookOverviewProps> = ({
                     <button
                       key={ch.number}
                       onClick={() => onSelectChapter(ch.number)}
-                      className="group flex items-center justify-between p-3 rounded-xl bg-slate-950/70 hover:bg-slate-800/80 border border-slate-800 hover:border-cyan-500/40 text-left transition-all"
+                      className="group flex items-center justify-between p-3 xs:p-3.5 min-h-[48px] rounded-xl bg-slate-950/70 hover:bg-slate-800/80 border border-slate-800 hover:border-cyan-500/40 text-left transition-all"
                     >
                       <div className="pr-3">
                         <div className="flex items-center gap-1.5 text-xs text-slate-400 group-hover:text-cyan-300 transition-colors">

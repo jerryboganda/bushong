@@ -13,31 +13,31 @@ export const ReferenceGuide: React.FC = () => {
   const [activeTab, setActiveTab] = useState<'physics' | 'radiologic-units' | 'si-units' | 'constants' | 'conversions'>('physics');
 
   return (
-    <div className="max-w-5xl mx-auto px-4 py-8">
+    <div className="max-w-5xl mx-auto px-3.5 xs:px-4 py-6 sm:py-8">
       {/* Banner */}
-      <div className="bg-gradient-to-r from-cyan-950/60 via-slate-900 to-indigo-950/60 border border-cyan-500/30 rounded-2xl p-6 mb-8 shadow-xl">
+      <div className="bg-gradient-to-r from-cyan-950/60 via-slate-900 to-indigo-950/60 border border-cyan-500/30 rounded-2xl p-4 xs:p-6 sm:p-8 mb-6 sm:mb-8 shadow-xl">
         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
           <div>
             <div className="inline-flex items-center gap-2 px-2.5 py-1 rounded-full bg-cyan-500/10 border border-cyan-500/30 text-cyan-300 text-xs font-semibold mb-2">
               <BookOpen className="w-3.5 h-3.5" /> Inside Cover Reference Kit
             </div>
-            <h1 className="text-2xl sm:text-3xl font-bold text-white tracking-tight">
+            <h1 className="text-xl xs:text-2xl sm:text-3xl font-bold text-white tracking-tight">
               Review of Basic Physics & Radiologic Units
             </h1>
-            <p className="text-sm text-slate-300 mt-1">
+            <p className="text-xs sm:text-sm text-slate-300 mt-1">
               Exact formula sheets, SI prefixes, derived units, conversion tables, and fundamental physical constants from the 11th Edition front and back covers.
             </p>
           </div>
-          <span className="px-3 py-1.5 rounded-lg bg-slate-800 text-xs font-mono text-cyan-300 border border-slate-700 whitespace-nowrap">
+          <span className="px-3 py-1.5 rounded-lg bg-slate-800 text-xs font-mono text-cyan-300 border border-slate-700 whitespace-nowrap self-start sm:self-auto shrink-0">
             Bushong 11th Ed.
           </span>
         </div>
 
         {/* Tab Selection */}
-        <div className="flex flex-wrap gap-2 mt-6 pt-4 border-t border-slate-800">
+        <div className="flex overflow-x-auto no-scrollbar touch-scroll sm:flex-wrap gap-2 mt-6 pt-4 border-t border-slate-800 pb-1 sm:pb-0">
           <button
             onClick={() => setActiveTab('physics')}
-            className={`px-3.5 py-2 rounded-xl text-xs font-semibold transition-all flex items-center gap-1.5 ${
+            className={`whitespace-nowrap px-3.5 py-2.5 min-h-[40px] rounded-xl text-xs font-semibold transition-all flex items-center gap-1.5 shrink-0 ${
               activeTab === 'physics'
                 ? 'bg-cyan-500 text-slate-950 font-bold shadow-lg shadow-cyan-500/20'
                 : 'bg-slate-800/90 text-slate-300 hover:bg-slate-800 hover:text-white'
@@ -47,7 +47,7 @@ export const ReferenceGuide: React.FC = () => {
           </button>
           <button
             onClick={() => setActiveTab('radiologic-units')}
-            className={`px-3.5 py-2 rounded-xl text-xs font-semibold transition-all flex items-center gap-1.5 ${
+            className={`whitespace-nowrap px-3.5 py-2.5 min-h-[40px] rounded-xl text-xs font-semibold transition-all flex items-center gap-1.5 shrink-0 ${
               activeTab === 'radiologic-units'
                 ? 'bg-cyan-500 text-slate-950 font-bold shadow-lg shadow-cyan-500/20'
                 : 'bg-slate-800/90 text-slate-300 hover:bg-slate-800 hover:text-white'
@@ -57,7 +57,7 @@ export const ReferenceGuide: React.FC = () => {
           </button>
           <button
             onClick={() => setActiveTab('si-units')}
-            className={`px-3.5 py-2 rounded-xl text-xs font-semibold transition-all flex items-center gap-1.5 ${
+            className={`whitespace-nowrap px-3.5 py-2.5 min-h-[40px] rounded-xl text-xs font-semibold transition-all flex items-center gap-1.5 shrink-0 ${
               activeTab === 'si-units'
                 ? 'bg-cyan-500 text-slate-950 font-bold shadow-lg shadow-cyan-500/20'
                 : 'bg-slate-800/90 text-slate-300 hover:bg-slate-800 hover:text-white'
@@ -67,7 +67,7 @@ export const ReferenceGuide: React.FC = () => {
           </button>
           <button
             onClick={() => setActiveTab('constants')}
-            className={`px-3.5 py-2 rounded-xl text-xs font-semibold transition-all flex items-center gap-1.5 ${
+            className={`whitespace-nowrap px-3.5 py-2.5 min-h-[40px] rounded-xl text-xs font-semibold transition-all flex items-center gap-1.5 shrink-0 ${
               activeTab === 'constants'
                 ? 'bg-cyan-500 text-slate-950 font-bold shadow-lg shadow-cyan-500/20'
                 : 'bg-slate-800/90 text-slate-300 hover:bg-slate-800 hover:text-white'
@@ -77,7 +77,7 @@ export const ReferenceGuide: React.FC = () => {
           </button>
           <button
             onClick={() => setActiveTab('conversions')}
-            className={`px-3.5 py-2 rounded-xl text-xs font-semibold transition-all flex items-center gap-1.5 ${
+            className={`whitespace-nowrap px-3.5 py-2.5 min-h-[40px] rounded-xl text-xs font-semibold transition-all flex items-center gap-1.5 shrink-0 ${
               activeTab === 'conversions'
                 ? 'bg-cyan-500 text-slate-950 font-bold shadow-lg shadow-cyan-500/20'
                 : 'bg-slate-800/90 text-slate-300 hover:bg-slate-800 hover:text-white'
@@ -151,8 +151,8 @@ export const ReferenceGuide: React.FC = () => {
           </div>
 
           <div className="bg-slate-900 border border-slate-800 rounded-xl overflow-hidden shadow-lg">
-            <div className="overflow-x-auto">
-              <table className="w-full text-left text-xs text-slate-300">
+            <div className="overflow-x-auto no-scrollbar touch-scroll">
+              <table className="w-full min-w-[500px] text-left text-xs text-slate-300">
                 <thead className="bg-slate-950 text-slate-400 font-mono uppercase text-[10px] tracking-wider border-b border-slate-800">
                   <tr>
                     <th className="p-4">Quantity</th>
@@ -229,8 +229,8 @@ export const ReferenceGuide: React.FC = () => {
               SI Derived Units With Special Names
             </h3>
             <div className="bg-slate-900 border border-slate-800 rounded-xl overflow-hidden">
-              <div className="overflow-x-auto">
-                <table className="w-full text-left text-xs text-slate-300 font-mono">
+              <div className="overflow-x-auto no-scrollbar touch-scroll">
+                <table className="w-full min-w-[500px] text-left text-xs text-slate-300 font-mono">
                   <thead className="bg-slate-950 text-slate-400 uppercase text-[10px] tracking-wider border-b border-slate-800 font-sans">
                     <tr>
                       <th className="p-3">Quantity</th>
@@ -322,8 +322,8 @@ export const ReferenceGuide: React.FC = () => {
               Mass-Energy Equivalents (1 J = 10⁷ ergs; 4.19 J = 1 cal; 1 BTU = 1.06 × 10¹⁰ ergs)
             </h3>
             <div className="bg-slate-900 border border-slate-800 rounded-xl overflow-hidden">
-              <div className="overflow-x-auto">
-                <table className="w-full text-left text-xs font-mono">
+              <div className="overflow-x-auto no-scrollbar touch-scroll">
+                <table className="w-full min-w-[480px] text-left text-xs font-mono">
                   <thead className="bg-slate-950 text-slate-400 uppercase text-[10px] tracking-wider border-b border-slate-800 font-sans">
                     <tr>
                       <th className="p-3">Electron Volts (eV)</th>
@@ -353,8 +353,8 @@ export const ReferenceGuide: React.FC = () => {
               Time Equivalents
             </h3>
             <div className="bg-slate-900 border border-slate-800 rounded-xl overflow-hidden">
-              <div className="overflow-x-auto">
-                <table className="w-full text-left text-xs font-mono">
+              <div className="overflow-x-auto no-scrollbar touch-scroll">
+                <table className="w-full min-w-[450px] text-left text-xs font-mono">
                   <thead className="bg-slate-950 text-slate-400 uppercase text-[10px] tracking-wider border-b border-slate-800 font-sans">
                     <tr>
                       <th className="p-3">Unit</th>

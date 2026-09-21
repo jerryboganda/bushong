@@ -308,10 +308,10 @@ export const StudyDeck: React.FC<{ onNavigateToChapter: (ch: number) => void }> 
   return (
     <div className="space-y-6 max-w-5xl mx-auto pb-16">
       {/* Top Header */}
-      <div className="bg-slate-900 border border-slate-800 rounded-2xl p-6 sm:p-8 flex flex-col md:flex-row md:items-center justify-between gap-4 shadow-xl">
+      <div className="bg-slate-900 border border-slate-800 rounded-2xl p-4 xs:p-6 sm:p-8 flex flex-col md:flex-row md:items-center justify-between gap-4 shadow-xl">
         <div className="space-y-1">
           <div className="flex items-center gap-2">
-            <span className="p-2 rounded-xl bg-amber-500/10 text-amber-400 border border-amber-500/20">
+            <span className="p-2 rounded-xl bg-amber-500/10 text-amber-400 border border-amber-500/20 flex-shrink-0">
               <Sparkles className="w-5 h-5" />
             </span>
             <h1 className="text-xl sm:text-2xl font-black tracking-tight text-white">
@@ -324,10 +324,10 @@ export const StudyDeck: React.FC<{ onNavigateToChapter: (ch: number) => void }> 
         </div>
 
         {/* Due Today Filter Button */}
-        <div className="flex items-center gap-2 self-start md:self-auto">
+        <div className="flex items-center gap-2 self-start md:self-auto w-full md:w-auto">
           <button
             onClick={() => setFilterDueOnly(!filterDueOnly)}
-            className={`flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-bold border transition-all ${
+            className={`w-full md:w-auto min-h-[44px] justify-center flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-bold border transition-all ${
               filterDueOnly
                 ? 'bg-amber-500 text-slate-950 border-amber-400 shadow-md shadow-amber-500/20'
                 : 'bg-slate-950 text-slate-300 border-slate-800 hover:border-slate-700'
@@ -335,7 +335,7 @@ export const StudyDeck: React.FC<{ onNavigateToChapter: (ch: number) => void }> 
           >
             <Clock className="w-3.5 h-3.5" />
             <span>Due for Review Today</span>
-            <span className={`px-1.5 py-0.2 rounded-full font-mono text-[10px] ${
+            <span className={`px-2 py-0.5 rounded-full font-mono text-[10px] ${
               filterDueOnly ? 'bg-slate-900 text-amber-300' : 'bg-amber-500/20 text-amber-400'
             }`}>
               {dueStats.dueCount}
@@ -345,31 +345,31 @@ export const StudyDeck: React.FC<{ onNavigateToChapter: (ch: number) => void }> 
       </div>
 
       {/* Mode Switcher Tabs */}
-      <div className="flex items-center justify-between gap-2 overflow-x-auto pb-1">
-        <div className="flex items-center gap-1.5 bg-slate-950 p-1 rounded-xl border border-slate-800">
+      <div className="flex items-center gap-2 overflow-x-auto pb-1 no-scrollbar touch-scroll">
+        <div className="flex items-center gap-1.5 bg-slate-950 p-1 rounded-xl border border-slate-800 min-w-max">
           <button
             onClick={() => setMode('penguins')}
-            className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${
-              mode === 'penguins' ? 'bg-amber-500 text-slate-950 shadow-md shadow-amber-500/20' : 'text-slate-400 hover:text-white'
+            className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all min-h-[36px] ${
+              mode === 'penguins' ? 'bg-amber-500 text-slate-950 shadow-md shadow-amber-500/20 font-bold' : 'text-slate-400 hover:text-white'
             }`}
           >
-            Penguin Key Points ({ALL_PENGUINS.length})
+            Penguins ({ALL_PENGUINS.length})
           </button>
           <button
             onClick={() => setMode('questions')}
-            className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${
-              mode === 'questions' ? 'bg-cyan-500 text-slate-950 shadow-md shadow-cyan-500/20' : 'text-slate-400 hover:text-white'
+            className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all min-h-[36px] ${
+              mode === 'questions' ? 'bg-cyan-500 text-slate-950 shadow-md shadow-cyan-500/20 font-bold' : 'text-slate-400 hover:text-white'
             }`}
           >
-            Challenge Problems ({ALL_QUESTIONS.length})
+            Questions ({ALL_QUESTIONS.length})
           </button>
           <button
             onClick={() => setMode('formulas')}
-            className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${
-              mode === 'formulas' ? 'bg-emerald-500 text-slate-950 shadow-md shadow-emerald-500/20' : 'text-slate-400 hover:text-white'
+            className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all min-h-[36px] ${
+              mode === 'formulas' ? 'bg-emerald-500 text-slate-950 shadow-md shadow-emerald-500/20 font-bold' : 'text-slate-400 hover:text-white'
             }`}
           >
-            Formula Bank ({ALL_FORMULAS.length})
+            Formulas ({ALL_FORMULAS.length})
           </button>
         </div>
       </div>
@@ -472,25 +472,25 @@ export const StudyDeck: React.FC<{ onNavigateToChapter: (ch: number) => void }> 
                 </div>
               </div>
 
-              <div className="min-h-[220px] bg-gradient-to-br from-slate-950 via-slate-900 to-amber-950/20 border border-amber-500/30 rounded-2xl p-6 flex flex-col justify-between shadow-lg relative overflow-hidden">
+              <div className="min-h-[220px] bg-gradient-to-br from-slate-950 via-slate-900 to-amber-950/20 border border-amber-500/30 rounded-2xl p-4 xs:p-6 flex flex-col justify-between shadow-lg relative overflow-hidden">
                 <div className="absolute top-0 right-0 w-32 h-32 bg-amber-500/5 rounded-full blur-2xl pointer-events-none" />
                 <div>
                   <div className="flex items-center gap-2 text-amber-400 mb-2">
                     <Lightbulb className="w-5 h-5 flex-shrink-0" />
-                    <h3 className="text-lg font-bold text-white tracking-tight">{currentPenguin.title}</h3>
+                    <h3 className="text-base sm:text-lg font-bold text-white tracking-tight">{currentPenguin.title}</h3>
                   </div>
-                  <p className="text-base text-slate-200 leading-relaxed font-serif mt-3 pl-7">
+                  <p className="text-sm xs:text-base text-slate-200 leading-relaxed font-serif mt-3 pl-2 sm:pl-7">
                     "{currentPenguin.content}"
                   </p>
                 </div>
 
-                <div className="mt-6 pt-4 border-t border-slate-800/80 flex items-center justify-between text-xs">
+                <div className="mt-6 pt-4 border-t border-slate-800/80 flex flex-col xs:flex-row xs:items-center justify-between gap-2 text-xs">
                   <span className="text-slate-400">
-                    Bushong Key Concept • ARRT Radiography Core Insight
+                    Bushong Key Concept • ARRT Physics
                   </span>
                   <button
                     onClick={() => onNavigateToChapter(currentPenguin.chapterNumber)}
-                    className="text-amber-400 hover:text-amber-300 flex items-center gap-1 font-medium"
+                    className="text-amber-400 hover:text-amber-300 flex items-center gap-1 font-medium self-start xs:self-auto py-1"
                   >
                     Open Full Chapter <ChevronRight className="w-3.5 h-3.5" />
                   </button>
@@ -498,44 +498,44 @@ export const StudyDeck: React.FC<{ onNavigateToChapter: (ch: number) => void }> 
               </div>
 
               {/* SM-2 Spaced Repetition Rating Bar */}
-              <div className="mt-4 p-3 bg-slate-900 border border-slate-800 rounded-xl space-y-2">
+              <div className="mt-4 p-3 xs:p-3.5 bg-slate-900 border border-slate-800 rounded-xl space-y-2">
                 <div className="flex items-center justify-between text-xs font-semibold text-slate-300 px-1">
-                  <span>How well did you know this concept? (SM-2 Interval Scheduling)</span>
+                  <span>How well did you know this concept?</span>
                   <span className="text-slate-500 text-[10px] hidden sm:inline">Keys 1, 2, 3, 4</span>
                 </div>
-                <div className="grid grid-cols-4 gap-2 text-xs font-bold">
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 text-xs font-bold">
                   <button
                     onClick={() => handleRateCard(currentPenguin.id, 'penguin', 1)}
-                    className="py-2.5 rounded-lg bg-rose-950/40 hover:bg-rose-900/60 border border-rose-500/40 text-rose-300 transition-all text-center"
+                    className="min-h-[44px] py-2 px-2 rounded-lg bg-rose-950/40 hover:bg-rose-900/60 border border-rose-500/40 text-rose-300 transition-all flex flex-col xs:flex-row items-center justify-center gap-0.5 xs:gap-1.5"
                   >
-                    Again (1d)
+                    <span>Again</span> <span className="text-[10px] opacity-75 font-mono">(1d)</span>
                   </button>
                   <button
                     onClick={() => handleRateCard(currentPenguin.id, 'penguin', 2)}
-                    className="py-2.5 rounded-lg bg-amber-950/40 hover:bg-amber-900/60 border border-amber-500/40 text-amber-300 transition-all text-center"
+                    className="min-h-[44px] py-2 px-2 rounded-lg bg-amber-950/40 hover:bg-amber-900/60 border border-amber-500/40 text-amber-300 transition-all flex flex-col xs:flex-row items-center justify-center gap-0.5 xs:gap-1.5"
                   >
-                    Hard (2d)
+                    <span>Hard</span> <span className="text-[10px] opacity-75 font-mono">(2d)</span>
                   </button>
                   <button
                     onClick={() => handleRateCard(currentPenguin.id, 'penguin', 3)}
-                    className="py-2.5 rounded-lg bg-emerald-950/40 hover:bg-emerald-900/60 border border-emerald-500/40 text-emerald-300 transition-all text-center"
+                    className="min-h-[44px] py-2 px-2 rounded-lg bg-emerald-950/40 hover:bg-emerald-900/60 border border-emerald-500/40 text-emerald-300 transition-all flex flex-col xs:flex-row items-center justify-center gap-0.5 xs:gap-1.5"
                   >
-                    Good (4d)
+                    <span>Good</span> <span className="text-[10px] opacity-75 font-mono">(4d)</span>
                   </button>
                   <button
                     onClick={() => handleRateCard(currentPenguin.id, 'penguin', 4)}
-                    className="py-2.5 rounded-lg bg-cyan-950/40 hover:bg-cyan-900/60 border border-cyan-500/40 text-cyan-300 transition-all text-center"
+                    className="min-h-[44px] py-2 px-2 rounded-lg bg-cyan-950/40 hover:bg-cyan-900/60 border border-cyan-500/40 text-cyan-300 transition-all flex flex-col xs:flex-row items-center justify-center gap-0.5 xs:gap-1.5"
                   >
-                    Easy (7d)
+                    <span>Easy</span> <span className="text-[10px] opacity-75 font-mono">(7d)</span>
                   </button>
                 </div>
               </div>
 
               {/* Prev / Next controls */}
-              <div className="flex items-center justify-between mt-3">
+              <div className="flex items-center justify-between gap-2 mt-3">
                 <button
                   onClick={prevPenguin}
-                  className="flex items-center gap-1.5 px-4 py-2 rounded-lg bg-slate-950 hover:bg-slate-800 text-slate-200 text-xs font-semibold border border-slate-800 transition-all"
+                  className="min-h-[44px] flex items-center justify-center gap-1.5 px-4 py-2 rounded-lg bg-slate-950 hover:bg-slate-800 text-slate-200 text-xs font-semibold border border-slate-800 transition-all"
                 >
                   <ChevronLeft className="w-4 h-4" /> Previous
                 </button>
@@ -544,7 +544,7 @@ export const StudyDeck: React.FC<{ onNavigateToChapter: (ch: number) => void }> 
                 </span>
                 <button
                   onClick={nextPenguin}
-                  className="flex items-center gap-1.5 px-4 py-2 rounded-lg bg-amber-500 hover:bg-amber-400 text-slate-950 text-xs font-bold transition-all shadow-md shadow-amber-500/20"
+                  className="min-h-[44px] flex items-center justify-center gap-1.5 px-4 py-2 rounded-lg bg-amber-500 hover:bg-amber-400 text-slate-950 text-xs font-bold transition-all shadow-md shadow-amber-500/20"
                 >
                   Next <ChevronRight className="w-4 h-4" />
                 </button>
@@ -658,19 +658,19 @@ export const StudyDeck: React.FC<{ onNavigateToChapter: (ch: number) => void }> 
                 </div>
               </div>
 
-              <div className="min-h-[220px] bg-slate-950 border border-slate-800 rounded-2xl p-6 flex flex-col justify-between shadow-lg">
+              <div className="min-h-[220px] bg-slate-950 border border-slate-800 rounded-2xl p-4 xs:p-6 flex flex-col justify-between shadow-lg">
                 <div>
-                  <div className="flex items-start gap-3 mb-4">
+                  <div className="flex items-start gap-2.5 xs:gap-3 mb-4">
                     <span className="text-xs font-bold px-2 py-0.5 rounded bg-slate-800 text-cyan-400 font-mono flex-shrink-0 mt-0.5 border border-slate-700">
                       Q{currentQuestion.questionNumber}
                     </span>
-                    <h3 className="text-base font-semibold text-white leading-relaxed">{currentQuestion.question}</h3>
+                    <h3 className="text-sm xs:text-base font-semibold text-white leading-relaxed">{currentQuestion.question}</h3>
                   </div>
 
                   {showAnswer ? (
-                    <div className="mt-4 p-4 rounded-xl bg-slate-900 border border-cyan-500/30 text-slate-200 text-sm leading-relaxed space-y-3 animate-fadeIn">
+                    <div className="mt-4 p-3.5 xs:p-4 rounded-xl bg-slate-900 border border-cyan-500/30 text-slate-200 text-sm leading-relaxed space-y-3 animate-fadeIn">
                       {currentQuestion.answer && (
-                        <div className="p-3.5 rounded-lg bg-emerald-950/40 border border-emerald-500/30">
+                        <div className="p-3 xs:p-3.5 rounded-lg bg-emerald-950/40 border border-emerald-500/30">
                           <strong className="text-emerald-400 block mb-1 text-xs uppercase tracking-wider flex items-center gap-1.5">
                             <CheckCircle2 className="w-4 h-4 text-emerald-400" /> High-Yield Board Answer:
                           </strong>
@@ -690,7 +690,7 @@ export const StudyDeck: React.FC<{ onNavigateToChapter: (ch: number) => void }> 
                     <div className="mt-8 flex justify-center">
                       <button
                         onClick={() => setShowAnswer(true)}
-                        className="px-5 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-cyan-300 hover:text-cyan-200 text-xs font-bold border border-slate-700 flex items-center gap-2 transition-all shadow-md"
+                        className="w-full sm:w-auto min-h-[44px] justify-center px-5 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-cyan-300 hover:text-cyan-200 text-xs font-bold border border-slate-700 flex items-center gap-2 transition-all shadow-md"
                       >
                         <CheckCircle2 className="w-4 h-4 text-cyan-400" /> Reveal Solution & Detailed Rationale
                       </button>
@@ -698,14 +698,14 @@ export const StudyDeck: React.FC<{ onNavigateToChapter: (ch: number) => void }> 
                   )}
                 </div>
 
-                <div className="mt-6 pt-4 border-t border-slate-800/80 flex items-center justify-between text-xs">
+                <div className="mt-6 pt-4 border-t border-slate-800/80 flex flex-col xs:flex-row xs:items-center justify-between gap-2 text-xs">
                   <span className="text-slate-400">
                     Chapter {currentQuestion.chapterNumber} Challenge Problem {currentQuestion.questionNumber}
                   </span>
                   {showAnswer && (
                     <button
                       onClick={() => setShowAnswer(false)}
-                      className="text-slate-400 hover:text-white flex items-center gap-1"
+                      className="text-slate-400 hover:text-white flex items-center gap-1 self-start xs:self-auto py-1"
                     >
                       <RotateCcw className="w-3.5 h-3.5" /> Hide Solution
                     </button>
@@ -715,44 +715,44 @@ export const StudyDeck: React.FC<{ onNavigateToChapter: (ch: number) => void }> 
 
               {/* SM-2 Rating for Questions */}
               {showAnswer && (
-                <div className="mt-4 p-3 bg-slate-900 border border-slate-800 rounded-xl space-y-2 animate-fadeIn">
+                <div className="mt-4 p-3 xs:p-3.5 bg-slate-900 border border-slate-800 rounded-xl space-y-2 animate-fadeIn">
                   <div className="flex items-center justify-between text-xs font-semibold text-slate-300 px-1">
-                    <span>Rate your recall quality to schedule next review:</span>
+                    <span>Rate your recall quality:</span>
                     <span className="text-slate-500 text-[10px] hidden sm:inline">Keys 1, 2, 3, 4</span>
                   </div>
-                  <div className="grid grid-cols-4 gap-2 text-xs font-bold">
+                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 text-xs font-bold">
                     <button
                       onClick={() => handleRateCard(currentQuestion.id, 'question', 1)}
-                      className="py-2.5 rounded-lg bg-rose-950/40 hover:bg-rose-900/60 border border-rose-500/40 text-rose-300 transition-all text-center"
+                      className="min-h-[44px] py-2 px-2 rounded-lg bg-rose-950/40 hover:bg-rose-900/60 border border-rose-500/40 text-rose-300 transition-all flex flex-col xs:flex-row items-center justify-center gap-0.5 xs:gap-1.5"
                     >
-                      Again (1d)
+                      <span>Again</span> <span className="text-[10px] opacity-75 font-mono">(1d)</span>
                     </button>
                     <button
                       onClick={() => handleRateCard(currentQuestion.id, 'question', 2)}
-                      className="py-2.5 rounded-lg bg-amber-950/40 hover:bg-amber-900/60 border border-amber-500/40 text-amber-300 transition-all text-center"
+                      className="min-h-[44px] py-2 px-2 rounded-lg bg-amber-950/40 hover:bg-amber-900/60 border border-amber-500/40 text-amber-300 transition-all flex flex-col xs:flex-row items-center justify-center gap-0.5 xs:gap-1.5"
                     >
-                      Hard (2d)
+                      <span>Hard</span> <span className="text-[10px] opacity-75 font-mono">(2d)</span>
                     </button>
                     <button
                       onClick={() => handleRateCard(currentQuestion.id, 'question', 3)}
-                      className="py-2.5 rounded-lg bg-emerald-950/40 hover:bg-emerald-900/60 border border-emerald-500/40 text-emerald-300 transition-all text-center"
+                      className="min-h-[44px] py-2 px-2 rounded-lg bg-emerald-950/40 hover:bg-emerald-900/60 border border-emerald-500/40 text-emerald-300 transition-all flex flex-col xs:flex-row items-center justify-center gap-0.5 xs:gap-1.5"
                     >
-                      Good (4d)
+                      <span>Good</span> <span className="text-[10px] opacity-75 font-mono">(4d)</span>
                     </button>
                     <button
                       onClick={() => handleRateCard(currentQuestion.id, 'question', 4)}
-                      className="py-2.5 rounded-lg bg-cyan-950/40 hover:bg-cyan-900/60 border border-cyan-500/40 text-cyan-300 transition-all text-center"
+                      className="min-h-[44px] py-2 px-2 rounded-lg bg-cyan-950/40 hover:bg-cyan-900/60 border border-cyan-500/40 text-cyan-300 transition-all flex flex-col xs:flex-row items-center justify-center gap-0.5 xs:gap-1.5"
                     >
-                      Easy (7d)
+                      <span>Easy</span> <span className="text-[10px] opacity-75 font-mono">(7d)</span>
                     </button>
                   </div>
                 </div>
               )}
 
-              <div className="flex items-center justify-between mt-4">
+              <div className="flex items-center justify-between gap-2 mt-4">
                 <button
                   onClick={prevQuestion}
-                  className="flex items-center gap-1.5 px-4 py-2 rounded-lg bg-slate-950 hover:bg-slate-800 text-slate-200 text-xs font-semibold border border-slate-800 transition-all"
+                  className="min-h-[44px] flex items-center justify-center gap-1.5 px-4 py-2 rounded-lg bg-slate-950 hover:bg-slate-800 text-slate-200 text-xs font-semibold border border-slate-800 transition-all"
                 >
                   <ChevronLeft className="w-4 h-4" /> Previous
                 </button>
@@ -761,7 +761,7 @@ export const StudyDeck: React.FC<{ onNavigateToChapter: (ch: number) => void }> 
                 </span>
                 <button
                   onClick={nextQuestion}
-                  className="flex items-center gap-1.5 px-4 py-2 rounded-lg bg-cyan-500 hover:bg-cyan-400 text-slate-950 text-xs font-bold transition-all shadow-md shadow-cyan-500/20"
+                  className="min-h-[44px] flex items-center justify-center gap-1.5 px-4 py-2 rounded-lg bg-cyan-500 hover:bg-cyan-400 text-slate-950 text-xs font-bold transition-all shadow-md shadow-cyan-500/20"
                 >
                   Next <ChevronRight className="w-4 h-4" />
                 </button>
@@ -900,19 +900,19 @@ export const StudyDeck: React.FC<{ onNavigateToChapter: (ch: number) => void }> 
                     </div>
                   </div>
 
-                  <div className="min-h-[220px] bg-slate-950 border border-slate-800 rounded-2xl p-6 flex flex-col justify-between shadow-lg">
+                  <div className="min-h-[220px] bg-slate-950 border border-slate-800 rounded-2xl p-4 xs:p-6 flex flex-col justify-between shadow-lg">
                     <div>
                       <div className="flex items-start justify-between gap-3 mb-3">
-                        <h3 className="text-lg font-bold text-emerald-400">{currentFormula.name}</h3>
+                        <h3 className="text-base sm:text-lg font-bold text-emerald-400">{currentFormula.name}</h3>
                         <span className="text-[10px] px-2 py-0.5 rounded bg-slate-800 text-slate-400 font-mono">
                           Eq. {currentFormula.id}
                         </span>
                       </div>
-                      <p className="text-sm text-slate-300 leading-relaxed mb-4">{currentFormula.description}</p>
+                      <p className="text-xs sm:text-sm text-slate-300 leading-relaxed mb-4">{currentFormula.description}</p>
 
                       {showFormulaEquation ? (
                         <div className="space-y-4 animate-fadeIn">
-                          <div className="bg-slate-900 border border-emerald-500/40 rounded-xl p-4 font-mono text-base sm:text-lg text-emerald-300 font-bold tracking-wider shadow-inner text-center">
+                          <div className="bg-slate-900 border border-emerald-500/40 rounded-xl p-3.5 xs:p-4 font-mono text-base sm:text-lg text-emerald-300 font-bold tracking-wider shadow-inner text-center overflow-x-auto no-scrollbar touch-scroll">
                             {currentFormula.formula}
                           </div>
 
@@ -934,7 +934,7 @@ export const StudyDeck: React.FC<{ onNavigateToChapter: (ch: number) => void }> 
                         <div className="mt-8 flex justify-center">
                           <button
                             onClick={() => setShowFormulaEquation(true)}
-                            className="px-5 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-emerald-300 hover:text-emerald-200 text-xs font-bold border border-slate-700 flex items-center gap-2 transition-all shadow-md"
+                            className="w-full sm:w-auto min-h-[44px] justify-center px-5 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-emerald-300 hover:text-emerald-200 text-xs font-bold border border-slate-700 flex items-center gap-2 transition-all shadow-md"
                           >
                             <CheckCircle2 className="w-4 h-4 text-emerald-400" /> Reveal Formula Equation & Variables
                           </button>
@@ -942,14 +942,14 @@ export const StudyDeck: React.FC<{ onNavigateToChapter: (ch: number) => void }> 
                       )}
                     </div>
 
-                    <div className="mt-6 pt-4 border-t border-slate-800/80 flex items-center justify-between text-xs">
+                    <div className="mt-6 pt-4 border-t border-slate-800/80 flex flex-col xs:flex-row xs:items-center justify-between gap-2 text-xs">
                       <span className="text-slate-500">
-                        Chapter {currentFormula.chapterNumber} • Radiologic Physics Formula
+                        Chapter {currentFormula.chapterNumber} • Physics Formula
                       </span>
                       {showFormulaEquation && (
                         <button
                           onClick={() => setShowFormulaEquation(false)}
-                          className="text-slate-400 hover:text-white flex items-center gap-1"
+                          className="text-slate-400 hover:text-white flex items-center gap-1 self-start xs:self-auto py-1"
                         >
                           <RotateCcw className="w-3.5 h-3.5" /> Hide Equation
                         </button>
@@ -959,44 +959,44 @@ export const StudyDeck: React.FC<{ onNavigateToChapter: (ch: number) => void }> 
 
                   {/* SM-2 Rating for Formulas */}
                   {showFormulaEquation && (
-                    <div className="mt-4 p-3 bg-slate-900 border border-slate-800 rounded-xl space-y-2 animate-fadeIn">
+                    <div className="mt-4 p-3 xs:p-3.5 bg-slate-900 border border-slate-800 rounded-xl space-y-2 animate-fadeIn">
                       <div className="flex items-center justify-between text-xs font-semibold text-slate-300 px-1">
-                        <span>Rate formula recall to schedule next review:</span>
+                        <span>Rate formula recall:</span>
                         <span className="text-slate-500 text-[10px] hidden sm:inline">Keys 1, 2, 3, 4</span>
                       </div>
-                      <div className="grid grid-cols-4 gap-2 text-xs font-bold">
+                      <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 text-xs font-bold">
                         <button
                           onClick={() => handleRateCard(currentFormula.id, 'formula', 1)}
-                          className="py-2.5 rounded-lg bg-rose-950/40 hover:bg-rose-900/60 border border-rose-500/40 text-rose-300 transition-all text-center"
+                          className="min-h-[44px] py-2 px-2 rounded-lg bg-rose-950/40 hover:bg-rose-900/60 border border-rose-500/40 text-rose-300 transition-all flex flex-col xs:flex-row items-center justify-center gap-0.5 xs:gap-1.5"
                         >
-                          Again (1d)
+                          <span>Again</span> <span className="text-[10px] opacity-75 font-mono">(1d)</span>
                         </button>
                         <button
                           onClick={() => handleRateCard(currentFormula.id, 'formula', 2)}
-                          className="py-2.5 rounded-lg bg-amber-950/40 hover:bg-amber-900/60 border border-amber-500/40 text-amber-300 transition-all text-center"
+                          className="min-h-[44px] py-2 px-2 rounded-lg bg-amber-950/40 hover:bg-amber-900/60 border border-amber-500/40 text-amber-300 transition-all flex flex-col xs:flex-row items-center justify-center gap-0.5 xs:gap-1.5"
                         >
-                          Hard (2d)
+                          <span>Hard</span> <span className="text-[10px] opacity-75 font-mono">(2d)</span>
                         </button>
                         <button
                           onClick={() => handleRateCard(currentFormula.id, 'formula', 3)}
-                          className="py-2.5 rounded-lg bg-emerald-950/40 hover:bg-emerald-900/60 border border-emerald-500/40 text-emerald-300 transition-all text-center"
+                          className="min-h-[44px] py-2 px-2 rounded-lg bg-emerald-950/40 hover:bg-emerald-900/60 border border-emerald-500/40 text-emerald-300 transition-all flex flex-col xs:flex-row items-center justify-center gap-0.5 xs:gap-1.5"
                         >
-                          Good (4d)
+                          <span>Good</span> <span className="text-[10px] opacity-75 font-mono">(4d)</span>
                         </button>
                         <button
                           onClick={() => handleRateCard(currentFormula.id, 'formula', 4)}
-                          className="py-2.5 rounded-lg bg-cyan-950/40 hover:bg-cyan-900/60 border border-cyan-500/40 text-cyan-300 transition-all text-center"
+                          className="min-h-[44px] py-2 px-2 rounded-lg bg-cyan-950/40 hover:bg-cyan-900/60 border border-cyan-500/40 text-cyan-300 transition-all flex flex-col xs:flex-row items-center justify-center gap-0.5 xs:gap-1.5"
                         >
-                          Easy (7d)
+                          <span>Easy</span> <span className="text-[10px] opacity-75 font-mono">(7d)</span>
                         </button>
                       </div>
                     </div>
                   )}
 
-                  <div className="flex items-center justify-between mt-4">
+                  <div className="flex items-center justify-between gap-2 mt-4">
                     <button
                       onClick={prevFormula}
-                      className="flex items-center gap-1.5 px-4 py-2 rounded-lg bg-slate-950 hover:bg-slate-800 text-slate-200 text-xs font-semibold border border-slate-800 transition-all"
+                      className="min-h-[44px] flex items-center justify-center gap-1.5 px-4 py-2 rounded-lg bg-slate-950 hover:bg-slate-800 text-slate-200 text-xs font-semibold border border-slate-800 transition-all"
                     >
                       <ChevronLeft className="w-4 h-4" /> Previous
                     </button>
@@ -1005,7 +1005,7 @@ export const StudyDeck: React.FC<{ onNavigateToChapter: (ch: number) => void }> 
                     </span>
                     <button
                       onClick={nextFormula}
-                      className="flex items-center gap-1.5 px-4 py-2 rounded-lg bg-emerald-500 hover:bg-emerald-400 text-slate-950 text-xs font-bold transition-all shadow-md shadow-emerald-500/20"
+                      className="min-h-[44px] flex items-center justify-center gap-1.5 px-4 py-2 rounded-lg bg-emerald-500 hover:bg-emerald-400 text-slate-950 text-xs font-bold transition-all shadow-md shadow-emerald-500/20"
                     >
                       Next <ChevronRight className="w-4 h-4" />
                     </button>

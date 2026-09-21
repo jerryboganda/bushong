@@ -289,8 +289,8 @@ export const ChapterReader: React.FC<ChapterReaderProps> = ({
 
       {/* Edit Highlight / One-Liner Modal */}
       {editingHighlight && (
-        <div className="fixed inset-0 z-50 bg-black/70 backdrop-blur-sm flex items-center justify-center p-4">
-          <div className="bg-slate-900 border border-slate-800 rounded-2xl max-w-md w-full p-6 space-y-4 shadow-2xl animate-fadeIn">
+        <div className="fixed inset-0 z-50 bg-black/70 backdrop-blur-sm flex items-center justify-center p-3 xs:p-4">
+          <div className="bg-slate-900 border border-slate-800 rounded-2xl max-w-md w-full max-h-[92vh] overflow-y-auto p-4 xs:p-6 space-y-4 shadow-2xl animate-fadeIn">
             <div className="flex items-center justify-between pb-3 border-b border-slate-800">
               <div className="flex items-center gap-2">
                 <Highlighter className="w-4 h-4 text-amber-400" />
@@ -298,7 +298,7 @@ export const ChapterReader: React.FC<ChapterReaderProps> = ({
               </div>
               <button
                 onClick={() => setEditingHighlight(null)}
-                className="p-1 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800"
+                className="p-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800 min-w-[32px] min-h-[32px] flex items-center justify-center"
               >
                 <X className="w-4 h-4" />
               </button>
@@ -319,7 +319,7 @@ export const ChapterReader: React.FC<ChapterReaderProps> = ({
                 value={editPrompt}
                 onChange={e => setEditPrompt(e.target.value)}
                 placeholder="e.g. What is the formula or key board rule?"
-                className="w-full bg-slate-950 border border-slate-700 rounded-lg p-2 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-cyan-400"
+                className="w-full bg-slate-950 border border-slate-700 rounded-lg p-2.5 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-cyan-400"
               />
             </div>
 
@@ -335,7 +335,7 @@ export const ChapterReader: React.FC<ChapterReaderProps> = ({
                       key={c}
                       type="button"
                       onClick={() => setEditTag(c)}
-                      className={`p-1.5 rounded-lg border text-[10px] font-bold flex flex-col items-center gap-1 transition-all ${
+                      className={`p-1.5 rounded-lg border text-[10px] font-bold flex flex-col items-center gap-1 transition-all min-h-[44px] justify-center ${
                         isSelected ? `${cfg.bg} ${cfg.text} ${cfg.border} ring-2 ring-cyan-400` : 'bg-slate-950 text-slate-400 border-slate-800'
                       }`}
                     >
@@ -353,14 +353,14 @@ export const ChapterReader: React.FC<ChapterReaderProps> = ({
                 <button
                   type="button"
                   onClick={handleDeleteFromEdit}
-                  className="px-3 py-1.5 rounded-lg bg-rose-950/40 hover:bg-rose-900/60 text-rose-300 border border-rose-500/30 text-xs font-bold flex items-center gap-1 transition-colors"
+                  className="px-3 py-1.5 rounded-lg bg-rose-950/40 hover:bg-rose-900/60 text-rose-300 border border-rose-500/30 text-xs font-bold flex items-center gap-1 transition-colors min-h-[36px]"
                 >
                   <Trash2 className="w-3.5 h-3.5" /> Delete
                 </button>
                 <button
                   type="button"
                   onClick={handleToggleStarFromEdit}
-                  className={`p-1.5 rounded-lg border text-xs transition-colors ${
+                  className={`p-1.5 rounded-lg border text-xs transition-colors min-w-[36px] min-h-[36px] flex items-center justify-center ${
                     editingHighlight.starred
                       ? 'bg-amber-500/20 text-amber-300 border-amber-500/40'
                       : 'bg-slate-950 text-slate-400 border-slate-800 hover:text-white'
@@ -375,14 +375,14 @@ export const ChapterReader: React.FC<ChapterReaderProps> = ({
                 <button
                   type="button"
                   onClick={() => setEditingHighlight(null)}
-                  className="px-3 py-1.5 rounded-lg bg-slate-800 text-slate-300 hover:text-white text-xs font-semibold"
+                  className="px-3 py-1.5 rounded-lg bg-slate-800 text-slate-300 hover:text-white text-xs font-semibold min-h-[36px]"
                 >
                   Cancel
                 </button>
                 <button
                   type="button"
                   onClick={handleSaveHighlightEdit}
-                  className="px-3.5 py-1.5 rounded-lg bg-cyan-500 hover:bg-cyan-400 text-slate-950 text-xs font-bold shadow flex items-center gap-1"
+                  className="px-3.5 py-1.5 rounded-lg bg-cyan-500 hover:bg-cyan-400 text-slate-950 text-xs font-bold shadow flex items-center gap-1 min-h-[36px]"
                 >
                   <Check className="w-3.5 h-3.5" /> Save
                 </button>
@@ -394,8 +394,8 @@ export const ChapterReader: React.FC<ChapterReaderProps> = ({
 
       {/* Persistent Audio TTS Control Bar */}
       {(ttsState.isPlaying || ttsState.isPaused) && (
-        <div className="sticky top-16 z-30 bg-slate-900/95 backdrop-blur-md border border-cyan-500/40 rounded-2xl p-3 shadow-xl flex items-center justify-between gap-3 animate-fadeIn">
-          <div className="flex items-center gap-2.5 min-w-0">
+        <div className="sticky top-16 z-30 bg-slate-900/95 backdrop-blur-md border border-cyan-500/40 rounded-2xl p-2.5 xs:p-3 shadow-xl flex flex-wrap sm:flex-nowrap items-center justify-between gap-2.5 animate-fadeIn">
+          <div className="flex items-center gap-2.5 min-w-0 flex-1">
             <div className="w-8 h-8 rounded-lg bg-cyan-500/20 text-cyan-400 flex items-center justify-center flex-shrink-0">
               <Volume2 className="w-4 h-4 animate-pulse" />
             </div>
@@ -409,7 +409,7 @@ export const ChapterReader: React.FC<ChapterReaderProps> = ({
             </div>
           </div>
 
-          <div className="flex items-center gap-2 flex-shrink-0">
+          <div className="flex items-center gap-1.5 xs:gap-2 flex-shrink-0">
             {/* Speed selector */}
             <select
               value={ttsState.rate}
@@ -425,7 +425,7 @@ export const ChapterReader: React.FC<ChapterReaderProps> = ({
 
             <button
               onClick={() => (ttsState.isPaused ? tts.resume() : tts.pause())}
-              className="p-1.5 rounded-lg bg-cyan-500 text-slate-950 hover:bg-cyan-400 transition-colors font-bold"
+              className="p-1.5 rounded-lg bg-cyan-500 text-slate-950 hover:bg-cyan-400 transition-colors font-bold min-w-[32px] min-h-[32px] flex items-center justify-center"
               title={ttsState.isPaused ? "Resume" : "Pause"}
             >
               {ttsState.isPaused ? <Play className="w-4 h-4" /> : <Pause className="w-4 h-4" />}
@@ -433,7 +433,7 @@ export const ChapterReader: React.FC<ChapterReaderProps> = ({
 
             <button
               onClick={() => tts.stop()}
-              className="p-1.5 rounded-lg bg-slate-800 text-slate-300 hover:text-white hover:bg-slate-700 transition-colors"
+              className="p-1.5 rounded-lg bg-slate-800 text-slate-300 hover:text-white hover:bg-slate-700 transition-colors min-w-[32px] min-h-[32px] flex items-center justify-center"
               title="Stop audio playback"
             >
               <Square className="w-4 h-4" />
@@ -443,7 +443,7 @@ export const ChapterReader: React.FC<ChapterReaderProps> = ({
       )}
 
       {/* Chapter Header Banner */}
-      <div className={`border rounded-2xl p-6 sm:p-8 shadow-xl relative overflow-hidden backdrop-blur-sm ${themeClasses}`}>
+      <div className={`border rounded-2xl p-4 xs:p-6 sm:p-8 shadow-xl relative overflow-hidden backdrop-blur-sm ${themeClasses}`}>
         <div className="absolute -top-12 -right-12 w-48 h-48 bg-cyan-500/10 rounded-full blur-3xl pointer-events-none" />
 
         <div className="flex flex-wrap items-center justify-between gap-3 mb-3 text-xs">
@@ -500,7 +500,7 @@ export const ChapterReader: React.FC<ChapterReaderProps> = ({
           </div>
         </div>
 
-        <h1 className="text-2xl sm:text-3xl font-extrabold text-white tracking-tight leading-tight">
+        <h1 className="text-xl xs:text-2xl sm:text-3xl font-extrabold text-white tracking-tight leading-tight">
           Chapter {chapter.number}: {chapter.title}
         </h1>
 
@@ -519,7 +519,7 @@ export const ChapterReader: React.FC<ChapterReaderProps> = ({
 
       {/* User's Saved High-Yield Highlights in this Chapter */}
       {chapterHighlights.length > 0 && (
-        <div className="bg-gradient-to-r from-slate-900 via-amber-950/20 to-slate-900 border border-amber-500/30 rounded-xl p-5 space-y-3 shadow-md">
+        <div className="bg-gradient-to-r from-slate-900 via-amber-950/20 to-slate-900 border border-amber-500/30 rounded-xl p-3.5 xs:p-5 space-y-3 shadow-md">
           <div className="flex items-center justify-between">
             <h3 className="text-xs font-bold uppercase tracking-wider text-amber-300 flex items-center gap-2">
               <Highlighter className="w-4 h-4 text-amber-400" />
@@ -589,11 +589,11 @@ export const ChapterReader: React.FC<ChapterReaderProps> = ({
       )}
 
       {/* Learning Objectives */}
-      <section className={`border rounded-xl p-6 shadow-md ${themeClasses}`}>
+      <section className={`border rounded-xl p-4 xs:p-6 shadow-md ${themeClasses}`}>
         <div className="flex items-center justify-between mb-4">
-          <h2 className="text-base font-bold text-white flex items-center gap-2">
+          <h2 className="text-sm xs:text-base font-bold text-white flex items-center gap-2">
             <CheckCircle className="w-4 h-4 text-cyan-400" />
-            Learning Objectives & Clinical Competencies
+            Learning Objectives & Competencies
           </h2>
           <span className="text-xs text-slate-400 font-mono">
             {completedObjectives.length} / {chapter.objectives.length} Mastered
@@ -617,7 +617,7 @@ export const ChapterReader: React.FC<ChapterReaderProps> = ({
                   type="checkbox"
                   checked={isDone}
                   onChange={() => {}}
-                  className="mt-0.5 rounded border-slate-700 text-cyan-500 focus:ring-0 focus:ring-offset-0 bg-slate-800 cursor-pointer"
+                  className="mt-0.5 rounded border-slate-700 text-cyan-500 focus:ring-0 focus:ring-offset-0 bg-slate-800 cursor-pointer flex-shrink-0"
                 />
                 <span className={`leading-relaxed ${isDone ? 'line-through opacity-80' : ''}`}>
                   <TextWithGlossary
@@ -650,7 +650,7 @@ export const ChapterReader: React.FC<ChapterReaderProps> = ({
             {chapter.penguins.map(p => (
               <div
                 key={p.id}
-                className="bg-gradient-to-br from-amber-950/30 to-slate-900 border border-amber-500/30 rounded-xl p-4 shadow-sm relative overflow-hidden"
+                className="bg-gradient-to-br from-amber-950/30 to-slate-900 border border-amber-500/30 rounded-xl p-3.5 xs:p-4 shadow-sm relative overflow-hidden"
               >
                 <div className="flex items-start justify-between gap-2 mb-1.5">
                   <div className="flex items-start gap-2">
@@ -665,7 +665,7 @@ export const ChapterReader: React.FC<ChapterReaderProps> = ({
                     <Volume2 className="w-3.5 h-3.5" />
                   </button>
                 </div>
-                <div className="text-xs text-slate-200 leading-relaxed pl-6">
+                <div className="text-xs text-slate-200 leading-relaxed pl-2 xs:pl-6">
                   <TextWithGlossary
                     text={p.content}
                     enabled={readerPrefs.glossaryTooltips}
@@ -683,17 +683,17 @@ export const ChapterReader: React.FC<ChapterReaderProps> = ({
 
       {/* Essential Formulas */}
       {chapter.formulas.length > 0 && (
-        <section className={`border rounded-xl p-6 shadow-md ${themeClasses}`}>
+        <section className={`border rounded-xl p-4 xs:p-6 shadow-md ${themeClasses}`}>
           <div className="flex items-center justify-between mb-4">
-            <h2 className="text-base font-bold text-white flex items-center gap-2">
+            <h2 className="text-sm xs:text-base font-bold text-white flex items-center gap-2">
               <Calculator className="w-4 h-4 text-cyan-400" />
-              Formulas & Mathematical Relationships
+              Formulas & Relationships
             </h2>
             <button
               onClick={onOpenCalculators}
-              className="text-xs text-cyan-400 hover:text-cyan-300 flex items-center gap-1 font-semibold"
+              className="text-xs text-cyan-400 hover:text-cyan-300 flex items-center gap-1 font-semibold py-1"
             >
-              Open Interactive Tools <ChevronRight className="w-3 h-3" />
+              Open Tools <ChevronRight className="w-3 h-3" />
             </button>
           </div>
 
@@ -701,7 +701,7 @@ export const ChapterReader: React.FC<ChapterReaderProps> = ({
             {chapter.formulas.map(f => (
               <div
                 key={f.id}
-                className="bg-slate-950 border border-slate-800 rounded-xl p-4"
+                className="bg-slate-950 border border-slate-800 rounded-xl p-3.5 xs:p-4"
               >
                 <div className="flex items-center justify-between mb-2">
                   <span className="text-xs font-bold text-white">{f.name}</span>
@@ -709,7 +709,7 @@ export const ChapterReader: React.FC<ChapterReaderProps> = ({
                     Equation
                   </span>
                 </div>
-                <div className="bg-slate-900 px-4 py-2.5 rounded-lg font-mono text-sm sm:text-base text-cyan-300 font-bold border border-slate-800 mb-2">
+                <div className="bg-slate-900 px-3 xs:px-4 py-2.5 rounded-lg font-mono text-xs xs:text-sm sm:text-base text-cyan-300 font-bold border border-slate-800 mb-2 overflow-x-auto no-scrollbar touch-scroll">
                   {f.formula}
                 </div>
                 <div className="text-xs text-slate-400 mb-3">
@@ -751,17 +751,17 @@ export const ChapterReader: React.FC<ChapterReaderProps> = ({
         <div className="flex items-center justify-between pb-2 border-b border-slate-800">
           <div className="flex items-center gap-2">
             <BookOpen className="w-4 h-4 text-cyan-400" />
-            <h2 className="text-base font-bold text-white">Detailed Core Concepts & Clinical Physics</h2>
+            <h2 className="text-sm xs:text-base font-bold text-white">Core Concepts & Physics</h2>
           </div>
-          <span className="text-xs text-slate-400">
-            Tip: Highlight any text to save as a High-Yield One-Liner
+          <span className="text-xs text-slate-400 hidden xs:inline">
+            Highlight any text to save
           </span>
         </div>
 
         {chapter.sections.map(section => (
           <div
             key={section.id}
-            className={`border rounded-xl p-6 space-y-4 ${themeClasses}`}
+            className={`border rounded-xl p-4 xs:p-6 space-y-4 ${themeClasses}`}
           >
             <div className="flex items-center justify-between">
               <h3 className="text-base font-bold text-white tracking-tight flex items-center gap-2">
@@ -818,30 +818,32 @@ export const ChapterReader: React.FC<ChapterReaderProps> = ({
 
             {/* Optional Table */}
             {section.tableData && (
-              <div className="mt-4 pt-4 border-t border-slate-800 overflow-x-auto">
+              <div className="mt-4 pt-4 border-t border-slate-800 overflow-x-auto no-scrollbar touch-scroll">
                 <span className="text-xs font-bold text-slate-200 block mb-2">
                   {section.tableData.title}
                 </span>
-                <table className="w-full text-left text-xs border border-slate-800 rounded-lg overflow-hidden">
-                  <thead className="bg-slate-950 text-slate-300 font-semibold border-b border-slate-800">
-                    <tr>
-                      {section.tableData.headers.map((h, i) => (
-                        <th key={i} className="px-3 py-2.5 border-r border-slate-800 last:border-0">{h}</th>
-                      ))}
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-slate-800/60 bg-slate-900/40">
-                    {section.tableData.rows.map((row, rIdx) => (
-                      <tr key={rIdx} className="hover:bg-slate-800/40 transition-colors">
-                        {row.map((cell, cIdx) => (
-                          <td key={cIdx} className="px-3 py-2 text-slate-300 border-r border-slate-800/60 last:border-0 font-mono text-[11px]">
-                            {cell}
-                          </td>
+                <div className="min-w-[480px]">
+                  <table className="w-full text-left text-xs border border-slate-800 rounded-lg overflow-hidden">
+                    <thead className="bg-slate-950 text-slate-300 font-semibold border-b border-slate-800">
+                      <tr>
+                        {section.tableData.headers.map((h, i) => (
+                          <th key={i} className="px-3 py-2.5 border-r border-slate-800 last:border-0">{h}</th>
                         ))}
                       </tr>
-                    ))}
-                  </tbody>
-                </table>
+                    </thead>
+                    <tbody className="divide-y divide-slate-800/60 bg-slate-900/40">
+                      {section.tableData.rows.map((row, rIdx) => (
+                        <tr key={rIdx} className="hover:bg-slate-800/40 transition-colors">
+                          {row.map((cell, cIdx) => (
+                            <td key={cIdx} className="px-3 py-2 text-slate-300 border-r border-slate-800/60 last:border-0 font-mono text-[11px]">
+                              {cell}
+                            </td>
+                          ))}
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
               </div>
             )}
           </div>
@@ -849,7 +851,7 @@ export const ChapterReader: React.FC<ChapterReaderProps> = ({
       </section>
 
       {/* Chapter Summary */}
-      <section className={`border rounded-xl p-6 shadow-md ${themeClasses}`}>
+      <section className={`border rounded-xl p-4 xs:p-6 shadow-md ${themeClasses}`}>
         <div className="flex items-center justify-between mb-3">
           <h2 className="text-sm font-bold uppercase tracking-wider text-slate-300 flex items-center gap-2">
             <Info className="w-4 h-4 text-cyan-400" />
@@ -857,9 +859,9 @@ export const ChapterReader: React.FC<ChapterReaderProps> = ({
           </h2>
           <button
             onClick={handleReadChapterSummary}
-            className="text-xs text-cyan-400 hover:text-cyan-300 flex items-center gap-1 font-semibold"
+            className="text-xs text-cyan-400 hover:text-cyan-300 flex items-center gap-1 font-semibold py-1"
           >
-            <Volume2 className="w-3.5 h-3.5" /> Read Takeaways
+            <Volume2 className="w-3.5 h-3.5" /> Read
           </button>
         </div>
         <ul className="space-y-2">
@@ -888,15 +890,15 @@ export const ChapterReader: React.FC<ChapterReaderProps> = ({
             <div>
               <h2 className="text-base font-bold text-white flex items-center gap-2">
                 <HelpCircle className="w-4 h-4 text-amber-400" />
-                Chapter Challenge Questions & Review Problems ({chapter.challengeQuestions.length})
+                Chapter Challenge Questions ({chapter.challengeQuestions.length})
               </h2>
-              <p className="text-xs text-slate-400 mt-0.5">Authoritative Bushong 11th Edition end-of-chapter problems & board-exam review</p>
+              <p className="text-xs text-slate-400 mt-0.5">Authoritative Bushong 11th Edition end-of-chapter problems</p>
             </div>
             <div className="flex items-center gap-2 self-start sm:self-auto">
               <span className="text-[11px] font-semibold text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded border border-emerald-500/20">ARRT Practice</span>
               <button
                 onClick={toggleAllQuestions}
-                className="text-xs px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-cyan-300 hover:text-white border border-slate-700 font-medium transition-colors"
+                className="text-xs px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-cyan-300 hover:text-white border border-slate-700 font-medium transition-colors min-h-[36px]"
               >
                 {allQuestionsRevealed ? 'Hide All Solutions' : 'Reveal All Solutions'}
               </button>
@@ -909,7 +911,7 @@ export const ChapterReader: React.FC<ChapterReaderProps> = ({
               return (
                 <div
                   key={q.id}
-                  className="bg-slate-900/90 border border-slate-800 rounded-xl p-5 space-y-3 hover:border-slate-700 transition-colors shadow-sm"
+                  className="bg-slate-900/90 border border-slate-800 rounded-xl p-3.5 xs:p-5 space-y-3 hover:border-slate-700 transition-colors shadow-sm"
                 >
                   <div className="flex items-start justify-between gap-3">
                     <div className="flex items-start gap-2.5">
@@ -929,18 +931,18 @@ export const ChapterReader: React.FC<ChapterReaderProps> = ({
                     </div>
                     <button
                       onClick={() => toggleQuestion(q.id)}
-                      className={`text-xs px-3 py-1.5 rounded-lg font-medium flex-shrink-0 transition-colors border ${
+                      className={`text-xs px-3 py-1.5 rounded-lg font-medium flex-shrink-0 transition-colors border min-h-[36px] ${
                         isOpen
                           ? 'bg-slate-800 text-slate-300 border-slate-700 hover:text-white'
                           : 'bg-cyan-500/10 text-cyan-300 border-cyan-500/30 hover:bg-cyan-500/20'
                       }`}
                     >
-                      {isOpen ? 'Hide Solution' : 'Show Solution'}
+                      {isOpen ? 'Hide' : 'Solution'}
                     </button>
                   </div>
 
                   {isOpen && (
-                    <div className="p-4 rounded-xl bg-slate-950/70 border border-cyan-500/20 text-xs sm:text-sm text-slate-300 leading-relaxed space-y-3 animate-fadeIn">
+                    <div className="p-3.5 xs:p-4 rounded-xl bg-slate-950/70 border border-cyan-500/20 text-xs sm:text-sm text-slate-300 leading-relaxed space-y-3 animate-fadeIn">
                       {q.answer && (
                         <div className="p-3 rounded-lg bg-emerald-950/30 border border-emerald-500/30">
                           <strong className="text-emerald-400 block mb-1 text-[11px] font-bold uppercase tracking-wider">High-Yield Answer:</strong>
@@ -981,23 +983,23 @@ export const ChapterReader: React.FC<ChapterReaderProps> = ({
       )}
 
       {/* Prev / Next Chapter Navigation */}
-      <div className="flex items-center justify-between pt-6 border-t border-slate-800">
+      <div className="flex flex-col sm:flex-row items-center justify-between gap-3 pt-6 border-t border-slate-800">
         <button
           disabled={chapter.number <= 1}
           onClick={() => onSelectChapter(chapter.number - 1)}
-          className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-slate-900 border border-slate-800 hover:bg-slate-800 text-xs sm:text-sm text-slate-200 disabled:opacity-40 disabled:pointer-events-none transition-all"
+          className="w-full sm:w-auto min-h-[44px] justify-center flex items-center gap-2 px-4 py-2.5 rounded-xl bg-slate-900 border border-slate-800 hover:bg-slate-800 text-xs sm:text-sm text-slate-200 disabled:opacity-40 disabled:pointer-events-none transition-all"
         >
           <ChevronLeft className="w-4 h-4" /> Previous Chapter
         </button>
 
-        <span className="text-xs text-slate-500 font-mono">
+        <span className="text-xs text-slate-500 font-mono order-first sm:order-none">
           Chapter {chapter.number} of {allChaptersCount}
         </span>
 
         <button
           disabled={chapter.number >= allChaptersCount}
           onClick={() => onSelectChapter(chapter.number + 1)}
-          className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-cyan-500 hover:bg-cyan-400 text-slate-950 text-xs sm:text-sm font-bold disabled:opacity-40 disabled:pointer-events-none transition-all shadow-md shadow-cyan-500/20"
+          className="w-full sm:w-auto min-h-[44px] justify-center flex items-center gap-2 px-4 py-2.5 rounded-xl bg-cyan-500 hover:bg-cyan-400 text-slate-950 text-xs sm:text-sm font-bold disabled:opacity-40 disabled:pointer-events-none transition-all shadow-md shadow-cyan-500/20"
         >
           Next Chapter <ChevronRight className="w-4 h-4" />
         </button>

@@ -1,1 +1,36 @@
 @import "tailwindcss";
+
+@layer utilities {
+  /* Hide scrollbar for clean horizontal mobile bars while preserving smooth scrolling */
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+  .no-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+
+  /* Enable smooth iOS inertia momentum scrolling */
+  .touch-scroll {
+    -webkit-overflow-scrolling: touch;
+  }
+
+  /* Safe area insets for mobile notches and gesture bars */
+  .safe-area-pb {
+    padding-bottom: calc(0.5rem + env(safe-area-inset-bottom, 0px));
+  }
+}
+
+/* Prevent accidental document-level horizontal jitter or overflow on all mobile screens */
+html,
+body {
+  overflow-x: hidden;
+  max-width: 100vw;
+  width: 100%;
+}
+
+#root {
+  overflow-x: hidden;
+  max-width: 100vw;
+  min-height: 100vh;
+}

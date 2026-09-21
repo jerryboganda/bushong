@@ -36,25 +36,25 @@ export const ProtectedGate: React.FC<ProtectedGateProps> = ({
   }
 
   return (
-    <div className="max-w-2xl mx-auto my-12 p-8 bg-slate-900/90 border border-slate-800 rounded-3xl shadow-2xl space-y-6 text-center animate-fadeIn backdrop-blur-sm">
-      <div className="w-16 h-16 rounded-2xl bg-gradient-to-tr from-amber-500/20 via-cyan-500/20 to-purple-500/20 border border-cyan-500/30 flex items-center justify-center mx-auto text-cyan-400 shadow-xl shadow-cyan-500/10">
-        <Lock className="w-8 h-8 text-cyan-400" />
+    <div className="max-w-2xl mx-auto my-6 sm:my-12 p-4 xs:p-6 sm:p-8 bg-slate-900/90 border border-slate-800 rounded-2xl sm:rounded-3xl shadow-2xl space-y-5 sm:space-y-6 text-center animate-fadeIn backdrop-blur-sm">
+      <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-2xl bg-gradient-to-tr from-amber-500/20 via-cyan-500/20 to-purple-500/20 border border-cyan-500/30 flex items-center justify-center mx-auto text-cyan-400 shadow-xl shadow-cyan-500/10 shrink-0">
+        <Lock className="w-7 h-7 sm:w-8 sm:h-8 text-cyan-400" />
       </div>
 
       <div className="space-y-2">
         <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-cyan-500/10 text-cyan-400 text-xs font-semibold border border-cyan-500/20">
           <Sparkles className="w-3.5 h-3.5" /> High-Yield Student Feature
         </div>
-        <h2 className="text-2xl font-bold text-white tracking-tight">
+        <h2 className="text-xl sm:text-2xl font-bold text-white tracking-tight">
           Unlock {featureTitle}
         </h2>
-        <p className="text-sm text-slate-300 max-w-lg mx-auto leading-relaxed">
+        <p className="text-xs sm:text-sm text-slate-300 max-w-lg mx-auto leading-relaxed">
           {featureDescription}
         </p>
       </div>
 
       {/* High-Yield Benefits List */}
-      <div className="bg-slate-950/80 border border-slate-800 rounded-2xl p-5 text-left space-y-3">
+      <div className="bg-slate-950/80 border border-slate-800 rounded-2xl p-4 xs:p-5 text-left space-y-3">
         <h3 className="text-xs font-bold uppercase tracking-wider text-slate-400 flex items-center gap-2">
           <ShieldCheck className="w-4 h-4 text-cyan-400" />
           Included with Free Student Account:
@@ -73,7 +73,7 @@ export const ProtectedGate: React.FC<ProtectedGateProps> = ({
       <div className="pt-2 flex flex-col sm:flex-row items-center justify-center gap-3">
         <button
           onClick={() => onOpenAuth(featureTitle)}
-          className="w-full sm:w-auto px-8 py-3 rounded-xl bg-cyan-500 hover:bg-cyan-400 text-slate-950 font-bold text-sm flex items-center justify-center gap-2 shadow-lg shadow-cyan-500/20 transition-all hover:scale-105 active:scale-95"
+          className="w-full sm:w-auto px-8 py-3.5 min-h-[44px] rounded-xl bg-cyan-500 hover:bg-cyan-400 text-slate-950 font-bold text-sm flex items-center justify-center gap-2 shadow-lg shadow-cyan-500/20 transition-all active:scale-95"
         >
           <span>Sign In / Create Free Account</span>
           <ArrowRight className="w-4 h-4" />

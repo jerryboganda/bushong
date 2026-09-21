@@ -289,18 +289,18 @@ export const HighYieldVault: React.FC<HighYieldVaultProps> = ({ onNavigateToChap
   return (
     <div className="space-y-6 max-w-6xl mx-auto pb-16">
       {/* Top Header */}
-      <div className="bg-gradient-to-r from-slate-900 via-slate-900 to-cyan-950/40 border border-slate-800 rounded-2xl p-6 sm:p-8 shadow-xl">
+      <div className="bg-gradient-to-r from-slate-900 via-slate-900 to-cyan-950/40 border border-slate-800 rounded-2xl p-4 xs:p-6 sm:p-8 shadow-xl">
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
           <div className="space-y-1">
             <div className="flex items-center gap-2">
-              <div className="w-9 h-9 rounded-xl bg-amber-500/20 border border-amber-500/30 flex items-center justify-center text-amber-400">
+              <div className="w-9 h-9 rounded-xl bg-amber-500/20 border border-amber-500/30 flex items-center justify-center text-amber-400 flex-shrink-0">
                 <Sparkles className="w-5 h-5" />
               </div>
               <h1 className="text-xl sm:text-2xl font-black tracking-tight text-white">
                 High-Yield One-Liner MCQ Vault
               </h1>
               <span className="text-xs px-2.5 py-0.5 rounded-full bg-cyan-500/10 text-cyan-400 font-mono font-bold border border-cyan-500/20">
-                {filteredPoints.length} Points
+                {filteredPoints.length}
               </span>
             </div>
             <p className="text-xs sm:text-sm text-slate-400 max-w-2xl">
@@ -311,30 +311,30 @@ export const HighYieldVault: React.FC<HighYieldVaultProps> = ({ onNavigateToChap
           <div className="flex flex-wrap items-center gap-2">
             <button
               onClick={() => setShowAddModal(true)}
-              className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-cyan-500 hover:bg-cyan-400 text-slate-950 font-bold text-xs shadow-md shadow-cyan-500/20 transition-all"
+              className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-cyan-500 hover:bg-cyan-400 text-slate-950 font-bold text-xs shadow-md shadow-cyan-500/20 transition-all min-h-[38px]"
             >
               <Plus className="w-4 h-4" /> Add One-Liner
             </button>
 
             {/* Export Menu */}
-            <div className="flex items-center gap-1 bg-slate-950 p-1 rounded-xl border border-slate-800">
+            <div className="flex flex-wrap items-center gap-1 bg-slate-950 p-1 rounded-xl border border-slate-800">
               <button
                 onClick={exportAnki}
-                className="px-2.5 py-1.5 rounded-lg text-xs font-medium text-slate-300 hover:text-white hover:bg-slate-800 transition-colors flex items-center gap-1"
+                className="px-2.5 py-1.5 rounded-lg text-xs font-medium text-slate-300 hover:text-white hover:bg-slate-800 transition-colors flex items-center gap-1 min-h-[32px]"
                 title="Export formatted for Anki desktop & mobile"
               >
-                <Download className="w-3.5 h-3.5 text-cyan-400" /> Anki Deck
+                <Download className="w-3.5 h-3.5 text-cyan-400" /> Anki
               </button>
               <button
                 onClick={exportCSV}
-                className="px-2.5 py-1.5 rounded-lg text-xs font-medium text-slate-300 hover:text-white hover:bg-slate-800 transition-colors flex items-center gap-1"
+                className="px-2.5 py-1.5 rounded-lg text-xs font-medium text-slate-300 hover:text-white hover:bg-slate-800 transition-colors flex items-center gap-1 min-h-[32px]"
                 title="Export as CSV spreadsheet"
               >
                 <FileSpreadsheet className="w-3.5 h-3.5 text-emerald-400" /> CSV
               </button>
               <button
                 onClick={exportJSON}
-                className="px-2.5 py-1.5 rounded-lg text-xs font-medium text-slate-300 hover:text-white hover:bg-slate-800 transition-colors flex items-center gap-1"
+                className="px-2.5 py-1.5 rounded-lg text-xs font-medium text-slate-300 hover:text-white hover:bg-slate-800 transition-colors flex items-center gap-1 min-h-[32px]"
                 title="Export as JSON backup"
               >
                 <Download className="w-3.5 h-3.5 text-amber-400" /> JSON
@@ -345,10 +345,10 @@ export const HighYieldVault: React.FC<HighYieldVaultProps> = ({ onNavigateToChap
 
         {/* View Mode Switcher */}
         <div className="mt-6 pt-5 border-t border-slate-800/80 flex flex-wrap items-center justify-between gap-3">
-          <div className="flex items-center gap-1.5 bg-slate-950 p-1 rounded-xl border border-slate-800 text-xs font-semibold">
+          <div className="flex items-center gap-1.5 bg-slate-950 p-1 rounded-xl border border-slate-800 text-xs font-semibold overflow-x-auto no-scrollbar touch-scroll max-w-full">
             <button
               onClick={() => setViewMode('browse')}
-              className={`flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg transition-all ${
+              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg transition-all min-h-[36px] flex-shrink-0 ${
                 viewMode === 'browse'
                   ? 'bg-cyan-500 text-slate-950 font-bold shadow-sm'
                   : 'text-slate-400 hover:text-white'
@@ -362,33 +362,33 @@ export const HighYieldVault: React.FC<HighYieldVaultProps> = ({ onNavigateToChap
                 setCramIdx(0);
                 setCramFlipped(false);
               }}
-              className={`flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg transition-all ${
+              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg transition-all min-h-[36px] flex-shrink-0 ${
                 viewMode === 'cram'
                   ? 'bg-amber-500 text-slate-950 font-bold shadow-sm'
                   : 'text-slate-400 hover:text-white'
               }`}
             >
-              <Zap className="w-3.5 h-3.5" /> Rapid-Fire Cram
+              <Zap className="w-3.5 h-3.5" /> Rapid Cram
             </button>
             <button
               onClick={() => {
                 setViewMode('cloze');
                 setRevealedClozes({});
               }}
-              className={`flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg transition-all ${
+              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg transition-all min-h-[36px] flex-shrink-0 ${
                 viewMode === 'cloze'
                   ? 'bg-purple-500 text-white font-bold shadow-sm'
                   : 'text-slate-400 hover:text-white'
               }`}
             >
-              <HelpCircle className="w-3.5 h-3.5" /> Fill-in-Blank Cloze Test
+              <HelpCircle className="w-3.5 h-3.5" /> Cloze Test
             </button>
           </div>
 
           <div className="flex items-center gap-2 text-xs">
             <button
               onClick={() => setOnlyStarred(prev => !prev)}
-              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg border transition-all ${
+              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg border transition-all min-h-[36px] ${
                 onlyStarred
                   ? 'bg-amber-500/20 text-amber-300 border-amber-500/40 font-bold'
                   : 'bg-slate-950 text-slate-400 border-slate-800 hover:text-white'
@@ -402,7 +402,7 @@ export const HighYieldVault: React.FC<HighYieldVaultProps> = ({ onNavigateToChap
       </div>
 
       {/* Filter & Search Bar */}
-      <div className="bg-slate-900/80 border border-slate-800 rounded-xl p-4 flex flex-col md:flex-row items-stretch md:items-center justify-between gap-3 shadow-md">
+      <div className="bg-slate-900/80 border border-slate-800 rounded-xl p-3.5 xs:p-4 flex flex-col md:flex-row items-stretch md:items-center justify-between gap-2.5 xs:gap-3 shadow-md">
         <div className="relative flex-1">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500" />
           <input
@@ -410,7 +410,7 @@ export const HighYieldVault: React.FC<HighYieldVaultProps> = ({ onNavigateToChap
             placeholder="Search key concepts, formulas, numbers, or prompt keywords..."
             value={searchQuery}
             onChange={e => setSearchQuery(e.target.value)}
-            className="w-full bg-slate-950 border border-slate-800 rounded-lg pl-9 pr-4 py-2 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-cyan-400 transition-colors"
+            className="w-full bg-slate-950 border border-slate-800 rounded-lg pl-9 pr-4 py-2 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-cyan-400 transition-colors min-h-[40px]"
           />
         </div>
 
@@ -419,7 +419,7 @@ export const HighYieldVault: React.FC<HighYieldVaultProps> = ({ onNavigateToChap
           <select
             value={selectedTag}
             onChange={e => setSelectedTag(e.target.value as any)}
-            className="bg-slate-950 border border-slate-800 text-slate-300 rounded-lg px-2.5 py-2 focus:outline-none focus:border-cyan-400 cursor-pointer"
+            className="w-full sm:w-auto bg-slate-950 border border-slate-800 text-slate-300 rounded-lg px-2.5 py-2 focus:outline-none focus:border-cyan-400 cursor-pointer min-h-[40px]"
           >
             <option value="all">All Category Tags</option>
             <option value="yellow">Yellow: Core Concepts</option>
@@ -433,7 +433,7 @@ export const HighYieldVault: React.FC<HighYieldVaultProps> = ({ onNavigateToChap
           <select
             value={selectedPart}
             onChange={e => setSelectedPart(e.target.value)}
-            className="bg-slate-950 border border-slate-800 text-slate-300 rounded-lg px-2.5 py-2 focus:outline-none focus:border-cyan-400 cursor-pointer"
+            className="w-full sm:w-auto bg-slate-950 border border-slate-800 text-slate-300 rounded-lg px-2.5 py-2 focus:outline-none focus:border-cyan-400 cursor-pointer min-h-[40px]"
           >
             <option value="all">All Textbook Parts (1–8)</option>
             {BOOK_PARTS.map(part => (
@@ -474,7 +474,7 @@ export const HighYieldVault: React.FC<HighYieldVaultProps> = ({ onNavigateToChap
               {/* Flip Card Container */}
               <div
                 onClick={() => setCramFlipped(!cramFlipped)}
-                className="cursor-pointer min-h-[300px] sm:min-h-[340px] bg-slate-900/90 hover:border-slate-700 transition-all border border-slate-800 rounded-2xl p-8 flex flex-col justify-between shadow-2xl relative select-none"
+                className="cursor-pointer min-h-[280px] sm:min-h-[340px] bg-slate-900/90 hover:border-slate-700 transition-all border border-slate-800 rounded-2xl p-4 xs:p-6 sm:p-8 flex flex-col justify-between shadow-2xl relative select-none"
               >
                 {/* Top Card Badge */}
                 <div className="flex items-center justify-between gap-2 mb-4">
@@ -500,7 +500,7 @@ export const HighYieldVault: React.FC<HighYieldVaultProps> = ({ onNavigateToChap
                       <span className="text-xs font-bold text-amber-400/80 uppercase tracking-widest block">
                         Question / Recall Prompt:
                       </span>
-                      <h3 className="text-lg sm:text-xl font-bold text-white leading-relaxed">
+                      <h3 className="text-base xs:text-lg sm:text-xl font-bold text-white leading-relaxed">
                         {currentCramPoint.prompt || `What is the key Bushong principle regarding ${currentCramPoint.category}?`}
                       </h3>
                       <p className="text-xs text-slate-500 italic mt-4">
@@ -512,7 +512,7 @@ export const HighYieldVault: React.FC<HighYieldVaultProps> = ({ onNavigateToChap
                       <span className="text-xs font-bold text-emerald-400 uppercase tracking-widest block">
                         Bushong 11th Ed. Key Answer:
                       </span>
-                      <p className="text-base sm:text-lg font-medium text-slate-100 leading-relaxed">
+                      <p className="text-sm xs:text-base sm:text-lg font-medium text-slate-100 leading-relaxed">
                         {currentCramPoint.text}
                       </p>
                       {currentCramPoint.prompt && (
@@ -532,12 +532,12 @@ export const HighYieldVault: React.FC<HighYieldVaultProps> = ({ onNavigateToChap
                         e.stopPropagation();
                         onNavigateToChapter(currentCramPoint.chapterNumber);
                       }}
-                      className="text-cyan-400 hover:text-cyan-300 flex items-center gap-1 font-semibold"
+                      className="text-cyan-400 hover:text-cyan-300 flex items-center gap-1 font-semibold py-1"
                     >
-                      <BookOpen className="w-3.5 h-3.5" /> Open Chapter {currentCramPoint.chapterNumber}
+                      <BookOpen className="w-3.5 h-3.5" /> Open Ch. {currentCramPoint.chapterNumber}
                     </button>
                   )}
-                  <span>Tap anywhere to toggle</span>
+                  <span>Tap to toggle</span>
                 </div>
               </div>
 
@@ -545,13 +545,13 @@ export const HighYieldVault: React.FC<HighYieldVaultProps> = ({ onNavigateToChap
               <div className="flex items-center justify-between gap-3">
                 <button
                   onClick={prevCram}
-                  className="flex-1 py-3 bg-slate-900 hover:bg-slate-800 border border-slate-800 rounded-xl text-xs sm:text-sm font-semibold text-slate-200 flex items-center justify-center gap-1.5 transition-colors shadow"
+                  className="flex-1 min-h-[44px] py-2.5 bg-slate-900 hover:bg-slate-800 border border-slate-800 rounded-xl text-xs sm:text-sm font-semibold text-slate-200 flex items-center justify-center gap-1.5 transition-colors shadow"
                 >
                   <ChevronLeft className="w-4 h-4" /> Previous
                 </button>
                 <button
                   onClick={nextCram}
-                  className="flex-1 py-3 bg-cyan-500 hover:bg-cyan-400 text-slate-950 rounded-xl text-xs sm:text-sm font-bold flex items-center justify-center gap-1.5 transition-colors shadow-md shadow-cyan-500/20"
+                  className="flex-1 min-h-[44px] py-2.5 bg-cyan-500 hover:bg-cyan-400 text-slate-950 rounded-xl text-xs sm:text-sm font-bold flex items-center justify-center gap-1.5 transition-colors shadow-md shadow-cyan-500/20"
                 >
                   Next <ChevronRight className="w-4 h-4" />
                 </button>
@@ -732,13 +732,13 @@ export const HighYieldVault: React.FC<HighYieldVaultProps> = ({ onNavigateToChap
 
       {/* Add New One-Liner Modal */}
       {showAddModal && (
-        <div className="fixed inset-0 z-50 bg-black/70 backdrop-blur-sm flex items-center justify-center p-4">
-          <div className="bg-slate-900 border border-slate-800 rounded-2xl max-w-lg w-full p-6 space-y-4 shadow-2xl animate-fadeIn">
+        <div className="fixed inset-0 z-50 bg-black/70 backdrop-blur-sm flex items-center justify-center p-3 xs:p-4">
+          <div className="bg-slate-900 border border-slate-800 rounded-2xl max-w-lg w-full p-4 xs:p-6 space-y-4 shadow-2xl animate-fadeIn max-h-[92vh] overflow-y-auto">
             <div className="flex items-center justify-between pb-3 border-b border-slate-800">
               <h3 className="text-base font-bold text-white flex items-center gap-2">
                 <Plus className="w-4 h-4 text-cyan-400" /> Add High-Yield One-Liner
               </h3>
-              <button onClick={() => setShowAddModal(false)} className="text-slate-400 hover:text-white">
+              <button onClick={() => setShowAddModal(false)} className="text-slate-400 hover:text-white p-1 rounded-lg">
                 ✕
               </button>
             </div>
@@ -751,7 +751,7 @@ export const HighYieldVault: React.FC<HighYieldVaultProps> = ({ onNavigateToChap
                   placeholder="Enter the core factual statement (e.g. Compton scatter is independent of atomic number Z)..."
                   value={newText}
                   onChange={e => setNewText(e.target.value)}
-                  className="w-full bg-slate-950 border border-slate-700 rounded-lg p-2.5 text-white placeholder-slate-500 focus:outline-none focus:border-cyan-400"
+                  className="w-full bg-slate-950 border border-slate-700 rounded-lg p-2.5 text-white placeholder-slate-500 focus:outline-none focus:border-cyan-400 text-xs sm:text-sm"
                 />
               </div>
 
@@ -762,11 +762,11 @@ export const HighYieldVault: React.FC<HighYieldVaultProps> = ({ onNavigateToChap
                   placeholder="e.g. How does atomic number Z influence Compton scatter?"
                   value={newPrompt}
                   onChange={e => setNewPrompt(e.target.value)}
-                  className="w-full bg-slate-950 border border-slate-700 rounded-lg px-2.5 py-2 text-white placeholder-slate-500 focus:outline-none focus:border-cyan-400"
+                  className="w-full bg-slate-950 border border-slate-700 rounded-lg px-2.5 py-2 text-white placeholder-slate-500 focus:outline-none focus:border-cyan-400 text-xs sm:text-sm"
                 />
               </div>
 
-              <div className="grid grid-cols-2 gap-3">
+              <div className="grid grid-cols-1 xs:grid-cols-2 gap-3">
                 <div>
                   <label className="block text-slate-300 font-semibold mb-1">Bushong Chapter (1–40)</label>
                   <input
@@ -775,7 +775,7 @@ export const HighYieldVault: React.FC<HighYieldVaultProps> = ({ onNavigateToChap
                     max={40}
                     value={newChapter}
                     onChange={e => setNewChapter(parseInt(e.target.value) || 1)}
-                    className="w-full bg-slate-950 border border-slate-700 rounded-lg px-2.5 py-2 text-white focus:outline-none focus:border-cyan-400 font-mono"
+                    className="w-full bg-slate-950 border border-slate-700 rounded-lg px-2.5 py-2 text-white focus:outline-none focus:border-cyan-400 font-mono text-xs sm:text-sm"
                   />
                 </div>
 
@@ -784,7 +784,7 @@ export const HighYieldVault: React.FC<HighYieldVaultProps> = ({ onNavigateToChap
                   <select
                     value={newTag}
                     onChange={e => setNewTag(e.target.value as HighlightColor)}
-                    className="w-full bg-slate-950 border border-slate-700 rounded-lg px-2.5 py-2 text-white focus:outline-none focus:border-cyan-400"
+                    className="w-full bg-slate-950 border border-slate-700 rounded-lg px-2.5 py-2 text-white focus:outline-none focus:border-cyan-400 text-xs sm:text-sm"
                   >
                     <option value="yellow">Yellow: Core Concept</option>
                     <option value="red">Red: Exam Trap</option>
@@ -799,14 +799,14 @@ export const HighYieldVault: React.FC<HighYieldVaultProps> = ({ onNavigateToChap
             <div className="flex items-center justify-end gap-2 pt-3 border-t border-slate-800">
               <button
                 onClick={() => setShowAddModal(false)}
-                className="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-lg text-xs font-semibold"
+                className="px-4 py-2.5 min-h-[40px] bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-lg text-xs font-semibold"
               >
                 Cancel
               </button>
               <button
                 onClick={handleCreateNew}
                 disabled={!newText.trim()}
-                className="px-4 py-2 bg-cyan-500 hover:bg-cyan-400 text-slate-950 font-bold rounded-lg text-xs disabled:opacity-50"
+                className="px-4 py-2.5 min-h-[40px] bg-cyan-500 hover:bg-cyan-400 text-slate-950 font-bold rounded-lg text-xs disabled:opacity-50"
               >
                 Save One-Liner
               </button>
@@ -817,13 +817,13 @@ export const HighYieldVault: React.FC<HighYieldVaultProps> = ({ onNavigateToChap
 
       {/* Edit Point Modal */}
       {editingPoint && (
-        <div className="fixed inset-0 z-50 bg-black/70 backdrop-blur-sm flex items-center justify-center p-4">
-          <div className="bg-slate-900 border border-slate-800 rounded-2xl max-w-md w-full p-6 space-y-4 shadow-2xl">
+        <div className="fixed inset-0 z-50 bg-black/70 backdrop-blur-sm flex items-center justify-center p-3 xs:p-4">
+          <div className="bg-slate-900 border border-slate-800 rounded-2xl max-w-md w-full p-4 xs:p-6 space-y-4 shadow-2xl max-h-[92vh] overflow-y-auto">
             <div className="flex items-center justify-between pb-3 border-b border-slate-800">
               <h3 className="text-base font-bold text-white flex items-center gap-2">
                 <Edit3 className="w-4 h-4 text-cyan-400" /> Edit Point Details
               </h3>
-              <button onClick={() => setEditingPoint(null)} className="text-slate-400 hover:text-white">
+              <button onClick={() => setEditingPoint(null)} className="text-slate-400 hover:text-white p-1 rounded-lg">
                 ✕
               </button>
             </div>
@@ -839,7 +839,7 @@ export const HighYieldVault: React.FC<HighYieldVaultProps> = ({ onNavigateToChap
                   type="text"
                   value={newPrompt}
                   onChange={e => setNewPrompt(e.target.value)}
-                  className="w-full bg-slate-950 border border-slate-700 rounded-lg px-2.5 py-2 text-white focus:outline-none focus:border-cyan-400"
+                  className="w-full bg-slate-950 border border-slate-700 rounded-lg px-2.5 py-2 text-white focus:outline-none focus:border-cyan-400 text-xs sm:text-sm"
                 />
               </div>
 
@@ -848,7 +848,7 @@ export const HighYieldVault: React.FC<HighYieldVaultProps> = ({ onNavigateToChap
                 <select
                   value={newTag}
                   onChange={e => setNewTag(e.target.value as HighlightColor)}
-                  className="w-full bg-slate-950 border border-slate-700 rounded-lg px-2.5 py-2 text-white focus:outline-none focus:border-cyan-400"
+                  className="w-full bg-slate-950 border border-slate-700 rounded-lg px-2.5 py-2 text-white focus:outline-none focus:border-cyan-400 text-xs sm:text-sm"
                 >
                   <option value="yellow">Yellow: Core Concept</option>
                   <option value="red">Red: Exam Trap</option>
@@ -862,13 +862,13 @@ export const HighYieldVault: React.FC<HighYieldVaultProps> = ({ onNavigateToChap
             <div className="flex items-center justify-end gap-2 pt-3 border-t border-slate-800">
               <button
                 onClick={() => setEditingPoint(null)}
-                className="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-lg text-xs font-semibold"
+                className="px-4 py-2.5 min-h-[40px] bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-lg text-xs font-semibold"
               >
                 Cancel
               </button>
               <button
                 onClick={handleSaveEdit}
-                className="px-4 py-2 bg-cyan-500 hover:bg-cyan-400 text-slate-950 font-bold rounded-lg text-xs"
+                className="px-4 py-2.5 min-h-[40px] bg-cyan-500 hover:bg-cyan-400 text-slate-950 font-bold rounded-lg text-xs"
               >
                 Update
               </button>

@@ -63,9 +63,10 @@ export const HighlightToolbar: React.FC<HighlightToolbarProps> = ({
 
         setSelectedText(text);
         selectedTextRef.current = text;
-        const toolbarWidth = 300;
-        const toolbarHeight = 52;
-        const x = Math.max(12, Math.min(window.innerWidth - toolbarWidth - 12, rect.left + rect.width / 2 - toolbarWidth / 2));
+        const screenW = typeof window !== 'undefined' ? window.innerWidth : 360;
+        const effectiveWidth = Math.min(290, Math.max(260, screenW - 24));
+        const toolbarHeight = 56;
+        const x = Math.max(12, Math.min(screenW - effectiveWidth - 12, rect.left + rect.width / 2 - effectiveWidth / 2));
         const rawY = rect.top >= toolbarHeight + 16 ? rect.top - toolbarHeight - 10 : rect.bottom + 10;
         const y = Math.max(10, Math.min(window.innerHeight - toolbarHeight - 10, rawY));
         setPosition({ x, y });
@@ -129,22 +130,22 @@ export const HighlightToolbar: React.FC<HighlightToolbarProps> = ({
       onTouchStart={(e) => {
         e.stopPropagation();
       }}
-      className="fixed z-50 transition-all duration-150 animate-fadeIn select-none"
+      className="fixed z-50 transition-all duration-150 animate-fadeIn select-none max-w-[calc(100vw-24px)]"
       style={{ top: `${position.y}px`, left: `${position.x}px` }}
     >
-      <div className="bg-slate-900 text-slate-100 border border-slate-700/80 rounded-xl shadow-2xl p-2 flex flex-col gap-2 backdrop-blur-md min-w-[280px]">
+      <div className="bg-slate-900 text-slate-100 border border-slate-700/80 rounded-xl shadow-2xl p-2 flex flex-col gap-2 backdrop-blur-md w-auto max-w-[calc(100vw-24px)] min-w-[260px] xs:min-w-[280px]">
         {successNotice ? (
-          <div className="flex items-center justify-center gap-2 py-1.5 text-xs text-emerald-400 font-semibold">
+          <div className="flex items-center justify-center gap-2 py-2 text-xs text-emerald-400 font-semibold">
             <Check className="w-4 h-4" /> Saved to High-Yield Vault!
           </div>
         ) : !showPromptInput ? (
           <div className="flex items-center gap-1.5 justify-between">
-            <div className="flex items-center gap-1">
+            <div className="flex items-center gap-1.5">
               {(['yellow', 'red', 'green', 'purple', 'blue'] as HighlightColor[]).map(color => (
                 <button
                   key={color}
                   onClick={() => handleSave(color)}
-                  className={`w-6 h-6 rounded-full border transition-transform hover:scale-110 active:scale-95 ${
+                  className={`w-7 h-7 min-w-[28px] min-h-[28px] rounded-full border transition-transform hover:scale-110 active:scale-95 ${
                     color === 'yellow'
                       ? 'bg-amber-400 border-amber-300'
                       : color === 'red'
@@ -160,7 +161,7 @@ export const HighlightToolbar: React.FC<HighlightToolbarProps> = ({
               ))}
             </div>
 
-            <div className="h-4 w-px bg-slate-700 mx-1" />
+            <div className="h-4 w-px bg-slate-700 mx-0.5" />
 
             <button
               onClick={() => {
@@ -170,7 +171,7 @@ export const HighlightToolbar: React.FC<HighlightToolbarProps> = ({
                 }
                 setShowPromptInput(true);
               }}
-              className="text-[11px] font-semibold text-cyan-300 hover:text-white px-2 py-1 rounded bg-slate-800 hover:bg-slate-700 flex items-center gap-1 transition-colors"
+              className="text-[11px] font-semibold text-cyan-300 hover:text-white px-2 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 flex items-center gap-1 transition-colors min-h-[32px]"
               title="Add a question prompt or note"
             >
               <Tag className="w-3 h-3" /> +Prompt
@@ -182,7 +183,7 @@ export const HighlightToolbar: React.FC<HighlightToolbarProps> = ({
                 setSelectedText('');
                 window.getSelection()?.removeAllRanges();
               }}
-              className="p-1 text-slate-400 hover:text-white rounded hover:bg-slate-800"
+              className="p-1.5 text-slate-400 hover:text-white rounded-lg hover:bg-slate-800 min-w-[32px] min-h-[32px] flex items-center justify-center"
             >
               <X className="w-3.5 h-3.5" />
             </button>

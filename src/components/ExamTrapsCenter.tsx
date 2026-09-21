@@ -45,14 +45,14 @@ export const ExamTrapsCenter: React.FC = () => {
   return (
     <div className="space-y-6 max-w-6xl mx-auto pb-16">
       {/* Banner */}
-      <div className="bg-gradient-to-r from-slate-900 via-rose-950/20 to-slate-900 border border-slate-800 rounded-2xl p-6 sm:p-8 shadow-xl">
+      <div className="bg-gradient-to-r from-slate-900 via-rose-950/20 to-slate-900 border border-slate-800 rounded-2xl p-4 xs:p-6 sm:p-8 shadow-xl">
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
           <div className="space-y-2">
-            <div className="flex items-center gap-2">
-              <div className="w-10 h-10 rounded-xl bg-rose-500/20 border border-rose-500/30 flex items-center justify-center text-rose-400">
+            <div className="flex items-center gap-2.5">
+              <div className="w-10 h-10 rounded-xl bg-rose-500/20 border border-rose-500/30 flex items-center justify-center text-rose-400 shrink-0">
                 <AlertTriangle className="w-5 h-5" />
               </div>
-              <h1 className="text-xl sm:text-2xl font-black text-white tracking-tight">
+              <h1 className="text-lg xs:text-xl sm:text-2xl font-black text-white tracking-tight">
                 Bushong "Exam Traps & Common Confusions" Center
               </h1>
             </div>
@@ -61,7 +61,7 @@ export const ExamTrapsCenter: React.FC = () => {
             </p>
           </div>
 
-          <div className="flex items-center gap-2 text-xs font-mono text-cyan-400 bg-cyan-500/10 px-3 py-1.5 rounded-xl border border-cyan-500/20 self-start md:self-auto">
+          <div className="flex items-center gap-2 text-xs font-mono text-cyan-400 bg-cyan-500/10 px-3 py-1.5 rounded-xl border border-cyan-500/20 self-start md:self-auto shrink-0">
             <Sparkles className="w-4 h-4 text-cyan-400" />
             <span>{EXAM_TRAP_MATRICES.length} Core Comparative Guides</span>
           </div>
@@ -69,7 +69,7 @@ export const ExamTrapsCenter: React.FC = () => {
       </div>
 
       {/* Filter and Search */}
-      <div className="bg-slate-900 border border-slate-800 rounded-xl p-4 flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 shadow-md">
+      <div className="bg-slate-900 border border-slate-800 rounded-xl p-3.5 xs:p-4 flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 shadow-md">
         <div className="relative flex-1">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500" />
           <input
@@ -77,7 +77,7 @@ export const ExamTrapsCenter: React.FC = () => {
             placeholder="Search concepts (e.g. Compton vs Photoelectric, LNT, Line-focus, Grid cutoff)..."
             value={searchQuery}
             onChange={e => setSearchQuery(e.target.value)}
-            className="w-full bg-slate-950 border border-slate-800 rounded-lg pl-9 pr-4 py-2 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-cyan-400 transition-colors"
+            className="w-full bg-slate-950 border border-slate-800 rounded-lg pl-9 pr-4 py-2.5 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-cyan-400 min-h-[44px] transition-colors"
           />
         </div>
 
@@ -85,7 +85,7 @@ export const ExamTrapsCenter: React.FC = () => {
           <select
             value={selectedCategory}
             onChange={e => setSelectedCategory(e.target.value)}
-            className="bg-slate-950 border border-slate-800 text-slate-300 rounded-lg px-3 py-2 focus:outline-none focus:border-cyan-400 cursor-pointer"
+            className="w-full sm:w-auto bg-slate-950 border border-slate-800 text-slate-300 rounded-lg px-3 py-2.5 min-h-[44px] focus:outline-none focus:border-cyan-400 cursor-pointer"
           >
             {categories.map(cat => (
               <option key={cat} value={cat}>
@@ -108,10 +108,10 @@ export const ExamTrapsCenter: React.FC = () => {
               {/* Card Header / Click to Toggle */}
               <div
                 onClick={() => setExpandedId(isExpanded ? '' : matrix.id)}
-                className="p-5 sm:p-6 cursor-pointer hover:bg-slate-800/40 transition-colors flex items-start justify-between gap-4 select-none"
+                className="p-4 xs:p-5 sm:p-6 cursor-pointer hover:bg-slate-800/40 transition-colors flex items-start justify-between gap-4 select-none min-h-[52px]"
               >
                 <div className="space-y-1">
-                  <div className="flex items-center gap-2">
+                  <div className="flex flex-wrap items-center gap-2">
                     <span className="text-[11px] font-bold px-2.5 py-0.5 rounded-full bg-slate-800 text-cyan-400 border border-slate-700">
                       {matrix.category}
                     </span>
@@ -127,7 +127,7 @@ export const ExamTrapsCenter: React.FC = () => {
                   <p className="text-xs text-slate-400">{matrix.subtitle}</p>
                 </div>
 
-                <div className="flex items-center gap-2 text-slate-400">
+                <div className="flex items-center gap-2 text-slate-400 shrink-0">
                   <span className="text-xs hidden sm:inline">{isExpanded ? 'Collapse' : 'Expand Matrix'}</span>
                   <div className="w-8 h-8 rounded-lg bg-slate-800 flex items-center justify-center text-slate-300">
                     {isExpanded ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
@@ -137,9 +137,9 @@ export const ExamTrapsCenter: React.FC = () => {
 
               {/* Expanded Comparative Table & Insights */}
               {isExpanded && (
-                <div className="p-5 sm:p-6 pt-0 border-t border-slate-800 space-y-6 animate-fadeIn">
+                <div className="p-4 xs:p-5 sm:p-6 pt-0 border-t border-slate-800 space-y-6 animate-fadeIn">
                   {/* ARRT Exam Trap Alert Box */}
-                  <div className="bg-rose-950/20 border border-rose-500/30 rounded-xl p-4 flex items-start gap-3">
+                  <div className="bg-rose-950/20 border border-rose-500/30 rounded-xl p-3.5 xs:p-4 flex items-start gap-3">
                     <AlertTriangle className="w-5 h-5 text-rose-400 flex-shrink-0 mt-0.5" />
                     <div className="space-y-1">
                       <strong className="text-xs font-bold text-rose-300 uppercase tracking-wide block">
@@ -152,8 +152,8 @@ export const ExamTrapsCenter: React.FC = () => {
                   </div>
 
                   {/* Comparative Matrix Table */}
-                  <div className="overflow-x-auto border border-slate-800 rounded-xl shadow-inner">
-                    <table className="w-full text-left text-xs border-collapse">
+                  <div className="overflow-x-auto no-scrollbar touch-scroll border border-slate-800 rounded-xl shadow-inner">
+                    <table className="w-full min-w-[540px] text-left text-xs border-collapse">
                       <thead className="bg-slate-950 text-slate-200 font-bold border-b border-slate-800">
                         <tr>
                           {matrix.columns.map((col, idx) => (

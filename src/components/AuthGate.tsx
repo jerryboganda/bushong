@@ -177,7 +177,7 @@ export const AuthGate: React.FC<AuthGateProps> = ({ onSuccess, initialMode = 'si
   };
 
   return (
-    <div className="min-h-screen bg-slate-950 text-slate-100 flex flex-col justify-center items-center px-4 py-8 relative overflow-hidden font-sans select-none">
+    <div className="min-h-screen bg-slate-950 text-slate-100 flex flex-col justify-center items-center px-3 xs:px-4 py-6 sm:py-8 relative overflow-hidden font-sans select-none">
       {/* Dynamic Background Radiance */}
       <div className="absolute top-1/4 -left-48 w-96 h-96 bg-cyan-500/10 rounded-full blur-3xl pointer-events-none" />
       <div className="absolute bottom-1/4 -right-48 w-96 h-96 bg-blue-600/10 rounded-full blur-3xl pointer-events-none" />
@@ -255,7 +255,7 @@ export const AuthGate: React.FC<AuthGateProps> = ({ onSuccess, initialMode = 'si
 
         {/* Right / Authentication Gate Card */}
         <div className="w-full max-w-md">
-          <div className="bg-slate-900/90 border border-slate-800 rounded-3xl p-6 sm:p-8 shadow-2xl shadow-cyan-950/20 backdrop-blur-md space-y-6 relative">
+          <div className="bg-slate-900/90 border border-slate-800 rounded-2xl sm:rounded-3xl p-4 xs:p-6 sm:p-8 shadow-2xl shadow-cyan-950/20 backdrop-blur-md space-y-5 sm:space-y-6 relative">
             
             {/* Gate Header */}
             <div className="text-center space-y-2">
@@ -314,9 +314,9 @@ export const AuthGate: React.FC<AuthGateProps> = ({ onSuccess, initialMode = 'si
                 </button>
               </div>
 
-              <div className="text-[11px] text-slate-300 font-mono bg-slate-950/80 px-2.5 py-1.5 rounded-lg border border-slate-800/80 flex items-center justify-between">
+              <div className="text-[11px] text-slate-300 font-mono bg-slate-950/80 px-2.5 py-1.5 rounded-lg border border-slate-800/80 flex flex-col xs:flex-row xs:items-center justify-between gap-1">
                 <span className="truncate">demo@radiology.edu</span>
-                <span className="text-slate-500">/</span>
+                <span className="text-slate-500 hidden xs:inline">/</span>
                 <span className="text-slate-400">Bushong2026!</span>
               </div>
 
@@ -324,7 +324,7 @@ export const AuthGate: React.FC<AuthGateProps> = ({ onSuccess, initialMode = 'si
                 type="button"
                 disabled={isDemoLoading || loading}
                 onClick={handleInstantDemoLogin}
-                className="w-full py-2 px-3 rounded-xl bg-cyan-500/10 hover:bg-cyan-500/20 text-cyan-300 hover:text-cyan-200 border border-cyan-500/30 text-xs font-bold flex items-center justify-center gap-2 transition-all disabled:opacity-50 disabled:cursor-not-allowed active:scale-[0.98]"
+                className="w-full min-h-[44px] py-2.5 px-3 rounded-xl bg-cyan-500/10 hover:bg-cyan-500/20 text-cyan-300 hover:text-cyan-200 border border-cyan-500/30 text-xs font-bold flex items-center justify-center gap-2 transition-all disabled:opacity-50 disabled:cursor-not-allowed active:scale-[0.98]"
               >
                 {isDemoLoading ? (
                   <>

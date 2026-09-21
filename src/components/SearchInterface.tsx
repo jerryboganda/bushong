@@ -80,21 +80,21 @@ export const SearchInterface: React.FC<SearchInterfaceProps> = ({
   return (
     <div className="space-y-6 max-w-4xl mx-auto pb-12">
       {/* Search Bar Input */}
-      <div className="bg-slate-900 border border-slate-800 rounded-2xl p-4 sm:p-6 shadow-xl">
+      <div className="bg-slate-900 border border-slate-800 rounded-2xl p-3.5 xs:p-4 sm:p-6 shadow-xl">
         <div className="relative">
-          <Search className="w-5 h-5 text-slate-400 absolute left-4 top-1/2 -translate-y-1/2 pointer-events-none" />
+          <Search className="w-5 h-5 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
           <input
             type="text"
             value={query}
             onChange={(e) => setQuery(e.target.value)}
-            placeholder={`Search across all ${ALL_CHAPTERS.length} chapters (e.g., 'inverse square', 'photoelectric', 'CT pitch', 'ALARA')...`}
-            className="w-full bg-slate-950 border border-slate-700/80 rounded-xl pl-12 pr-10 py-3.5 text-sm sm:text-base text-white placeholder:text-slate-500 focus:outline-none focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500 transition-all"
+            placeholder={`Search all ${ALL_CHAPTERS.length} chapters (e.g. 'inverse square', 'ALARA')...`}
+            className="w-full bg-slate-950 border border-slate-700/80 rounded-xl pl-11 pr-10 py-3 min-h-[44px] text-xs sm:text-base text-white placeholder:text-slate-500 focus:outline-none focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500 transition-all"
             autoFocus
           />
           {query && (
             <button
               onClick={() => setQuery('')}
-              className="absolute right-3 top-1/2 -translate-y-1/2 p-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800"
+              className="absolute right-2.5 top-1/2 -translate-y-1/2 w-8 h-8 flex items-center justify-center rounded-lg text-slate-400 hover:text-white hover:bg-slate-800"
             >
               <X className="w-4 h-4" />
             </button>
@@ -102,13 +102,13 @@ export const SearchInterface: React.FC<SearchInterfaceProps> = ({
         </div>
 
         {/* Filter Pills */}
-        <div className="flex flex-wrap items-center gap-2 mt-4 pt-4 border-t border-slate-800/80 text-xs">
-          <span className="text-slate-400 flex items-center gap-1 mr-1">
+        <div className="flex overflow-x-auto no-scrollbar touch-scroll sm:flex-wrap items-center gap-2 mt-4 pt-4 border-t border-slate-800/80 text-xs pb-1 sm:pb-0">
+          <span className="text-slate-400 flex items-center gap-1 mr-1 shrink-0">
             <Filter className="w-3.5 h-3.5" /> Filter:
           </span>
           <button
             onClick={() => setTypeFilter('all')}
-            className={`px-3 py-1.5 rounded-lg transition-all ${
+            className={`whitespace-nowrap px-3 py-1.5 min-h-[36px] rounded-lg transition-all shrink-0 ${
               typeFilter === 'all'
                 ? 'bg-cyan-500 text-slate-950 font-bold'
                 : 'bg-slate-800/80 text-slate-300 hover:bg-slate-800'
@@ -118,7 +118,7 @@ export const SearchInterface: React.FC<SearchInterfaceProps> = ({
           </button>
           <button
             onClick={() => setTypeFilter('penguin')}
-            className={`px-3 py-1.5 rounded-lg transition-all ${
+            className={`whitespace-nowrap px-3 py-1.5 min-h-[36px] rounded-lg transition-all shrink-0 ${
               typeFilter === 'penguin'
                 ? 'bg-amber-500 text-slate-950 font-bold'
                 : 'bg-slate-800/80 text-slate-300 hover:bg-slate-800'
@@ -128,7 +128,7 @@ export const SearchInterface: React.FC<SearchInterfaceProps> = ({
           </button>
           <button
             onClick={() => setTypeFilter('formula')}
-            className={`px-3 py-1.5 rounded-lg transition-all ${
+            className={`whitespace-nowrap px-3 py-1.5 min-h-[36px] rounded-lg transition-all shrink-0 ${
               typeFilter === 'formula'
                 ? 'bg-emerald-500 text-slate-950 font-bold'
                 : 'bg-slate-800/80 text-slate-300 hover:bg-slate-800'
@@ -138,7 +138,7 @@ export const SearchInterface: React.FC<SearchInterfaceProps> = ({
           </button>
           <button
             onClick={() => setTypeFilter('question')}
-            className={`px-3 py-1.5 rounded-lg transition-all ${
+            className={`whitespace-nowrap px-3 py-1.5 min-h-[36px] rounded-lg transition-all shrink-0 ${
               typeFilter === 'question'
                 ? 'bg-purple-500 text-slate-950 font-bold'
                 : 'bg-slate-800/80 text-slate-300 hover:bg-slate-800'
@@ -148,7 +148,7 @@ export const SearchInterface: React.FC<SearchInterfaceProps> = ({
           </button>
           <button
             onClick={() => setTypeFilter('glossary')}
-            className={`px-3 py-1.5 rounded-lg transition-all ${
+            className={`whitespace-nowrap px-3 py-1.5 min-h-[36px] rounded-lg transition-all shrink-0 ${
               typeFilter === 'glossary'
                 ? 'bg-pink-500 text-slate-950 font-bold'
                 : 'bg-slate-800/80 text-slate-300 hover:bg-slate-800'
@@ -158,7 +158,7 @@ export const SearchInterface: React.FC<SearchInterfaceProps> = ({
           </button>
           <button
             onClick={() => setTypeFilter('chapter')}
-            className={`px-3 py-1.5 rounded-lg transition-all ${
+            className={`whitespace-nowrap px-3 py-1.5 min-h-[36px] rounded-lg transition-all shrink-0 ${
               typeFilter === 'chapter'
                 ? 'bg-cyan-600 text-white font-bold'
                 : 'bg-slate-800/80 text-slate-300 hover:bg-slate-800'

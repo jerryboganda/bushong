@@ -192,79 +192,86 @@ export const TextWithGlossary: React.FC<TextWithGlossaryProps> = ({
       <span>{parsedContent}</span>
 
       {/* Floating Glossary Tooltip Popover */}
-      {activeTerm && (
-        <div
-          ref={popoverRef}
-          className="fixed z-50 animate-fadeIn"
-          style={{
-            top: `${Math.min(window.innerHeight - 200, Math.max(10, activeTerm.rect.bottom + 8))}px`,
-            left: `${Math.min(window.innerWidth - 320, Math.max(10, activeTerm.rect.left - 40))}px`
-          }}
-        >
-          <div className="bg-slate-900 text-slate-100 border border-cyan-500/40 rounded-xl p-4 shadow-2xl max-w-sm w-[300px] sm:w-[320px] space-y-2 backdrop-blur-md">
-            <div className="flex items-start justify-between gap-2 border-b border-slate-800 pb-2">
-              <div>
-                <span className="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded bg-cyan-500/10 text-cyan-400 border border-cyan-500/20">
-                  {activeTerm.term.category}
-                </span>
-                <h4 className="text-sm font-bold text-white mt-1">
-                  {activeTerm.term.term}
-                </h4>
+      {activeTerm && (() => {
+        const screenW = typeof window !== 'undefined' ? window.innerWidth : 360;
+        const popoverW = Math.min(320, screenW - 24);
+        const leftCoord = Math.max(12, Math.min(screenW - popoverW - 12, activeTerm.rect.left - 20));
+        const topCoord = Math.min(window.innerHeight - 220, Math.max(10, activeTerm.rect.bottom + 8));
+
+        return (
+          <div
+            ref={popoverRef}
+            className="fixed z-50 animate-fadeIn max-w-[calc(100vw-24px)]"
+            style={{
+              top: `${topCoord}px`,
+              left: `${leftCoord}px`
+            }}
+          >
+            <div className="bg-slate-900 text-slate-100 border border-cyan-500/40 rounded-xl p-3.5 xs:p-4 shadow-2xl max-w-[calc(100vw-24px)] w-[calc(100vw-24px)] sm:w-[320px] space-y-2 backdrop-blur-md">
+              <div className="flex items-start justify-between gap-2 border-b border-slate-800 pb-2">
+                <div>
+                  <span className="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded bg-cyan-500/10 text-cyan-400 border border-cyan-500/20">
+                    {activeTerm.term.category}
+                  </span>
+                  <h4 className="text-sm font-bold text-white mt-1">
+                    {activeTerm.term.term}
+                  </h4>
+                </div>
+                <button
+                  onClick={() => setActiveTerm(null)}
+                  className="p-1.5 text-slate-400 hover:text-white rounded-lg hover:bg-slate-800 min-w-[32px] min-h-[32px] flex items-center justify-center"
+                >
+                  <X className="w-3.5 h-3.5" />
+                </button>
               </div>
-              <button
-                onClick={() => setActiveTerm(null)}
-                className="p-1 text-slate-400 hover:text-white rounded hover:bg-slate-800"
-              >
-                <X className="w-3.5 h-3.5" />
-              </button>
+
+              <p className="text-xs text-slate-300 leading-relaxed max-h-36 overflow-y-auto">
+                {activeTerm.term.definition}
+              </p>
+
+              {activeTerm.term.units && (
+                <div className="text-[11px] font-mono text-amber-300 bg-slate-950 px-2 py-1 rounded border border-slate-800">
+                  Units: {activeTerm.term.units}
+                </div>
+              )}
+
+              {activeTerm.parentHighlight && onHighlightClick && (
+                <div className="pt-2 border-t border-slate-800 flex items-center justify-between">
+                  <span className="text-[10px] text-amber-300 font-semibold flex items-center gap-1">
+                    ⭐ Highlighted Term
+                  </span>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      const hl = activeTerm.parentHighlight!;
+                      setActiveTerm(null);
+                      onHighlightClick(hl);
+                    }}
+                    className="text-xs text-amber-400 hover:text-amber-300 font-bold underline py-1"
+                  >
+                    Edit / Delete Note
+                  </button>
+                </div>
+              )}
+
+              {onOpenGlossary && (
+                <div className="pt-2 border-t border-slate-800 flex justify-end">
+                  <button
+                    onClick={() => {
+                      const t = activeTerm.term.term;
+                      setActiveTerm(null);
+                      onOpenGlossary(t);
+                    }}
+                    className="text-xs text-cyan-400 hover:text-cyan-300 flex items-center gap-1 font-semibold py-1"
+                  >
+                    <BookA className="w-3.5 h-3.5" /> View in Glossary <ExternalLink className="w-3 h-3" />
+                  </button>
+                </div>
+              )}
             </div>
-
-            <p className="text-xs text-slate-300 leading-relaxed max-h-36 overflow-y-auto">
-              {activeTerm.term.definition}
-            </p>
-
-            {activeTerm.term.units && (
-              <div className="text-[11px] font-mono text-amber-300 bg-slate-950 px-2 py-1 rounded border border-slate-800">
-                Units: {activeTerm.term.units}
-              </div>
-            )}
-
-            {activeTerm.parentHighlight && onHighlightClick && (
-              <div className="pt-2 border-t border-slate-800 flex items-center justify-between">
-                <span className="text-[10px] text-amber-300 font-semibold flex items-center gap-1">
-                  ⭐ Highlighted Term
-                </span>
-                <button
-                  type="button"
-                  onClick={() => {
-                    const hl = activeTerm.parentHighlight!;
-                    setActiveTerm(null);
-                    onHighlightClick(hl);
-                  }}
-                  className="text-xs text-amber-400 hover:text-amber-300 font-bold underline"
-                >
-                  Edit / Delete Note
-                </button>
-              </div>
-            )}
-
-            {onOpenGlossary && (
-              <div className="pt-2 border-t border-slate-800 flex justify-end">
-                <button
-                  onClick={() => {
-                    const t = activeTerm.term.term;
-                    setActiveTerm(null);
-                    onOpenGlossary(t);
-                  }}
-                  className="text-xs text-cyan-400 hover:text-cyan-300 flex items-center gap-1 font-semibold"
-                >
-                  <BookA className="w-3.5 h-3.5" /> View in Glossary <ExternalLink className="w-3 h-3" />
-                </button>
-              </div>
-            )}
           </div>
-        </div>
-      )}
+        );
+      })()}
     </>
   );
 };

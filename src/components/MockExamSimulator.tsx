@@ -299,9 +299,9 @@ export const MockExamSimulator: React.FC<{ onNavigateToChapter?: (ch: number) =>
     <div className="space-y-6 max-w-5xl mx-auto pb-16">
       {/* 1. CONFIGURATION VIEW */}
       {phase === 'config' && (
-        <div className="bg-slate-900 border border-slate-800 rounded-2xl p-6 sm:p-8 shadow-xl space-y-6">
+        <div className="bg-slate-900 border border-slate-800 rounded-2xl p-4 xs:p-6 sm:p-8 shadow-xl space-y-6">
           <div className="flex items-center gap-3 pb-4 border-b border-slate-800">
-            <div className="w-12 h-12 rounded-xl bg-cyan-500/10 border border-cyan-500/30 flex items-center justify-center text-cyan-400">
+            <div className="w-12 h-12 rounded-xl bg-cyan-500/10 border border-cyan-500/30 flex items-center justify-center text-cyan-400 flex-shrink-0">
               <Award className="w-6 h-6" />
             </div>
             <div>
@@ -393,13 +393,13 @@ export const MockExamSimulator: React.FC<{ onNavigateToChapter?: (ch: number) =>
             </div>
           </div>
 
-          <div className="flex items-center justify-between pt-2">
-            <span className="text-xs text-slate-500 font-mono">
+          <div className="flex flex-col sm:flex-row items-center justify-between gap-3 pt-2">
+            <span className="text-xs text-slate-500 font-mono text-center sm:text-left">
               Question bank: {ALL_QUESTIONS.length} authoritative Bushong items
             </span>
             <button
               onClick={handleStartExam}
-              className="px-6 py-3 rounded-xl bg-cyan-500 hover:bg-cyan-400 text-slate-950 font-black text-sm shadow-lg shadow-cyan-500/20 transition-all flex items-center gap-2"
+              className="w-full sm:w-auto min-h-[44px] justify-center px-6 py-3 rounded-xl bg-cyan-500 hover:bg-cyan-400 text-slate-950 font-black text-sm shadow-lg shadow-cyan-500/20 transition-all flex items-center gap-2"
             >
               Start Practice Exam <ChevronRight className="w-4 h-4" />
             </button>
@@ -411,20 +411,20 @@ export const MockExamSimulator: React.FC<{ onNavigateToChapter?: (ch: number) =>
       {phase === 'exam' && currentQ && (
         <div className="space-y-4">
           {/* Top Exam Toolbar */}
-          <div className="sticky top-16 z-30 bg-slate-900/95 backdrop-blur-md border border-slate-800 rounded-xl px-4 py-3 flex items-center justify-between shadow-lg">
-            <div className="flex items-center gap-3 text-xs">
+          <div className="sticky top-16 z-30 bg-slate-900/95 backdrop-blur-md border border-slate-800 rounded-xl p-2.5 xs:px-4 xs:py-3 flex flex-wrap items-center justify-between gap-2 shadow-lg">
+            <div className="flex items-center gap-2 text-xs">
               <span className="font-bold text-white">
-                Question {currentIdx + 1} of {activeQuestions.length}
+                Q {currentIdx + 1}/{activeQuestions.length}
               </span>
-              <span className="text-slate-500">|</span>
-              <span className="px-2 py-0.5 rounded bg-slate-800 text-cyan-300 font-mono text-[11px]">
+              <span className="text-slate-600">|</span>
+              <span className="px-2 py-0.5 rounded bg-slate-800 text-cyan-300 font-mono text-[10px] xs:text-[11px] truncate max-w-[130px] xs:max-w-none">
                 {currentQ.category}
               </span>
             </div>
 
             {/* Timer & Controls */}
-            <div className="flex items-center gap-3">
-              <div className={`flex items-center gap-1.5 px-3 py-1 rounded-lg font-mono text-sm font-bold border ${
+            <div className="flex items-center gap-1.5 xs:gap-2 flex-wrap sm:flex-nowrap">
+              <div className={`flex items-center gap-1 px-2 xs:px-3 py-1 rounded-lg font-mono text-xs xs:text-sm font-bold border ${
                 timeRemainingSeconds < 300
                   ? 'bg-rose-950/60 border-rose-500 text-rose-300 animate-pulse'
                   : 'bg-slate-950 border-slate-800 text-cyan-400'
@@ -435,7 +435,7 @@ export const MockExamSimulator: React.FC<{ onNavigateToChapter?: (ch: number) =>
 
               <button
                 onClick={() => setIsTimerPaused(!isTimerPaused)}
-                className="p-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300"
+                className="p-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 min-w-[32px] min-h-[32px] flex items-center justify-center"
                 title={isTimerPaused ? 'Resume exam timer' : 'Pause exam timer'}
               >
                 {isTimerPaused ? <Play className="w-4 h-4 text-emerald-400" /> : <Pause className="w-4 h-4" />}
@@ -443,7 +443,7 @@ export const MockExamSimulator: React.FC<{ onNavigateToChapter?: (ch: number) =>
 
               <button
                 onClick={() => setNavDrawerOpen(!navDrawerOpen)}
-                className="px-2.5 py-1 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-semibold flex items-center gap-1"
+                className="px-2 xs:px-2.5 py-1 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-semibold flex items-center gap-1 min-h-[32px]"
               >
                 <Layers className="w-3.5 h-3.5" /> Grid ({Object.keys(userAnswers).length}/{activeQuestions.length})
               </button>
@@ -454,26 +454,26 @@ export const MockExamSimulator: React.FC<{ onNavigateToChapter?: (ch: number) =>
                     handleFinishExam();
                   }
                 }}
-                className="px-3 py-1 rounded-lg bg-rose-600 hover:bg-rose-500 text-white font-bold text-xs shadow transition-colors"
+                className="px-2.5 xs:px-3 py-1 rounded-lg bg-rose-600 hover:bg-rose-500 text-white font-bold text-xs shadow transition-colors min-h-[32px]"
               >
-                Submit Exam
+                Submit
               </button>
             </div>
           </div>
 
           {/* Question Navigator Drawer */}
           {navDrawerOpen && (
-            <div className="bg-slate-900 border border-slate-800 rounded-xl p-4 space-y-3 animate-fadeIn">
-              <div className="flex items-center justify-between text-xs font-bold text-slate-300">
+            <div className="bg-slate-900 border border-slate-800 rounded-xl p-3.5 xs:p-4 space-y-3 animate-fadeIn">
+              <div className="flex flex-col xs:flex-row xs:items-center justify-between gap-2 text-xs font-bold text-slate-300">
                 <span>Question Navigator Grid</span>
-                <div className="flex items-center gap-3 text-[11px] font-normal text-slate-400">
+                <div className="flex items-center gap-3 text-[11px] font-normal text-slate-400 flex-wrap">
                   <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-cyan-400" /> Answered</span>
                   <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-amber-400" /> Flagged</span>
                   <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-slate-700" /> Unanswered</span>
                 </div>
               </div>
 
-              <div className="grid grid-cols-10 sm:grid-cols-20 gap-1.5 max-h-48 overflow-y-auto pr-1">
+              <div className="grid grid-cols-5 xs:grid-cols-8 sm:grid-cols-10 md:grid-cols-15 lg:grid-cols-20 gap-1.5 max-h-48 overflow-y-auto pr-1 no-scrollbar touch-scroll">
                 {activeQuestions.map((q, idx) => {
                   const isAnswered = userAnswers[q.id] !== undefined;
                   const isFlagged = !!flaggedQuestions[q.id];
@@ -485,7 +485,7 @@ export const MockExamSimulator: React.FC<{ onNavigateToChapter?: (ch: number) =>
                         setCurrentIdx(idx);
                         setNavDrawerOpen(false);
                       }}
-                      className={`h-8 rounded text-xs font-mono font-bold border transition-all ${
+                      className={`h-8 rounded text-xs font-mono font-bold border transition-all flex items-center justify-center ${
                         isCurrent
                           ? 'ring-2 ring-white scale-105'
                           : ''
@@ -506,20 +506,20 @@ export const MockExamSimulator: React.FC<{ onNavigateToChapter?: (ch: number) =>
           )}
 
           {/* Question Card */}
-          <div className="bg-slate-900 border border-slate-800 rounded-2xl p-6 sm:p-8 space-y-6 shadow-xl">
-            <div className="flex items-start justify-between gap-4">
-              <div className="flex items-start gap-3">
+          <div className="bg-slate-900 border border-slate-800 rounded-2xl p-4 xs:p-6 sm:p-8 space-y-5 xs:space-y-6 shadow-xl">
+            <div className="flex items-start justify-between gap-3">
+              <div className="flex items-start gap-2.5 xs:gap-3">
                 <span className="w-7 h-7 rounded-lg bg-slate-800 border border-slate-700 text-cyan-400 font-mono font-bold text-xs flex items-center justify-center flex-shrink-0 mt-0.5">
                   {currentIdx + 1}
                 </span>
-                <p className="text-base sm:text-lg font-semibold text-white leading-relaxed">
+                <p className="text-sm xs:text-base sm:text-lg font-semibold text-white leading-relaxed">
                   {currentQ.question}
                 </p>
               </div>
 
               <button
                 onClick={() => handleToggleFlag(currentQ.id)}
-                className={`p-2 rounded-xl border text-xs font-semibold flex items-center gap-1.5 flex-shrink-0 transition-all ${
+                className={`p-2 rounded-xl border text-xs font-semibold flex items-center gap-1.5 flex-shrink-0 min-h-[38px] transition-all ${
                   flaggedQuestions[currentQ.id]
                     ? 'bg-amber-500/20 text-amber-300 border-amber-500/50'
                     : 'bg-slate-950 text-slate-400 border-slate-800 hover:text-white'
@@ -532,7 +532,7 @@ export const MockExamSimulator: React.FC<{ onNavigateToChapter?: (ch: number) =>
             </div>
 
             {/* Multiple Choice Options */}
-            <div className="space-y-3 pt-2">
+            <div className="space-y-2.5 xs:space-y-3 pt-1">
               {currentQ.options.map((option, optIdx) => {
                 const isSelected = userAnswers[currentQ.id] === optIdx;
                 const isEliminated = !!eliminatedOptions[currentQ.id]?.[optIdx];
@@ -541,7 +541,7 @@ export const MockExamSimulator: React.FC<{ onNavigateToChapter?: (ch: number) =>
                 return (
                   <div
                     key={optIdx}
-                    className={`flex items-start gap-3 p-3.5 sm:p-4 rounded-xl border transition-all cursor-pointer select-none ${
+                    className={`flex items-start gap-2.5 xs:gap-3 p-3 xs:p-3.5 sm:p-4 rounded-xl border transition-all cursor-pointer select-none ${
                       isSelected
                         ? 'bg-cyan-500/20 border-cyan-400 text-white shadow-md'
                         : isEliminated
@@ -575,7 +575,7 @@ export const MockExamSimulator: React.FC<{ onNavigateToChapter?: (ch: number) =>
                         e.stopPropagation();
                         handleToggleEliminate(currentQ.id, optIdx);
                       }}
-                      className={`p-1.5 rounded-lg transition-colors flex-shrink-0 ${
+                      className={`p-1.5 rounded-lg transition-colors flex-shrink-0 min-w-[32px] min-h-[32px] flex items-center justify-center ${
                         isEliminated
                           ? 'text-rose-400 hover:text-white bg-rose-950/40'
                           : 'text-slate-500 hover:text-slate-300 hover:bg-slate-800'
@@ -590,30 +590,30 @@ export const MockExamSimulator: React.FC<{ onNavigateToChapter?: (ch: number) =>
             </div>
 
             {/* Bottom Nav Buttons */}
-            <div className="flex items-center justify-between pt-6 border-t border-slate-800">
+            <div className="flex flex-col xs:flex-row items-center justify-between gap-3 pt-4 sm:pt-6 border-t border-slate-800">
               <button
                 disabled={currentIdx === 0}
                 onClick={() => setCurrentIdx(prev => Math.max(0, prev - 1))}
-                className="px-4 py-2.5 rounded-xl bg-slate-950 border border-slate-800 hover:bg-slate-800 text-xs sm:text-sm text-slate-300 font-semibold disabled:opacity-40 disabled:pointer-events-none transition-all flex items-center gap-1.5"
+                className="w-full xs:w-auto min-h-[44px] justify-center px-4 py-2.5 rounded-xl bg-slate-950 border border-slate-800 hover:bg-slate-800 text-xs sm:text-sm text-slate-300 font-semibold disabled:opacity-40 disabled:pointer-events-none transition-all flex items-center gap-1.5"
               >
                 <ChevronLeft className="w-4 h-4" /> Previous
               </button>
 
-              <span className="text-xs font-mono text-slate-500">
+              <span className="text-xs font-mono text-slate-500 order-first xs:order-none">
                 {Object.keys(userAnswers).length} of {activeQuestions.length} answered
               </span>
 
               {currentIdx < activeQuestions.length - 1 ? (
                 <button
                   onClick={() => setCurrentIdx(prev => Math.min(activeQuestions.length - 1, prev + 1))}
-                  className="px-5 py-2.5 rounded-xl bg-cyan-500 hover:bg-cyan-400 text-slate-950 font-bold text-xs sm:text-sm shadow-md shadow-cyan-500/20 transition-all flex items-center gap-1.5"
+                  className="w-full xs:w-auto min-h-[44px] justify-center px-5 py-2.5 rounded-xl bg-cyan-500 hover:bg-cyan-400 text-slate-950 font-bold text-xs sm:text-sm shadow-md shadow-cyan-500/20 transition-all flex items-center gap-1.5"
                 >
                   Next <ChevronRight className="w-4 h-4" />
                 </button>
               ) : (
                 <button
                   onClick={handleFinishExam}
-                  className="px-5 py-2.5 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-black text-xs sm:text-sm shadow-md shadow-emerald-500/20 transition-all flex items-center gap-1.5"
+                  className="w-full xs:w-auto min-h-[44px] justify-center px-5 py-2.5 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-black text-xs sm:text-sm shadow-md shadow-emerald-500/20 transition-all flex items-center gap-1.5"
                 >
                   Submit & Score <Award className="w-4 h-4" />
                 </button>
@@ -627,14 +627,14 @@ export const MockExamSimulator: React.FC<{ onNavigateToChapter?: (ch: number) =>
       {phase === 'results' && lastAttempt && (
         <div className="space-y-6">
           {/* Result Banner */}
-          <div className={`rounded-2xl border p-6 sm:p-8 shadow-2xl relative overflow-hidden ${
+          <div className={`rounded-2xl border p-4 xs:p-6 sm:p-8 shadow-2xl relative overflow-hidden ${
             lastAttempt.passed
               ? 'bg-gradient-to-br from-slate-900 via-slate-900 to-emerald-950/40 border-emerald-500/40'
               : 'bg-gradient-to-br from-slate-900 via-slate-900 to-rose-950/40 border-rose-500/40'
           }`}>
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
               <div className="space-y-2">
-                <div className="flex items-center gap-2">
+                <div className="flex flex-wrap items-center gap-2">
                   <span className={`px-3 py-1 rounded-full text-xs font-black uppercase tracking-wider ${
                     lastAttempt.passed
                       ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/40'
@@ -660,7 +660,7 @@ export const MockExamSimulator: React.FC<{ onNavigateToChapter?: (ch: number) =>
               <div className="flex flex-wrap items-center gap-2">
                 <button
                   onClick={() => setPhase('config')}
-                  className="px-5 py-2.5 rounded-xl bg-cyan-500 hover:bg-cyan-400 text-slate-950 font-bold text-xs sm:text-sm shadow-md shadow-cyan-500/20 transition-all flex items-center gap-1.5"
+                  className="w-full sm:w-auto min-h-[44px] justify-center px-5 py-2.5 rounded-xl bg-cyan-500 hover:bg-cyan-400 text-slate-950 font-bold text-xs sm:text-sm shadow-md shadow-cyan-500/20 transition-all flex items-center gap-1.5"
                 >
                   <RotateCcw className="w-4 h-4" /> Retake / New Exam
                 </button>
@@ -692,16 +692,16 @@ export const MockExamSimulator: React.FC<{ onNavigateToChapter?: (ch: number) =>
           </div>
 
           {/* Question Review Toolbar */}
-          <div className="bg-slate-900 border border-slate-800 rounded-xl p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3 shadow-md">
+          <div className="bg-slate-900 border border-slate-800 rounded-xl p-3.5 xs:p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3 shadow-md">
             <h3 className="text-sm font-bold text-white flex items-center gap-2">
-              <FileText className="w-4 h-4 text-cyan-400" />
-              Detailed Problem Review & Textbook Explanations ({reviewedQuestions.length})
+              <FileText className="w-4 h-4 text-cyan-400 flex-shrink-0" />
+              Detailed Problem Review ({reviewedQuestions.length})
             </h3>
 
-            <div className="flex items-center gap-1.5 bg-slate-950 p-1 rounded-xl border border-slate-800 text-xs font-semibold">
+            <div className="flex flex-wrap items-center gap-1.5 bg-slate-950 p-1 rounded-xl border border-slate-800 text-xs font-semibold w-full sm:w-auto">
               <button
                 onClick={() => setReviewFilter('all')}
-                className={`px-3 py-1 rounded-lg transition-all ${
+                className={`flex-1 sm:flex-none px-3 py-1.5 rounded-lg transition-all min-h-[32px] text-center ${
                   reviewFilter === 'all' ? 'bg-slate-800 text-white' : 'text-slate-400 hover:text-white'
                 }`}
               >
@@ -709,15 +709,15 @@ export const MockExamSimulator: React.FC<{ onNavigateToChapter?: (ch: number) =>
               </button>
               <button
                 onClick={() => setReviewFilter('incorrect')}
-                className={`px-3 py-1 rounded-lg transition-all ${
+                className={`flex-1 sm:flex-none px-3 py-1.5 rounded-lg transition-all min-h-[32px] text-center ${
                   reviewFilter === 'incorrect' ? 'bg-rose-500/20 text-rose-300 font-bold' : 'text-slate-400 hover:text-white'
                 }`}
               >
-                Incorrect Only ({lastAttempt.totalQuestions - lastAttempt.correctAnswers})
+                Incorrect ({lastAttempt.totalQuestions - lastAttempt.correctAnswers})
               </button>
               <button
                 onClick={() => setReviewFilter('flagged')}
-                className={`px-3 py-1 rounded-lg transition-all ${
+                className={`flex-1 sm:flex-none px-3 py-1.5 rounded-lg transition-all min-h-[32px] text-center ${
                   reviewFilter === 'flagged' ? 'bg-amber-500/20 text-amber-300 font-bold' : 'text-slate-400 hover:text-white'
                 }`}
               >

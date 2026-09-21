@@ -14,13 +14,13 @@ export const ReaderSettingsModal: React.FC<ReaderSettingsModalProps> = ({
   onClose
 }) => {
   return (
-    <div className="fixed inset-0 z-50 bg-black/70 backdrop-blur-sm flex items-center justify-center p-4">
-      <div className="bg-slate-900 border border-slate-800 rounded-2xl max-w-md w-full p-6 space-y-6 shadow-2xl animate-fadeIn">
-        <div className="flex items-center justify-between pb-3 border-b border-slate-800">
+    <div className="fixed inset-0 z-50 bg-black/70 backdrop-blur-sm flex items-center justify-center p-3 xs:p-4">
+      <div className="bg-slate-900 border border-slate-800 rounded-2xl max-w-md w-full max-h-[92vh] overflow-y-auto p-4 xs:p-6 space-y-5 xs:space-y-6 shadow-2xl animate-fadeIn">
+        <div className="flex items-center justify-between pb-3 border-b border-slate-800 sticky top-0 bg-slate-900/95 backdrop-blur-sm z-10">
           <h3 className="text-base font-bold text-white flex items-center gap-2">
             <Settings className="w-4 h-4 text-cyan-400" /> Reader Appearance & Focus
           </h3>
-          <button onClick={onClose} className="p-1 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800">
+          <button onClick={onClose} className="p-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800 min-w-[32px] min-h-[32px] flex items-center justify-center">
             <X className="w-4 h-4" />
           </button>
         </div>
@@ -78,7 +78,7 @@ export const ReaderSettingsModal: React.FC<ReaderSettingsModalProps> = ({
         </div>
 
         {/* 3. Font Size & Spacing */}
-        <div className="grid grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
           <div className="space-y-2">
             <label className="text-xs font-bold text-slate-300 uppercase tracking-wider block">
               Font Size
@@ -88,7 +88,7 @@ export const ReaderSettingsModal: React.FC<ReaderSettingsModalProps> = ({
                 <button
                   key={s}
                   onClick={() => onUpdatePreferences({ size: s })}
-                  className={`flex-1 py-1.5 rounded-lg uppercase font-mono font-bold transition-all ${
+                  className={`flex-1 py-2 rounded-lg uppercase font-mono font-bold transition-all min-h-[36px] flex items-center justify-center ${
                     preferences.size === s ? 'bg-cyan-500 text-slate-950' : 'text-slate-400 hover:text-white'
                   }`}
                 >
@@ -111,7 +111,7 @@ export const ReaderSettingsModal: React.FC<ReaderSettingsModalProps> = ({
                 <button
                   key={sp.id}
                   onClick={() => onUpdatePreferences({ spacing: sp.id as ReadingSpacing })}
-                  className={`flex-1 py-1.5 rounded-lg font-mono font-bold transition-all ${
+                  className={`flex-1 py-2 rounded-lg font-mono font-bold transition-all min-h-[36px] flex items-center justify-center ${
                     preferences.spacing === sp.id ? 'bg-cyan-500 text-slate-950' : 'text-slate-400 hover:text-white'
                   }`}
                 >
@@ -126,7 +126,7 @@ export const ReaderSettingsModal: React.FC<ReaderSettingsModalProps> = ({
         <div className="space-y-3 pt-2 border-t border-slate-800">
           {/* Bionic Reading */}
           <label className="flex items-center justify-between p-3 rounded-xl bg-slate-950 border border-slate-800 cursor-pointer hover:border-slate-700 transition-colors">
-            <div className="space-y-0.5">
+            <div className="space-y-0.5 pr-2">
               <span className="text-xs font-bold text-white flex items-center gap-1.5">
                 <Sparkles className="w-3.5 h-3.5 text-cyan-400" /> Bionic Reading Mode
               </span>
@@ -138,13 +138,13 @@ export const ReaderSettingsModal: React.FC<ReaderSettingsModalProps> = ({
               type="checkbox"
               checked={preferences.bionicReading}
               onChange={e => onUpdatePreferences({ bionicReading: e.target.checked })}
-              className="w-4 h-4 rounded border-slate-700 text-cyan-500 focus:ring-0 bg-slate-800 cursor-pointer"
+              className="w-4 h-4 rounded border-slate-700 text-cyan-500 focus:ring-0 bg-slate-800 cursor-pointer flex-shrink-0"
             />
           </label>
 
           {/* Smart In-Text Glossary Tooltips */}
           <label className="flex items-center justify-between p-3 rounded-xl bg-slate-950 border border-slate-800 cursor-pointer hover:border-slate-700 transition-colors">
-            <div className="space-y-0.5">
+            <div className="space-y-0.5 pr-2">
               <span className="text-xs font-bold text-white flex items-center gap-1.5">
                 <BookOpen className="w-3.5 h-3.5 text-cyan-400" /> In-Text Glossary Tooltips
               </span>
@@ -156,14 +156,14 @@ export const ReaderSettingsModal: React.FC<ReaderSettingsModalProps> = ({
               type="checkbox"
               checked={preferences.glossaryTooltips}
               onChange={e => onUpdatePreferences({ glossaryTooltips: e.target.checked })}
-              className="w-4 h-4 rounded border-slate-700 text-cyan-500 focus:ring-0 bg-slate-800 cursor-pointer"
+              className="w-4 h-4 rounded border-slate-700 text-cyan-500 focus:ring-0 bg-slate-800 cursor-pointer flex-shrink-0"
             />
           </label>
         </div>
 
         <button
           onClick={onClose}
-          className="w-full py-2.5 rounded-xl bg-cyan-500 hover:bg-cyan-400 text-slate-950 font-bold text-xs shadow-md shadow-cyan-500/20 transition-all"
+          className="w-full min-h-[44px] py-2.5 rounded-xl bg-cyan-500 hover:bg-cyan-400 text-slate-950 font-bold text-xs shadow-md shadow-cyan-500/20 transition-all flex items-center justify-center"
         >
           Save & Apply Settings
         </button>

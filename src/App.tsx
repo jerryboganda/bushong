@@ -168,6 +168,7 @@ export default function App() {
   const [installPrompt, setInstallPrompt] = useState<any>(null);
   const [installed, setInstalled] = useState<boolean>(false);
   const [glossaryQuery, setGlossaryQuery] = useState<string>('');
+  const [drawerSearch, setDrawerSearch] = useState<string>('');
   const [showBackupModal, setShowBackupModal] = useState<boolean>(false);
 
   // Online / Offline listeners
@@ -309,12 +310,12 @@ export default function App() {
 
       {/* Top Header Bar */}
       <header className="sticky top-0 z-40 bg-slate-900/90 backdrop-blur-md border-b border-slate-800">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between gap-4">
+        <div className="max-w-7xl mx-auto px-2 xs:px-4 sm:px-6 h-14 sm:h-16 flex items-center justify-between gap-1.5 sm:gap-4">
           {/* Brand & Drawer Toggle */}
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-1.5 xs:gap-2.5 sm:gap-3 min-w-0">
             <button
               onClick={() => setSidebarOpen(prev => !prev)}
-              className={`p-2 rounded-lg transition-colors ${
+              className={`p-2 rounded-xl transition-colors flex-shrink-0 ${
                 sidebarOpen 
                   ? 'text-cyan-400 bg-slate-800/80 hover:bg-slate-800' 
                   : 'text-slate-400 hover:text-white hover:bg-slate-800'
@@ -326,17 +327,20 @@ export default function App() {
             </button>
 
             <div 
-              onClick={() => setActiveView('overview')}
-              className="flex items-center gap-2.5 cursor-pointer group"
+              onClick={() => {
+                setActiveView('overview');
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+              }}
+              className="flex items-center gap-1.5 xs:gap-2 cursor-pointer group min-w-0"
             >
-              <div className="w-8 h-8 rounded-lg bg-cyan-500 flex items-center justify-center text-slate-950 font-bold shadow-md shadow-cyan-500/20">
+              <div className="w-7 h-7 xs:w-8 xs:h-8 rounded-lg bg-cyan-500 flex items-center justify-center text-slate-950 font-bold shadow-md shadow-cyan-500/20 flex-shrink-0">
                 <BookOpen className="w-4 h-4" />
               </div>
-              <div>
-                <span className="font-bold text-sm sm:text-base text-white tracking-tight group-hover:text-cyan-300 transition-colors">
+              <div className="min-w-0 truncate">
+                <span className="font-bold text-xs xs:text-sm sm:text-base text-white tracking-tight group-hover:text-cyan-300 transition-colors truncate">
                   Radiologic Science
                 </span>
-                <span className="text-[10px] ml-1.5 px-1.5 py-0.5 rounded bg-cyan-500/10 text-cyan-400 border border-cyan-500/20 font-mono font-semibold">
+                <span className="hidden xs:inline text-[9px] sm:text-[10px] ml-1 px-1.5 py-0.5 rounded bg-cyan-500/10 text-cyan-400 border border-cyan-500/20 font-mono font-semibold">
                   11th Ed.
                 </span>
               </div>
@@ -454,18 +458,20 @@ export default function App() {
           </nav>
 
           {/* Right Actions: Search, Backup, Install & Status */}
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-1 xs:gap-1.5 sm:gap-2 flex-shrink-0">
             <button
               onClick={() => setActiveView('search')}
-              className={`flex items-center gap-2 px-2.5 py-1.5 rounded-lg text-xs font-medium border transition-all ${
+              className={`flex items-center gap-1.5 p-2 xs:px-2.5 xs:py-1.5 rounded-lg text-xs font-medium border transition-all ${
                 activeView === 'search'
                   ? 'bg-cyan-500 text-slate-950 border-cyan-400 font-bold'
                   : 'bg-slate-950 border-slate-800 text-slate-400 hover:text-white hover:border-slate-700'
               }`}
+              title="Search textbook content (/)"
+              aria-label="Search"
             >
               <Search className="w-3.5 h-3.5" />
-              <span className="hidden sm:inline">Search</span>
-              <kbd className="hidden sm:inline text-[9px] px-1 py-0.5 rounded bg-slate-900 border border-slate-800 text-slate-400 font-mono">
+              <span className="hidden md:inline">Search</span>
+              <kbd className="hidden lg:inline text-[9px] px-1 py-0.5 rounded bg-slate-900 border border-slate-800 text-slate-400 font-mono">
                 /
               </kbd>
             </button>
@@ -473,10 +479,11 @@ export default function App() {
             {/* Backup & Sync Button */}
             <button
               onClick={() => setShowBackupModal(true)}
-              className="p-1.5 rounded-lg bg-slate-950 border border-slate-800 text-slate-400 hover:text-cyan-300 hover:border-slate-700 transition-colors"
+              className="p-2 rounded-lg bg-slate-950 border border-slate-800 text-slate-400 hover:text-cyan-300 hover:border-slate-700 transition-colors flex-shrink-0"
               title="Backup & Restore Study Data (JSON Sync)"
+              aria-label="Backup & Device Sync"
             >
-              <HardDrive className="w-4 h-4" />
+              <HardDrive className="w-3.5 h-3.5 xs:w-4 xs:h-4" />
             </button>
 
             {/* Better Auth Account Button */}
@@ -484,16 +491,17 @@ export default function App() {
               <div className="relative">
                 <button
                   onClick={() => setUserDropdownOpen(p => !p)}
-                  className="flex items-center gap-1.5 px-2 py-1 rounded-lg bg-slate-950 hover:bg-slate-800 border border-slate-800 text-xs font-semibold text-slate-200 transition-colors"
+                  className="flex items-center gap-1 p-1 xs:px-2 xs:py-1 rounded-lg bg-slate-950 hover:bg-slate-800 border border-slate-800 text-xs font-semibold text-slate-200 transition-colors flex-shrink-0"
                   title="Account Profile"
+                  aria-label="Account Profile"
                 >
                   <div className="w-5 h-5 rounded-full bg-cyan-500/20 text-cyan-400 border border-cyan-500/30 flex items-center justify-center text-[10px] font-bold">
                     {user?.name ? user.name.charAt(0).toUpperCase() : 'U'}
                   </div>
-                  <span className="max-w-[75px] truncate hidden sm:inline text-[11px] font-medium text-slate-300">
+                  <span className="max-w-[65px] truncate hidden md:inline text-[11px] font-medium text-slate-300">
                     {user?.name?.split(' ')[0] || 'User'}
                   </span>
-                  <ChevronDown className="w-3 h-3 text-slate-400" />
+                  <ChevronDown className="w-3 h-3 text-slate-400 hidden xs:inline" />
                 </button>
 
                 {userDropdownOpen && (
@@ -514,10 +522,10 @@ export default function App() {
             ) : (
               <button
                 onClick={() => openAuth()}
-                className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-cyan-500 hover:bg-cyan-400 text-slate-950 font-bold text-xs shadow transition-all"
+                className="flex items-center gap-1 px-2.5 py-1.5 rounded-lg bg-cyan-500 hover:bg-cyan-400 text-slate-950 font-bold text-xs shadow transition-all flex-shrink-0"
               >
                 <Lock className="w-3.5 h-3.5" />
-                <span>Sign In</span>
+                <span className="hidden xs:inline">Sign In</span>
               </button>
             )}
 
@@ -533,82 +541,107 @@ export default function App() {
             )}
 
             {/* Online / Offline status badge */}
-            <div className={`flex items-center gap-1 text-[11px] px-2 py-1 rounded-full border ${
-              isOnline 
-                ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20' 
-                : 'bg-amber-500/10 text-amber-400 border-amber-500/20'
-            }`}>
+            <div 
+              className={`flex items-center gap-1 text-[11px] p-1.5 xs:px-2 xs:py-1 rounded-full border flex-shrink-0 ${
+                isOnline 
+                  ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20' 
+                  : 'bg-amber-500/10 text-amber-400 border-amber-500/20'
+              }`}
+              title={isOnline ? 'Online mode active' : 'Offline PWA active'}
+            >
               {isOnline ? <Wifi className="w-3 h-3" /> : <WifiOff className="w-3 h-3" />}
               <span className="hidden xl:inline">{isOnline ? 'Online' : 'Offline'}</span>
             </div>
           </div>
         </div>
 
-        {/* Mobile / Tablet Horizontal Navigation Strip */}
-        <div className="lg:hidden flex items-center gap-1.5 overflow-x-auto px-4 py-2 bg-slate-950/80 border-t border-slate-800 text-xs font-medium no-scrollbar">
-          <button
-            onClick={() => setActiveView('overview')}
-            className={`px-2.5 py-1 rounded-md flex-shrink-0 transition-all ${activeView === 'overview' ? 'bg-slate-800 text-white font-bold' : 'text-slate-400'}`}
-          >
-            Overview
-          </button>
-          <button
-            onClick={() => setActiveView('reader')}
-            className={`px-2.5 py-1 rounded-md flex-shrink-0 transition-all ${activeView === 'reader' ? 'bg-cyan-500/20 text-cyan-400 font-bold' : 'text-slate-400'}`}
-          >
-            Chapters
-          </button>
-          <button
-            onClick={() => setActiveView('vault')}
-            className={`px-2.5 py-1 rounded-md flex-shrink-0 transition-all flex items-center gap-1 ${activeView === 'vault' ? 'bg-purple-500/20 text-purple-300 font-bold' : 'text-purple-400'}`}
-          >
-            <Highlighter className="w-3 h-3" /> Vault
-          </button>
-          <button
-            onClick={() => setActiveView('mock-exam')}
-            className={`px-2.5 py-1 rounded-md flex-shrink-0 transition-all flex items-center gap-1 ${activeView === 'mock-exam' ? 'bg-rose-500/20 text-rose-300 font-bold' : 'text-rose-400'}`}
-          >
-            <Award className="w-3 h-3" /> ARRT Mock
-          </button>
-          <button
-            onClick={() => setActiveView('traps')}
-            className={`px-2.5 py-1 rounded-md flex-shrink-0 transition-all flex items-center gap-1 ${activeView === 'traps' ? 'bg-amber-500/20 text-amber-300 font-bold' : 'text-amber-400'}`}
-          >
-            <AlertTriangle className="w-3 h-3" /> Traps
-          </button>
-          <button
-            onClick={() => setActiveView('study')}
-            className={`px-2.5 py-1 rounded-md flex-shrink-0 transition-all flex items-center gap-1 ${activeView === 'study' ? 'bg-amber-500/20 text-amber-400 font-bold' : 'text-slate-400'}`}
-          >
-            <Sparkles className="w-3 h-3" /> Study Deck
-          </button>
-          <button
-            onClick={() => setActiveView('mastery')}
-            className={`px-2.5 py-1 rounded-md flex-shrink-0 transition-all flex items-center gap-1 ${activeView === 'mastery' ? 'bg-cyan-500/20 text-cyan-400 font-bold' : 'text-slate-400'}`}
-          >
-            <TrendingUp className="w-3 h-3" /> Mastery
-          </button>
-          <button
-            onClick={() => setActiveView('calculators')}
-            className={`px-2.5 py-1 rounded-md flex-shrink-0 transition-all ${activeView === 'calculators' ? 'bg-cyan-500/20 text-cyan-400 font-bold' : 'text-slate-400'}`}
-          >
-            Calculators
-          </button>
-          <button
-            onClick={() => {
-              setGlossaryQuery('');
-              setActiveView('glossary');
-            }}
-            className={`px-2.5 py-1 rounded-md flex-shrink-0 transition-all ${activeView === 'glossary' ? 'bg-purple-500/20 text-purple-300 font-bold' : 'text-slate-400'}`}
-          >
-            Glossary
-          </button>
-          <button
-            onClick={() => setActiveView('reference')}
-            className={`px-2.5 py-1 rounded-md flex-shrink-0 transition-all ${activeView === 'reference' ? 'bg-indigo-500/20 text-indigo-300 font-bold' : 'text-slate-400'}`}
-          >
-            Reference
-          </button>
+        {/* Mobile / Tablet Horizontal Navigation Strip with Touch Scroll */}
+        <div className="lg:hidden relative border-t border-slate-800 bg-slate-950/90 backdrop-blur-md">
+          <div className="flex items-center gap-1.5 overflow-x-auto px-3 py-2 text-xs font-medium no-scrollbar touch-scroll">
+            <button
+              onClick={() => setActiveView('overview')}
+              className={`px-3 py-1.5 rounded-lg flex-shrink-0 transition-all ${
+                activeView === 'overview' ? 'bg-slate-800 text-white font-bold shadow-sm' : 'text-slate-400 hover:text-slate-200'
+              }`}
+            >
+              Overview
+            </button>
+            <button
+              onClick={() => setActiveView('reader')}
+              className={`px-3 py-1.5 rounded-lg flex-shrink-0 transition-all ${
+                activeView === 'reader' ? 'bg-cyan-500/20 text-cyan-300 font-bold border border-cyan-500/30' : 'text-slate-400 hover:text-slate-200'
+              }`}
+            >
+              Chapters
+            </button>
+            <button
+              onClick={() => setActiveView('vault')}
+              className={`px-3 py-1.5 rounded-lg flex-shrink-0 transition-all flex items-center gap-1 ${
+                activeView === 'vault' ? 'bg-purple-600 text-white font-bold shadow-sm' : 'text-purple-400 hover:text-purple-300'
+              }`}
+            >
+              <Highlighter className="w-3.5 h-3.5" /> Vault
+            </button>
+            <button
+              onClick={() => setActiveView('mock-exam')}
+              className={`px-3 py-1.5 rounded-lg flex-shrink-0 transition-all flex items-center gap-1 ${
+                activeView === 'mock-exam' ? 'bg-rose-600 text-white font-bold shadow-sm' : 'text-rose-400 hover:text-rose-300'
+              }`}
+            >
+              <Award className="w-3.5 h-3.5" /> ARRT Mock
+            </button>
+            <button
+              onClick={() => setActiveView('traps')}
+              className={`px-3 py-1.5 rounded-lg flex-shrink-0 transition-all flex items-center gap-1 ${
+                activeView === 'traps' ? 'bg-amber-500 text-slate-950 font-bold shadow-sm' : 'text-amber-400 hover:text-amber-300'
+              }`}
+            >
+              <AlertTriangle className="w-3.5 h-3.5" /> Traps
+            </button>
+            <button
+              onClick={() => setActiveView('study')}
+              className={`px-3 py-1.5 rounded-lg flex-shrink-0 transition-all flex items-center gap-1 ${
+                activeView === 'study' ? 'bg-amber-500 text-slate-950 font-bold shadow-sm' : 'text-slate-400 hover:text-slate-200'
+              }`}
+            >
+              <Sparkles className="w-3.5 h-3.5" /> Study Deck
+            </button>
+            <button
+              onClick={() => setActiveView('mastery')}
+              className={`px-3 py-1.5 rounded-lg flex-shrink-0 transition-all flex items-center gap-1 ${
+                activeView === 'mastery' ? 'bg-cyan-500 text-slate-950 font-bold shadow-sm' : 'text-slate-400 hover:text-slate-200'
+              }`}
+            >
+              <TrendingUp className="w-3.5 h-3.5" /> Mastery
+            </button>
+            <button
+              onClick={() => setActiveView('calculators')}
+              className={`px-3 py-1.5 rounded-lg flex-shrink-0 transition-all flex items-center gap-1 ${
+                activeView === 'calculators' ? 'bg-cyan-500 text-slate-950 font-bold shadow-sm' : 'text-slate-400 hover:text-slate-200'
+              }`}
+            >
+              <Calculator className="w-3.5 h-3.5" /> Simulators
+            </button>
+            <button
+              onClick={() => {
+                setGlossaryQuery('');
+                setActiveView('glossary');
+              }}
+              className={`px-3 py-1.5 rounded-lg flex-shrink-0 transition-all flex items-center gap-1 ${
+                activeView === 'glossary' ? 'bg-cyan-500 text-slate-950 font-bold shadow-sm' : 'text-slate-400 hover:text-slate-200'
+              }`}
+            >
+              <BookA className="w-3.5 h-3.5" /> Glossary
+            </button>
+            <button
+              onClick={() => setActiveView('reference')}
+              className={`px-3 py-1.5 rounded-lg flex-shrink-0 transition-all flex items-center gap-1 ${
+                activeView === 'reference' ? 'bg-cyan-500 text-slate-950 font-bold shadow-sm' : 'text-slate-400 hover:text-slate-200'
+              }`}
+            >
+              <Compass className="w-3.5 h-3.5" /> Ref
+            </button>
+          </div>
         </div>
       </header>
 
@@ -616,7 +649,7 @@ export default function App() {
       <div className="flex-1 flex max-w-7xl w-full mx-auto relative">
         {/* Left Sidebar / Drawer */}
         <aside
-          className={`fixed inset-y-0 left-0 z-50 w-80 bg-slate-900 border-r border-slate-800 p-4 transform transition-all duration-200 ease-in-out lg:static lg:z-0 lg:h-[calc(100vh-4rem)] lg:sticky lg:top-16 overflow-y-auto ${
+          className={`fixed inset-y-0 left-0 z-50 w-80 max-w-[85vw] bg-slate-900 border-r border-slate-800 p-4 transform transition-all duration-200 ease-in-out lg:static lg:z-0 lg:h-[calc(100vh-4rem)] lg:sticky lg:top-16 overflow-y-auto ${
             sidebarOpen
               ? 'translate-x-0 shadow-2xl lg:block lg:translate-x-0'
               : '-translate-x-full lg:hidden'
@@ -640,6 +673,70 @@ export default function App() {
             </button>
           </div>
 
+          {/* Quick Platform Views Links inside Mobile Drawer */}
+          <div className="lg:hidden mb-4 pb-3 border-b border-slate-800">
+            <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 px-1 block mb-2">
+              Quick Navigation
+            </span>
+            <div className="grid grid-cols-2 gap-1.5 text-xs font-medium">
+              {[
+                { id: 'overview', label: 'Overview', icon: BookOpen, color: 'text-slate-200' },
+                { id: 'vault', label: 'Vault', icon: Highlighter, color: 'text-purple-400' },
+                { id: 'mock-exam', label: 'ARRT Mock', icon: Award, color: 'text-rose-400' },
+                { id: 'traps', label: 'Exam Traps', icon: AlertTriangle, color: 'text-amber-400' },
+                { id: 'study', label: 'Study Deck', icon: Sparkles, color: 'text-amber-300' },
+                { id: 'mastery', label: 'Mastery', icon: TrendingUp, color: 'text-cyan-400' },
+                { id: 'calculators', label: 'Simulators', icon: Calculator, color: 'text-cyan-300' },
+                { id: 'glossary', label: 'Glossary', icon: BookA, color: 'text-pink-400' },
+                { id: 'reference', label: 'Reference', icon: Compass, color: 'text-indigo-400' },
+                { id: 'search', label: 'Search', icon: Search, color: 'text-cyan-400' }
+              ].map(item => {
+                const Icon = item.icon;
+                const isActive = activeView === item.id;
+                return (
+                  <button
+                    key={item.id}
+                    onClick={() => {
+                      if (item.id === 'glossary') setGlossaryQuery('');
+                      setActiveView(item.id as AppView);
+                      setSidebarOpen(false);
+                      window.scrollTo({ top: 0, behavior: 'smooth' });
+                    }}
+                    className={`flex items-center gap-1.5 p-2 rounded-lg text-left transition-colors ${
+                      isActive
+                        ? 'bg-cyan-500/20 text-cyan-300 font-bold border border-cyan-500/30'
+                        : 'bg-slate-950/80 text-slate-300 hover:bg-slate-800 border border-slate-800/80'
+                    }`}
+                  >
+                    <Icon className={`w-3.5 h-3.5 ${item.color}`} />
+                    <span className="truncate">{item.label}</span>
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+
+          {/* Chapter Search Filter in Drawer */}
+          <div className="relative mb-3">
+            <Search className="w-3.5 h-3.5 text-slate-500 absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" />
+            <input
+              type="text"
+              placeholder="Filter 40 chapters..."
+              value={drawerSearch}
+              onChange={(e) => setDrawerSearch(e.target.value)}
+              className="w-full bg-slate-950 border border-slate-800 rounded-xl pl-8 pr-7 py-2 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-cyan-400"
+            />
+            {drawerSearch && (
+              <button
+                onClick={() => setDrawerSearch('')}
+                className="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-white"
+                aria-label="Clear chapter search"
+              >
+                <X className="w-3.5 h-3.5" />
+              </button>
+            )}
+          </div>
+
           <div className="space-y-4 text-xs">
             <div className="text-[11px] font-bold uppercase tracking-wider text-slate-400 px-2 flex items-center justify-between">
               <span>Textbook Contents</span>
@@ -647,7 +744,18 @@ export default function App() {
             </div>
 
             {BOOK_PARTS.map((part) => {
-              const partChapters = ALL_CHAPTERS.filter(ch => ch.partId === part.id);
+              const partChapters = ALL_CHAPTERS.filter(ch => {
+                if (ch.partId !== part.id) return false;
+                if (!drawerSearch.trim()) return true;
+                const q = drawerSearch.toLowerCase();
+                return ch.title.toLowerCase().includes(q) ||
+                       `ch ${ch.number}`.includes(q) ||
+                       `chapter ${ch.number}`.includes(q) ||
+                       ch.number.toString() === q ||
+                       ch.outline.some(o => o.toLowerCase().includes(q));
+              });
+
+              if (partChapters.length === 0) return null;
               return (
                 <div key={part.id} className="space-y-1">
                   <div className="px-2 py-1 text-[11px] font-bold text-slate-400 uppercase tracking-wide bg-slate-950/60 rounded">
@@ -715,7 +823,7 @@ export default function App() {
         )}
 
         {/* Main Content Viewport */}
-        <main className="flex-1 p-4 sm:p-6 lg:p-8 min-w-0 overflow-x-hidden">
+        <main className="flex-1 p-3 xs:p-4 sm:p-6 lg:p-8 min-w-0 overflow-x-hidden pb-24 lg:pb-8">
           {activeView === 'overview' && (
             <BookOverview
               onSelectChapter={handleSelectChapter}
@@ -865,7 +973,7 @@ export default function App() {
       </div>
 
       {/* Footer */}
-      <footer className="bg-slate-900 border-t border-slate-800 text-slate-500 text-xs py-6 px-4">
+      <footer className="bg-slate-900 border-t border-slate-800 text-slate-500 text-xs py-6 px-4 pb-24 lg:pb-6">
         <div className="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-3 text-center sm:text-left">
           <p>
             {BOOK_METADATA.title} — {BOOK_METADATA.edition} Edition ({BOOK_METADATA.year}). Authored by {BOOK_METADATA.author}.
@@ -882,6 +990,88 @@ export default function App() {
           </div>
         </div>
       </footer>
+
+      {/* Mobile Fixed Bottom Navigation Bar */}
+      <nav 
+        className="lg:hidden fixed bottom-0 left-0 right-0 z-40 bg-slate-900/95 backdrop-blur-lg border-t border-slate-800 px-2 py-1.5 flex items-center justify-around text-[10px] font-medium shadow-2xl safe-area-pb"
+        aria-label="Mobile Bottom Navigation"
+      >
+        <button
+          onClick={() => {
+            setActiveView('overview');
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+          }}
+          className={`flex flex-col items-center gap-1 py-1 px-2.5 rounded-xl transition-all ${
+            activeView === 'overview' ? 'text-cyan-400 font-bold' : 'text-slate-400 hover:text-slate-200'
+          }`}
+        >
+          <BookOpen className="w-4 h-4" />
+          <span>Home</span>
+        </button>
+
+        <button
+          onClick={() => {
+            setActiveView('reader');
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+          }}
+          className={`flex flex-col items-center gap-1 py-1 px-2.5 rounded-xl transition-all ${
+            activeView === 'reader' ? 'text-cyan-400 font-bold' : 'text-slate-400 hover:text-slate-200'
+          }`}
+        >
+          <Layers className="w-4 h-4" />
+          <span>Chapters</span>
+        </button>
+
+        <button
+          onClick={() => {
+            setActiveView('vault');
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+          }}
+          className={`flex flex-col items-center gap-1 py-1 px-2.5 rounded-xl transition-all ${
+            activeView === 'vault' ? 'text-purple-400 font-bold' : 'text-slate-400 hover:text-slate-200'
+          }`}
+        >
+          <Highlighter className="w-4 h-4" />
+          <span>Vault</span>
+        </button>
+
+        <button
+          onClick={() => {
+            setActiveView('mock-exam');
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+          }}
+          className={`flex flex-col items-center gap-1 py-1 px-2.5 rounded-xl transition-all ${
+            activeView === 'mock-exam' ? 'text-rose-400 font-bold' : 'text-slate-400 hover:text-slate-200'
+          }`}
+        >
+          <Award className="w-4 h-4" />
+          <span>Mock</span>
+        </button>
+
+        <button
+          onClick={() => {
+            setActiveView('study');
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+          }}
+          className={`flex flex-col items-center gap-1 py-1 px-2.5 rounded-xl transition-all ${
+            activeView === 'study' ? 'text-amber-400 font-bold' : 'text-slate-400 hover:text-slate-200'
+          }`}
+        >
+          <Sparkles className="w-4 h-4" />
+          <span>Study</span>
+        </button>
+
+        <button
+          onClick={() => setSidebarOpen(prev => !prev)}
+          className={`flex flex-col items-center gap-1 py-1 px-2.5 rounded-xl transition-all ${
+            sidebarOpen ? 'text-cyan-400 font-bold' : 'text-slate-400 hover:text-slate-200'
+          }`}
+          aria-label={sidebarOpen ? "Close menu" : "Open menu"}
+        >
+          <Menu className="w-4 h-4" />
+          <span>Menu</span>
+        </button>
+      </nav>
     </div>
   );
 }

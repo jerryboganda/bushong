@@ -121,19 +121,45 @@ export const Calculators: React.FC = () => {
   const cumulativeDose = (10 * workerAge).toFixed(0);
 
   return (
-    <div className="bg-slate-900 border border-slate-800 rounded-xl p-6 text-slate-100 shadow-xl">
-      <div className="flex items-center gap-3 mb-6 pb-4 border-b border-slate-800">
-        <div className="w-10 h-10 rounded-lg bg-cyan-500/10 border border-cyan-500/30 flex items-center justify-center text-cyan-400">
+    <div className="bg-slate-900 border border-slate-800 rounded-xl p-4 xs:p-5 sm:p-6 text-slate-100 shadow-xl">
+      <div className="flex items-center gap-3 mb-5 sm:mb-6 pb-4 border-b border-slate-800">
+        <div className="w-10 h-10 rounded-lg bg-cyan-500/10 border border-cyan-500/30 flex items-center justify-center text-cyan-400 shrink-0">
           <CalcIcon className="w-5 h-5" />
         </div>
         <div>
-          <h2 className="text-xl font-bold tracking-tight text-white">Interactive Radiologic Physics Calculators</h2>
+          <h2 className="text-lg sm:text-xl font-bold tracking-tight text-white">Interactive Radiologic Physics Calculators</h2>
           <p className="text-xs text-slate-400">Exact formulas from Bushong 11th Edition with real-time feedback</p>
         </div>
       </div>
 
-      {/* Tabs */}
-      <div className="flex flex-wrap gap-2 mb-6 text-xs font-medium">
+      {/* Mobile Select Dropdown for Small Screens */}
+      <div className="sm:hidden mb-5">
+        <label className="block text-xs font-semibold text-slate-400 mb-1.5">Select Calculator</label>
+        <select
+          value={activeTab}
+          onChange={(e) => setActiveTab(e.target.value as any)}
+          className="w-full bg-slate-800 border border-slate-700 rounded-xl px-3.5 py-2.5 text-sm font-medium text-white focus:outline-none focus:border-cyan-400 min-h-[44px]"
+        >
+          <option value="spectrum-sim">Emission Spectrum Simulator</option>
+          <option value="inverse-square">Inverse Square Law</option>
+          <option value="mas-distance">mAs Distance Rule</option>
+          <option value="fifteen-percent">15% kVp Rule</option>
+          <option value="gcf-calc">Grid Conversion (GCF)</option>
+          <option value="heat-units">Anode Heat Units</option>
+          <option value="magnification">Magnification Factor</option>
+          <option value="focal-spot-blur">Focal-Spot Blur</option>
+          <option value="ct-calc">CT Pixel & Voxel</option>
+          <option value="fluoro-gain">Fluoro Brightness Gain</option>
+          <option value="rbe-oer">RBE & OER</option>
+          <option value="ese-calc">Entrance Skin Dose (ESE)</option>
+          <option value="ct-dosimetry">CTDI_vol & DLP</option>
+          <option value="dap-calc">Dose Area Product (DAP)</option>
+          <option value="dose-limit">Cumulative Dose Limit</option>
+        </select>
+      </div>
+
+      {/* Desktop / Tablet Tabs */}
+      <div className="hidden sm:flex flex-wrap gap-2 mb-6 text-xs font-medium">
         <button
           onClick={() => setActiveTab('spectrum-sim')}
           className={`px-3 py-2 rounded-lg transition-all flex items-center gap-1.5 ${
@@ -288,7 +314,7 @@ export const Calculators: React.FC = () => {
       </div>
 
       {/* Content Panels */}
-      <div className="bg-slate-950/60 border border-slate-800/80 rounded-xl p-5">
+      <div className="bg-slate-950/60 border border-slate-800/80 rounded-xl p-3.5 xs:p-4 sm:p-5">
         {/* 0. Spectrum Simulator */}
         {activeTab === 'spectrum-sim' && (
           <div>
@@ -299,12 +325,12 @@ export const Calculators: React.FC = () => {
         {/* 0b. Grid Conversion Factor (GCF) */}
         {activeTab === 'gcf-calc' && (
           <div>
-            <div className="flex items-center justify-between mb-4">
+            <div className="flex flex-col xs:flex-row xs:items-center justify-between gap-2 mb-4">
               <div>
                 <h3 className="text-base font-semibold text-white">Grid Conversion Factor (Bucky Factor) Rule</h3>
-                <p className="text-xs text-cyan-400 font-mono">mAs₂ = mAs₁ × (GCF₂ / GCF₁)</p>
+                <p className="text-xs text-cyan-400 font-mono break-words">mAs₂ = mAs₁ × (GCF₂ / GCF₁)</p>
               </div>
-              <span className="text-xs px-2.5 py-1 rounded bg-slate-800 text-slate-300 border border-slate-700">Ch. 12</span>
+              <span className="self-start xs:self-auto shrink-0 text-xs px-2.5 py-1 rounded bg-slate-800 text-slate-300 border border-slate-700">Ch. 12</span>
             </div>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
               <div>
@@ -370,12 +396,12 @@ export const Calculators: React.FC = () => {
         {/* 1. Inverse Square Law */}
         {activeTab === 'inverse-square' && (
           <div>
-            <div className="flex items-center justify-between mb-4">
+            <div className="flex flex-col xs:flex-row xs:items-center justify-between gap-2 mb-4">
               <div>
                 <h3 className="text-base font-semibold text-white">Inverse Square Law</h3>
-                <p className="text-xs text-cyan-400 font-mono">I₁ / I₂ = (d₂ / d₁)²  ⟹  I₂ = I₁ × (d₁ / d₂)²</p>
+                <p className="text-xs text-cyan-400 font-mono break-words">I₁ / I₂ = (d₂ / d₁)²  ⟹  I₂ = I₁ × (d₁ / d₂)²</p>
               </div>
-              <span className="text-xs px-2.5 py-1 rounded bg-slate-800 text-slate-300 border border-slate-700">Ch. 3, Ch. 34</span>
+              <span className="self-start xs:self-auto shrink-0 text-xs px-2.5 py-1 rounded bg-slate-800 text-slate-300 border border-slate-700">Ch. 3, Ch. 34</span>
             </div>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
               <div>
@@ -415,12 +441,12 @@ export const Calculators: React.FC = () => {
                 </div>
               </div>
             </div>
-            <div className="bg-cyan-950/40 border border-cyan-500/30 rounded-lg p-4 flex items-center justify-between">
+            <div className="bg-cyan-950/40 border border-cyan-500/30 rounded-lg p-3.5 xs:p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
               <div>
                 <span className="text-xs text-cyan-300 font-medium">New Radiation Intensity (I₂)</span>
                 <div className="text-2xl font-bold text-cyan-400 mt-0.5">{islI2} <span className="text-sm font-normal text-cyan-300">mGya</span></div>
               </div>
-              <p className="text-xs text-slate-400 max-w-xs text-right">
+              <p className="text-xs text-slate-400 max-w-xs text-left sm:text-right">
                 Doubling distance reduces intensity to 25%; halving distance quadruples (400%) intensity.
               </p>
             </div>
@@ -430,12 +456,12 @@ export const Calculators: React.FC = () => {
         {/* 2. mAs Distance Rule */}
         {activeTab === 'mas-distance' && (
           <div>
-            <div className="flex items-center justify-between mb-4">
+            <div className="flex flex-col xs:flex-row xs:items-center justify-between gap-2 mb-4">
               <div>
                 <h3 className="text-base font-semibold text-white">mAs Direct Square Law (Distance Compensation)</h3>
-                <p className="text-xs text-cyan-400 font-mono">mAs₁ / mAs₂ = (SID₁ / SID₂)²  ⟹  mAs₂ = mAs₁ × (SID₂ / SID₁)²</p>
+                <p className="text-xs text-cyan-400 font-mono break-words">mAs₁ / mAs₂ = (SID₁ / SID₂)²  ⟹  mAs₂ = mAs₁ × (SID₂ / SID₁)²</p>
               </div>
-              <span className="text-xs px-2.5 py-1 rounded bg-slate-800 text-slate-300 border border-slate-700">Ch. 8, Ch. 13</span>
+              <span className="self-start xs:self-auto shrink-0 text-xs px-2.5 py-1 rounded bg-slate-800 text-slate-300 border border-slate-700">Ch. 8, Ch. 13</span>
             </div>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
               <div>
@@ -475,12 +501,12 @@ export const Calculators: React.FC = () => {
                 </div>
               </div>
             </div>
-            <div className="bg-cyan-950/40 border border-cyan-500/30 rounded-lg p-4 flex items-center justify-between">
+            <div className="bg-cyan-950/40 border border-cyan-500/30 rounded-lg p-3.5 xs:p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
               <div>
                 <span className="text-xs text-cyan-300 font-medium">Compensated Technique (mAs₂)</span>
                 <div className="text-2xl font-bold text-cyan-400 mt-0.5">{mas2} <span className="text-sm font-normal text-cyan-300">mAs</span></div>
               </div>
-              <p className="text-xs text-slate-400 max-w-xs text-right">
+              <p className="text-xs text-slate-400 max-w-xs text-left sm:text-right">
                 When SID increases, mAs must increase proportionally to maintain receptor exposure.
               </p>
             </div>
@@ -490,12 +516,12 @@ export const Calculators: React.FC = () => {
         {/* 3. 15% kVp Rule */}
         {activeTab === 'fifteen-percent' && (
           <div>
-            <div className="flex items-center justify-between mb-4">
+            <div className="flex flex-col xs:flex-row xs:items-center justify-between gap-2 mb-4">
               <div>
                 <h3 className="text-base font-semibold text-white">The 15% Rule for kVp and mAs</h3>
-                <p className="text-xs text-cyan-400 font-mono">15% increase in kVp = 2× optical density (cut mAs 50% to maintain)</p>
+                <p className="text-xs text-cyan-400 font-mono break-words">15% increase in kVp = 2× optical density (cut mAs 50% to maintain)</p>
               </div>
-              <span className="text-xs px-2.5 py-1 rounded bg-slate-800 text-slate-300 border border-slate-700">Ch. 8, Ch. 13</span>
+              <span className="self-start xs:self-auto shrink-0 text-xs px-2.5 py-1 rounded bg-slate-800 text-slate-300 border border-slate-700">Ch. 8, Ch. 13</span>
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
               <div>
@@ -553,14 +579,14 @@ export const Calculators: React.FC = () => {
         {/* 4. Heat Units */}
         {activeTab === 'heat-units' && (
           <div>
-            <div className="flex items-center justify-between mb-4">
+            <div className="flex flex-col xs:flex-row xs:items-center justify-between gap-2 mb-4">
               <div>
                 <h3 className="text-base font-semibold text-white">Anode Thermal Heat Units (HU)</h3>
-                <p className="text-xs text-cyan-400 font-mono">HU = kVp × mA × s × Generator Factor × Exposures</p>
+                <p className="text-xs text-cyan-400 font-mono break-words">HU = kVp × mA × s × Generator Factor × Exposures</p>
               </div>
-              <span className="text-xs px-2.5 py-1 rounded bg-slate-800 text-slate-300 border border-slate-700">Ch. 6</span>
+              <span className="self-start xs:self-auto shrink-0 text-xs px-2.5 py-1 rounded bg-slate-800 text-slate-300 border border-slate-700">Ch. 6</span>
             </div>
-            <div className="grid grid-cols-2 md:grid-cols-5 gap-3 mb-6">
+            <div className="grid grid-cols-1 xs:grid-cols-2 md:grid-cols-5 gap-3 mb-6">
               <div>
                 <label className="block text-xs text-slate-400 mb-1">kVp</label>
                 <input
@@ -612,7 +638,7 @@ export const Calculators: React.FC = () => {
                 />
               </div>
             </div>
-            <div className="bg-cyan-950/40 border border-cyan-500/30 rounded-lg p-4 flex items-center justify-between">
+            <div className="bg-cyan-950/40 border border-cyan-500/30 rounded-lg p-3.5 xs:p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
               <div>
                 <span className="text-xs text-cyan-300 font-medium">Total Thermal Anode Load</span>
                 <div className="text-2xl font-bold text-cyan-400 mt-0.5">
@@ -620,7 +646,7 @@ export const Calculators: React.FC = () => {
                   <span className="text-xs text-slate-400 font-normal ml-3">({totalJoules} Joules)</span>
                 </div>
               </div>
-              <p className="text-xs text-slate-400 max-w-xs text-right">
+              <p className="text-xs text-slate-400 max-w-xs text-left sm:text-right">
                 1 HU = 0.705 Joules. Standard diagnostic anodes store 300,000 to 1,500,000 HU.
               </p>
             </div>
@@ -630,12 +656,12 @@ export const Calculators: React.FC = () => {
         {/* 5. Magnification Factor */}
         {activeTab === 'magnification' && (
           <div>
-            <div className="flex items-center justify-between mb-4">
+            <div className="flex flex-col xs:flex-row xs:items-center justify-between gap-2 mb-4">
               <div>
                 <h3 className="text-base font-semibold text-white">Magnification Factor & Actual Object Size</h3>
-                <p className="text-xs text-cyan-400 font-mono">MF = SID / SOD  |  Object Size = Image Size / MF</p>
+                <p className="text-xs text-cyan-400 font-mono break-words">MF = SID / SOD  |  Object Size = Image Size / MF</p>
               </div>
-              <span className="text-xs px-2.5 py-1 rounded bg-slate-800 text-slate-300 border border-slate-700">Ch. 10</span>
+              <span className="self-start xs:self-auto shrink-0 text-xs px-2.5 py-1 rounded bg-slate-800 text-slate-300 border border-slate-700">Ch. 10</span>
             </div>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
               <div>
@@ -693,12 +719,12 @@ export const Calculators: React.FC = () => {
         {/* 6. Focal-Spot Blur */}
         {activeTab === 'focal-spot-blur' && (
           <div>
-            <div className="flex items-center justify-between mb-4">
+            <div className="flex flex-col xs:flex-row xs:items-center justify-between gap-2 mb-4">
               <div>
                 <h3 className="text-base font-semibold text-white">Focal-Spot Blur (Geometric Unsharpness)</h3>
-                <p className="text-xs text-cyan-400 font-mono">Focal-Spot Blur = Effective Focal Spot × (OID / SOD)</p>
+                <p className="text-xs text-cyan-400 font-mono break-words">Focal-Spot Blur = Effective Focal Spot × (OID / SOD)</p>
               </div>
-              <span className="text-xs px-2.5 py-1 rounded bg-slate-800 text-slate-300 border border-slate-700">Ch. 10</span>
+              <span className="self-start xs:self-auto shrink-0 text-xs px-2.5 py-1 rounded bg-slate-800 text-slate-300 border border-slate-700">Ch. 10</span>
             </div>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
               <div>
@@ -739,12 +765,12 @@ export const Calculators: React.FC = () => {
                 </div>
               </div>
             </div>
-            <div className="bg-cyan-950/40 border border-cyan-500/30 rounded-lg p-4 flex items-center justify-between">
+            <div className="bg-cyan-950/40 border border-cyan-500/30 rounded-lg p-3.5 xs:p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
               <div>
                 <span className="text-xs text-cyan-300 font-medium">Calculated Focal-Spot Blur</span>
                 <div className="text-2xl font-bold text-cyan-400 mt-0.5">{fsbResult} <span className="text-sm font-normal text-cyan-300">mm</span></div>
               </div>
-              <p className="text-xs text-slate-400 max-w-xs text-right">
+              <p className="text-xs text-slate-400 max-w-xs text-left sm:text-right">
                 Focal-spot blur is greater on the cathode side due to the anode heel effect. Minimize OID to maximize edge sharpness.
               </p>
             </div>
@@ -754,12 +780,12 @@ export const Calculators: React.FC = () => {
         {/* 7. CT Physics */}
         {activeTab === 'ct-calc' && (
           <div>
-            <div className="flex items-center justify-between mb-4">
+            <div className="flex flex-col xs:flex-row xs:items-center justify-between gap-2 mb-4">
               <div>
                 <h3 className="text-base font-semibold text-white">Computed Tomography Pixel & Voxel Dimensions</h3>
-                <p className="text-xs text-cyan-400 font-mono">Pixel Size = FOV / Matrix Size  |  Voxel = Pixel Area × Slice Thickness</p>
+                <p className="text-xs text-cyan-400 font-mono break-words">Pixel Size = FOV / Matrix Size  |  Voxel = Pixel Area × Slice Thickness</p>
               </div>
-              <span className="text-xs px-2.5 py-1 rounded bg-slate-800 text-slate-300 border border-slate-700">Ch. 28</span>
+              <span className="self-start xs:self-auto shrink-0 text-xs px-2.5 py-1 rounded bg-slate-800 text-slate-300 border border-slate-700">Ch. 28</span>
             </div>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
               <div>
@@ -818,12 +844,12 @@ export const Calculators: React.FC = () => {
         {/* 8. Fluoro Gain */}
         {activeTab === 'fluoro-gain' && (
           <div>
-            <div className="flex items-center justify-between mb-4">
+            <div className="flex flex-col xs:flex-row xs:items-center justify-between gap-2 mb-4">
               <div>
                 <h3 className="text-base font-semibold text-white">Fluoroscopic Image Intensifier Brightness Gain</h3>
-                <p className="text-xs text-cyan-400 font-mono">Minification Gain = (d_i / d_o)²  |  Brightness Gain = Minification × Flux Gain</p>
+                <p className="text-xs text-cyan-400 font-mono break-words">Minification Gain = (d_i / d_o)²  |  Brightness Gain = Minification × Flux Gain</p>
               </div>
-              <span className="text-xs px-2.5 py-1 rounded bg-slate-800 text-slate-300 border border-slate-700">Ch. 25</span>
+              <span className="self-start xs:self-auto shrink-0 text-xs px-2.5 py-1 rounded bg-slate-800 text-slate-300 border border-slate-700">Ch. 25</span>
             </div>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
               <div>
@@ -882,18 +908,18 @@ export const Calculators: React.FC = () => {
         {/* 9. RBE & OER */}
         {activeTab === 'rbe-oer' && (
           <div>
-            <div className="flex items-center justify-between mb-4">
+            <div className="flex flex-col xs:flex-row xs:items-center justify-between gap-2 mb-4">
               <div>
                 <h3 className="text-base font-semibold text-white">Radiobiology: RBE & Oxygen Enhancement Ratio</h3>
-                <p className="text-xs text-cyan-400 font-mono">RBE = D_250 / D_test  |  OER = D_anoxic / D_aerobic</p>
+                <p className="text-xs text-cyan-400 font-mono break-words">RBE = D_250 / D_test  |  OER = D_anoxic / D_aerobic</p>
               </div>
-              <span className="text-xs px-2.5 py-1 rounded bg-slate-800 text-slate-300 border border-slate-700">Ch. 30</span>
+              <span className="self-start xs:self-auto shrink-0 text-xs px-2.5 py-1 rounded bg-slate-800 text-slate-300 border border-slate-700">Ch. 30</span>
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
               {/* RBE Sub-panel */}
               <div className="bg-slate-950/60 border border-slate-800 rounded-xl p-4">
                 <h4 className="text-sm font-semibold text-cyan-300 mb-3">Relative Biologic Effectiveness (RBE)</h4>
-                <div className="grid grid-cols-2 gap-3 mb-4">
+                <div className="grid grid-cols-1 xs:grid-cols-2 gap-3 mb-4">
                   <div>
                     <label className="block text-xs text-slate-400 mb-1">Standard Dose (250 kVp)</label>
                     <div className="relative">
@@ -931,7 +957,7 @@ export const Calculators: React.FC = () => {
               {/* OER Sub-panel */}
               <div className="bg-slate-950/60 border border-slate-800 rounded-xl p-4">
                 <h4 className="text-sm font-semibold text-rose-300 mb-3">Oxygen Enhancement Ratio (OER)</h4>
-                <div className="grid grid-cols-2 gap-3 mb-4">
+                <div className="grid grid-cols-1 xs:grid-cols-2 gap-3 mb-4">
                   <div>
                     <label className="block text-xs text-slate-400 mb-1">Anoxic / Hypoxic Dose</label>
                     <div className="relative">
@@ -972,12 +998,12 @@ export const Calculators: React.FC = () => {
         {/* 10. Entrance Skin Dose (ESE) */}
         {activeTab === 'ese-calc' && (
           <div>
-            <div className="flex items-center justify-between mb-4">
+            <div className="flex flex-col xs:flex-row xs:items-center justify-between gap-2 mb-4">
               <div>
                 <h3 className="text-base font-semibold text-white">Radiographic Patient Entrance Skin Exposure (ESE)</h3>
-                <p className="text-xs text-cyan-400 font-mono">ESE = Machine Output (at 100 cm) × mAs × (100 / SSD)²</p>
+                <p className="text-xs text-cyan-400 font-mono break-words">ESE = Machine Output (at 100 cm) × mAs × (100 / SSD)²</p>
               </div>
-              <span className="text-xs px-2.5 py-1 rounded bg-slate-800 text-slate-300 border border-slate-700">Ch. 37</span>
+              <span className="self-start xs:self-auto shrink-0 text-xs px-2.5 py-1 rounded bg-slate-800 text-slate-300 border border-slate-700">Ch. 37</span>
             </div>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
               <div>
@@ -1036,14 +1062,14 @@ export const Calculators: React.FC = () => {
         {/* 11. CT Dosimetry: CTDI_vol, DLP, Effective Dose */}
         {activeTab === 'ct-dosimetry' && (
           <div>
-            <div className="flex items-center justify-between mb-4">
+            <div className="flex flex-col xs:flex-row xs:items-center justify-between gap-2 mb-4">
               <div>
                 <h3 className="text-base font-semibold text-white">CT Patient Dosimetry: CTDI_vol, DLP, & Effective Dose</h3>
-                <p className="text-xs text-cyan-400 font-mono">CTDI_vol = CTDI_w / Pitch  |  DLP = CTDI_vol × Length  |  E = DLP × k</p>
+                <p className="text-xs text-cyan-400 font-mono break-words">CTDI_vol = CTDI_w / Pitch  |  DLP = CTDI_vol × Length  |  E = DLP × k</p>
               </div>
-              <span className="text-xs px-2.5 py-1 rounded bg-slate-800 text-slate-300 border border-slate-700">Ch. 38</span>
+              <span className="self-start xs:self-auto shrink-0 text-xs px-2.5 py-1 rounded bg-slate-800 text-slate-300 border border-slate-700">Ch. 38</span>
             </div>
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+            <div className="grid grid-cols-1 xs:grid-cols-2 md:grid-cols-4 gap-4 mb-6">
               <div>
                 <label className="block text-xs text-slate-400 mb-1">Weighted CTDI (CTDI_w)</label>
                 <div className="relative">
@@ -1119,12 +1145,12 @@ export const Calculators: React.FC = () => {
         {/* 12. Dose Area Product (DAP) */}
         {activeTab === 'dap-calc' && (
           <div>
-            <div className="flex items-center justify-between mb-4">
+            <div className="flex flex-col xs:flex-row xs:items-center justify-between gap-2 mb-4">
               <div>
                 <h3 className="text-base font-semibold text-white">Dose Area Product (DAP)</h3>
-                <p className="text-xs text-cyan-400 font-mono">DAP = Air Kerma (cGy) × Field Width (cm) × Field Height (cm)</p>
+                <p className="text-xs text-cyan-400 font-mono break-words">DAP = Air Kerma (cGy) × Field Width (cm) × Field Height (cm)</p>
               </div>
-              <span className="text-xs px-2.5 py-1 rounded bg-slate-800 text-slate-300 border border-slate-700">Ch. 36</span>
+              <span className="self-start xs:self-auto shrink-0 text-xs px-2.5 py-1 rounded bg-slate-800 text-slate-300 border border-slate-700">Ch. 36</span>
             </div>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
               <div>
@@ -1183,12 +1209,12 @@ export const Calculators: React.FC = () => {
         {/* 13. Cumulative Dose Limit */}
         {activeTab === 'dose-limit' && (
           <div>
-            <div className="flex items-center justify-between mb-4">
+            <div className="flex flex-col xs:flex-row xs:items-center justify-between gap-2 mb-4">
               <div>
                 <h3 className="text-base font-semibold text-white">Lifetime Cumulative Occupational Dose Limit (NCRP 116)</h3>
-                <p className="text-xs text-cyan-400 font-mono">Cumulative Limit = 10 mSv × Age (in years) [= 1 rem × Age]</p>
+                <p className="text-xs text-cyan-400 font-mono break-words">Cumulative Limit = 10 mSv × Age (in years) [= 1 rem × Age]</p>
               </div>
-              <span className="text-xs px-2.5 py-1 rounded bg-slate-800 text-slate-300 border border-slate-700">Ch. 40</span>
+              <span className="self-start xs:self-auto shrink-0 text-xs px-2.5 py-1 rounded bg-slate-800 text-slate-300 border border-slate-700">Ch. 40</span>
             </div>
             <div className="max-w-md mb-6">
               <label className="block text-xs text-slate-400 mb-1">Technologist Age (Years)</label>

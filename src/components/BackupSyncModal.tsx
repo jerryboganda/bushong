@@ -108,14 +108,18 @@ export const BackupSyncModal: React.FC<BackupSyncModalProps> = ({ onClose, onDat
   };
 
   return (
-    <div className="fixed inset-0 z-50 bg-black/70 backdrop-blur-sm flex items-center justify-center p-4">
-      <div className="bg-slate-900 border border-slate-800 rounded-2xl max-w-lg w-full p-6 space-y-5 shadow-2xl animate-fadeIn">
+    <div className="fixed inset-0 z-50 bg-black/70 backdrop-blur-sm flex items-center justify-center p-3 xs:p-4">
+      <div className="bg-slate-900 border border-slate-800 rounded-2xl max-w-lg w-full p-4 xs:p-6 space-y-4 xs:space-y-5 shadow-2xl animate-fadeIn max-h-[92vh] overflow-y-auto">
         <div className="flex items-center justify-between pb-3 border-b border-slate-800">
           <div className="flex items-center gap-2">
             <Shield className="w-5 h-5 text-cyan-400" />
             <h3 className="text-base font-bold text-white">Data Backup & Device Sync</h3>
           </div>
-          <button onClick={onClose} className="p-1 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800">
+          <button 
+            onClick={onClose} 
+            className="p-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800 transition-colors"
+            aria-label="Close modal"
+          >
             <X className="w-4 h-4" />
           </button>
         </div>
@@ -132,8 +136,8 @@ export const BackupSyncModal: React.FC<BackupSyncModalProps> = ({ onClose, onDat
         )}
 
         {/* 1. Export Section */}
-        <div className="bg-slate-950 border border-slate-800 rounded-xl p-4 space-y-2">
-          <div className="flex items-center justify-between">
+        <div className="bg-slate-950 border border-slate-800 rounded-xl p-3.5 sm:p-4 space-y-2.5">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
             <div>
               <h4 className="text-xs font-bold text-white flex items-center gap-1.5">
                 <Download className="w-3.5 h-3.5 text-cyan-400" /> Export Complete Study Backup
@@ -144,7 +148,7 @@ export const BackupSyncModal: React.FC<BackupSyncModalProps> = ({ onClose, onDat
             </div>
             <button
               onClick={handleExportBackup}
-              className="px-3.5 py-2 bg-cyan-500 hover:bg-cyan-400 text-slate-950 font-bold rounded-lg text-xs shadow transition-all flex items-center gap-1.5 flex-shrink-0"
+              className="w-full sm:w-auto px-4 py-2.5 bg-cyan-500 hover:bg-cyan-400 text-slate-950 font-bold rounded-xl text-xs shadow transition-all flex items-center justify-center gap-1.5 flex-shrink-0 min-h-[44px] sm:min-h-0"
             >
               <Download className="w-3.5 h-3.5" /> Export JSON
             </button>

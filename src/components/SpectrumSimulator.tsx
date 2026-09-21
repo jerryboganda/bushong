@@ -85,11 +85,11 @@ export const SpectrumSimulator: React.FC = () => {
   }, [points, kvp]);
 
   return (
-    <div className="bg-slate-900 border border-slate-800 rounded-2xl p-6 sm:p-8 space-y-6 shadow-xl">
+    <div className="bg-slate-900 border border-slate-800 rounded-2xl p-4 xs:p-5 sm:p-8 space-y-5 sm:space-y-6 shadow-xl">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-4 border-b border-slate-800">
         <div>
-          <h2 className="text-xl font-black text-white flex items-center gap-2">
-            <Activity className="w-5 h-5 text-cyan-400" />
+          <h2 className="text-lg sm:text-xl font-black text-white flex items-center gap-2">
+            <Activity className="w-5 h-5 text-cyan-400 shrink-0" />
             Interactive X-Ray Emission Spectrum Simulator
           </h2>
           <p className="text-xs text-slate-400">
@@ -105,25 +105,25 @@ export const SpectrumSimulator: React.FC = () => {
             setGenerator('hf');
             setTarget('tungsten');
           }}
-          className="px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-semibold flex items-center gap-1.5 self-start sm:self-auto transition-colors"
+          className="px-3 py-2 min-h-[36px] rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-semibold flex items-center gap-1.5 self-start sm:self-auto transition-colors"
         >
           <RotateCcw className="w-3.5 h-3.5" /> Reset Standard (80 kVp / 200 mA @ 0.1s)
         </button>
       </div>
 
       {/* Real-time Spectrum SVG Canvas */}
-      <div className="bg-slate-950 border border-slate-800 rounded-2xl p-4 sm:p-6 space-y-4 shadow-inner">
-        <div className="flex items-center justify-between text-xs text-slate-400 px-2">
+      <div className="bg-slate-950 border border-slate-800 rounded-2xl p-3.5 xs:p-4 sm:p-6 space-y-4 shadow-inner">
+        <div className="flex flex-col xs:flex-row xs:items-center justify-between gap-1 text-xs text-slate-400 px-1 sm:px-2">
           <span className="font-bold text-slate-300 flex items-center gap-1.5">
-            <span className="w-2.5 h-2.5 rounded-full bg-cyan-400" />
+            <span className="w-2.5 h-2.5 rounded-full bg-cyan-400 shrink-0" />
             Relative Photon Intensity vs. Energy (keV)
           </span>
-          <span className="font-mono text-cyan-400 font-semibold">
+          <span className="font-mono text-cyan-400 font-semibold text-[11px] sm:text-xs">
             E_max = {kvp} keV • E_avg ≈ {effectiveEnergy} keV
           </span>
         </div>
 
-        <div className="relative w-full h-64 border-b border-l border-slate-700 pt-2 pr-4">
+        <div className="relative w-full h-52 xs:h-64 border-b border-l border-slate-700 pt-2 pr-2 sm:pr-4">
           {/* SVG Graph */}
           <svg
             viewBox={`0 0 ${svgWidth} ${svgHeight}`}
@@ -243,7 +243,7 @@ export const SpectrumSimulator: React.FC = () => {
         </div>
 
         {/* Real-time Readouts Bar */}
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 pt-2">
+        <div className="grid grid-cols-1 xs:grid-cols-2 sm:grid-cols-4 gap-2.5 sm:gap-3 pt-2">
           <div className="bg-slate-900/90 border border-slate-800 rounded-xl p-3">
             <span className="text-[10px] text-slate-500 uppercase tracking-wider block font-bold">Total Beam Quantity</span>
             <span className="text-base font-black text-white font-mono">{area.toLocaleString()} <span className="text-xs text-slate-400 font-normal">rel. units</span></span>
@@ -269,7 +269,7 @@ export const SpectrumSimulator: React.FC = () => {
       </div>
 
       {/* Interactive Controls Sliders */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 bg-slate-950/60 border border-slate-800/80 rounded-2xl p-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-5 sm:gap-6 bg-slate-950/60 border border-slate-800/80 rounded-2xl p-4 xs:p-5 sm:p-6">
         {/* Left Column Controls */}
         <div className="space-y-4">
           {/* kVp Slider */}
@@ -370,7 +370,7 @@ export const SpectrumSimulator: React.FC = () => {
             <label className="text-xs font-semibold text-slate-200 block">
               High-Voltage Generator Type & Voltage Ripple
             </label>
-            <div className="grid grid-cols-2 gap-2">
+            <div className="grid grid-cols-1 xs:grid-cols-2 gap-2">
               {[
                 { id: 'single', label: 'Single Phase', ripple: '100% Ripple' },
                 { id: 'three6', label: '3-Phase 6-P', ripple: '14% Ripple' },
@@ -380,7 +380,7 @@ export const SpectrumSimulator: React.FC = () => {
                 <button
                   key={g.id}
                   onClick={() => setGenerator(g.id as any)}
-                  className={`p-2.5 rounded-xl border text-left transition-all ${
+                  className={`p-2.5 min-h-[44px] rounded-xl border text-left transition-all ${
                     generator === g.id
                       ? 'bg-cyan-500/20 border-cyan-400 text-white font-bold'
                       : 'bg-slate-900 border-slate-800 text-slate-400 hover:border-slate-700'
