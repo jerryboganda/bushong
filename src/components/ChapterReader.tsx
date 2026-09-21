@@ -108,7 +108,10 @@ export const ChapterReader: React.FC<ChapterReaderProps> = ({
   }, []);
 
   // Highlights state for this chapter
-  const [chapterHighlights, setChapterHighlights] = useState<HighYieldPoint[]>([]);
+  const [chapterHighlights, setChapterHighlights] = useState<HighYieldPoint[]>(() => {
+    const all = getStoredHighlights();
+    return all.filter(h => h.chapterNumber === chapter.number);
+  });
 
   const refreshHighlights = () => {
     const all = getStoredHighlights();
@@ -265,13 +268,15 @@ export const ChapterReader: React.FC<ChapterReaderProps> = ({
   return (
     <article className={`space-y-8 max-w-4xl mx-auto pb-20 transition-all ${fontClasses}`}>
       {/* Floating Highlight Toolbar */}
-      <HighlightToolbar
-        chapterNumber={chapter.number}
-        chapterTitle={chapter.title}
-        onHighlightSaved={refreshHighlights}
-        isAuthenticated={isAuthenticated}
-        onRequireAuth={onRequireAuth}
-      />
+      {!editingHighlight && (
+        <HighlightToolbar
+          chapterNumber={chapter.number}
+          chapterTitle={chapter.title}
+          onHighlightSaved={refreshHighlights}
+          isAuthenticated={isAuthenticated}
+          onRequireAuth={onRequireAuth}
+        />
+      )}
 
       {/* Reader Appearance Settings Modal */}
       {showSettingsModal && (
@@ -552,6 +557,10 @@ export const ChapterReader: React.FC<ChapterReaderProps> = ({
                       </button>
                       <button
                         onClick={() => {
+                          if (!isAuthenticated && onRequireAuth) {
+                            onRequireAuth('Delete High-Yield Note');
+                            return;
+                          }
                           deleteHighlight(h.id);
                           refreshHighlights();
                         }}

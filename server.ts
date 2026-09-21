@@ -79,6 +79,11 @@ export const auth = betterAuth({
     enabled: true,
     requireEmailVerification: false
   },
+  advanced: {
+    ipAddress: {
+      ipAddressHeaders: ['x-forwarded-for', 'x-real-ip']
+    }
+  },
   trustedOrigins: [
     'http://localhost:3000',
     'http://localhost:3001',
@@ -106,6 +111,7 @@ export function startServer(port = PORT) {
         'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
         'Access-Control-Allow-Headers': 'Content-Type, Authorization, Cookie',
         'Access-Control-Allow-Credentials': 'true',
+        'Vary': 'Origin'
       };
 
       if (req.method === 'OPTIONS') {

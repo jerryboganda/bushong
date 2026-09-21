@@ -17,6 +17,7 @@ import { BackupSyncModal } from './components/BackupSyncModal';
 import { AuthModal } from './components/AuthModal';
 import { ProtectedGate } from './components/ProtectedGate';
 import { authClient, signOut } from './lib/auth-client';
+import { loadHighlightsFromServer, clearUserHighlights } from './data/highYieldVaultData';
 import { 
   BookOpen, 
   Search, 
@@ -55,6 +56,13 @@ export default function App() {
     setAuthFeatureTitle(featureTitle);
     setShowAuthModal(true);
   };
+
+  // Cloud Highlights synchronization on auth state change
+  useEffect(() => {
+    if (isAuthenticated && user?.id) {
+      loadHighlightsFromServer();
+    }
+  }, [isAuthenticated, user?.id]);
 
   const [activeView, setActiveView] = useState<
     'overview' | 'reader' | 'search' | 'study' | 'calculators' | 'glossary' | 'reference' | 'vault' | 'mock-exam' | 'traps' | 'mastery'
@@ -348,6 +356,7 @@ export default function App() {
                     <button
                       onClick={async () => {
                         setUserDropdownOpen(false);
+                        clearUserHighlights();
                         await signOut();
                       }}
                       className="w-full text-left px-2 py-1.5 rounded-lg text-rose-400 hover:bg-rose-950/30 hover:text-rose-300 flex items-center gap-2 transition-colors font-semibold"

@@ -53,7 +53,7 @@ export const TextWithGlossary: React.FC<TextWithGlossaryProps> = ({
   highlights = [],
   onHighlightClick
 }) => {
-  const [activeTerm, setActiveTerm] = useState<{ term: GlossaryTerm; rect: DOMRect } | null>(null);
+  const [activeTerm, setActiveTerm] = useState<{ term: GlossaryTerm; rect: DOMRect; parentHighlight?: HighYieldPoint } | null>(null);
   const popoverRef = useRef<HTMLDivElement>(null);
 
   // Close on outside click
@@ -69,7 +69,7 @@ export const TextWithGlossary: React.FC<TextWithGlossaryProps> = ({
   }, [activeTerm]);
 
   // Helper to parse glossary terms and bionic words for a chunk of plain text
-  const parseGlossaryAndBionic = (plainChunk: string, chunkKey: string): React.ReactNode[] => {
+  const parseGlossaryAndBionic = (plainChunk: string, chunkKey: string, parentHighlight?: HighYieldPoint): React.ReactNode[] => {
     if (!enabled) {
       if (!bionicEnabled) return [plainChunk];
       const words = plainChunk.split(/(\s+)/);
@@ -108,7 +108,7 @@ export const TextWithGlossary: React.FC<TextWithGlossaryProps> = ({
             onClick={(e) => {
               e.stopPropagation();
               const rect = e.currentTarget.getBoundingClientRect();
-              setActiveTerm({ term: termData, rect });
+              setActiveTerm({ term: termData, rect, parentHighlight });
             }}
             className="cursor-pointer border-b border-dashed border-cyan-400 text-cyan-200 hover:text-cyan-100 hover:bg-cyan-500/10 rounded px-0.5 transition-colors font-medium"
             title={`Glossary definition: ${termData.term}`}
@@ -172,7 +172,7 @@ export const TextWithGlossary: React.FC<TextWithGlossaryProps> = ({
           className={`cursor-pointer transition-all hover:brightness-125 select-text inline rounded px-1 py-0.5 border-b-2 ${hlCfg.highlightClass}`}
           title={range.highlight.prompt ? `${range.highlight.category}: "${range.highlight.prompt}" (Click to edit or delete)` : `${range.highlight.category} (Click to edit or delete)`}
         >
-          {parseGlossaryAndBionic(hlText, `hl-inner-${i}`)}
+          {parseGlossaryAndBionic(hlText, `hl-inner-${i}`, range.highlight)}
         </span>
       );
 
@@ -226,6 +226,25 @@ export const TextWithGlossary: React.FC<TextWithGlossaryProps> = ({
             {activeTerm.term.units && (
               <div className="text-[11px] font-mono text-amber-300 bg-slate-950 px-2 py-1 rounded border border-slate-800">
                 Units: {activeTerm.term.units}
+              </div>
+            )}
+
+            {activeTerm.parentHighlight && onHighlightClick && (
+              <div className="pt-2 border-t border-slate-800 flex items-center justify-between">
+                <span className="text-[10px] text-amber-300 font-semibold flex items-center gap-1">
+                  ⭐ Highlighted Term
+                </span>
+                <button
+                  type="button"
+                  onClick={() => {
+                    const hl = activeTerm.parentHighlight!;
+                    setActiveTerm(null);
+                    onHighlightClick(hl);
+                  }}
+                  className="text-xs text-amber-400 hover:text-amber-300 font-bold underline"
+                >
+                  Edit / Delete Note
+                </button>
               </div>
             )}
 

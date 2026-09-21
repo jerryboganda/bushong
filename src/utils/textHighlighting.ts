@@ -24,6 +24,11 @@ export function buildNormalizedMapping(raw: string): NormalizedMapping {
   for (let i = 0; i < raw.length; i++) {
     const char = raw[i];
 
+    // Ignore zero-width characters and soft hyphens
+    if (/[\u200B\u200C\u200D\uFEFF\u00AD]/.test(char)) {
+      continue;
+    }
+
     // Check for whitespace
     if (/[\s\u00A0\u1680\u2000-\u200A\u2028\u2029\u202F\u205F\u3000]/.test(char)) {
       if (!inWhitespace) {
@@ -36,17 +41,24 @@ export function buildNormalizedMapping(raw: string): NormalizedMapping {
 
     inWhitespace = false;
 
-    // Normalize quotes
-    if (/['`\u2018\u2019\u201A\u201B]/.test(char)) {
+    // Normalize quotes & prime marks
+    if (/['`\u2018\u2019\u201A\u201B\u2032]/.test(char)) {
       normalized += "'";
       normToOrig.push(i);
-    } else if (/["\u201C\u201D\u201E\u201F\u00AB\u00BB]/.test(char)) {
+    } else if (/["\u201C\u201D\u201E\u201F\u00AB\u00BB\u2033]/.test(char)) {
       normalized += '"';
       normToOrig.push(i);
     }
     // Normalize dashes & hyphens
-    else if (/[\u2013\u2014\u2212\u2010\u2011]/.test(char)) {
+    else if (/[\u2013\u2014\u2212\u2010\u2011\uFE58\uFE63\uFF0D]/.test(char)) {
       normalized += '-';
+      normToOrig.push(i);
+    }
+    // Normalize ellipses
+    else if (char === '\u2026') {
+      normalized += '...';
+      normToOrig.push(i);
+      normToOrig.push(i);
       normToOrig.push(i);
     } else {
       normalized += char;
@@ -62,9 +74,10 @@ export function buildNormalizedMapping(raw: string): NormalizedMapping {
 
 /**
  * Strips leading/trailing punctuation and whitespace for fuzzy fallback matching.
+ * Uses Unicode property escapes \p{L} and \p{N} so Greek letters and numbers are preserved.
  */
 function stripPunctuation(str: string): string {
-  return str.replace(/^[^\w\d]+|[^\w\d]+$/g, '').trim();
+  return str.replace(/^[^\p{L}\p{N}]+|[^\p{L}\p{N}]+$/gu, '').trim();
 }
 
 /**
@@ -72,7 +85,7 @@ function stripPunctuation(str: string): string {
  */
 function findAllIndices(haystack: string, needle: string, caseSensitive: boolean = true): Array<{ start: number; end: number }> {
   const results: Array<{ start: number; end: number }> = [];
-  if (!needle || needle.length < 3) return results;
+  if (!needle || needle.length < 2) return results;
 
   const searchHaystack = caseSensitive ? haystack : haystack.toLowerCase();
   const searchNeedle = caseSensitive ? needle : needle.toLowerCase();
@@ -105,13 +118,13 @@ export function findHighlightMatches(
   const rawMatches: HighlightMatch[] = [];
 
   for (const hl of highlights) {
-    if (!hl.text || hl.text.trim().length < 3) continue;
+    if (!hl.text || hl.text.trim().length < 2) continue;
 
     // 1. Check if the target text is entirely contained within a long highlight
     // (e.g. user selected multiple paragraphs, and targetText is one of them)
     const hlNormMap = buildNormalizedMapping(hl.text.trim());
     if (
-      textMap.normalized.trim().length >= 10 &&
+      textMap.normalized.trim().length >= 3 &&
       hlNormMap.normalized.includes(textMap.normalized.trim())
     ) {
       rawMatches.push({
@@ -126,7 +139,7 @@ export function findHighlightMatches(
     // Split on newlines to support multi-paragraph selections
     const candidateStrings: string[] = [];
     if (hl.text.includes('\n')) {
-      const parts = hl.text.split(/\r?\n+/).map(p => p.trim()).filter(p => p.length >= 4);
+      const parts = hl.text.split(/\r?\n+/).map(p => p.trim()).filter(p => p.length >= 2);
       candidateStrings.push(...parts);
     } else {
       candidateStrings.push(hl.text.trim());
@@ -137,7 +150,7 @@ export function findHighlightMatches(
     for (const rawNeedle of candidateStrings) {
       const needleMap = buildNormalizedMapping(rawNeedle);
       const needle = needleMap.normalized.trim();
-      if (needle.length < 3) continue;
+      if (needle.length < 2) continue;
 
       // Try exact case first
       let normOccurrences = findAllIndices(textMap.normalized, needle, true);
@@ -150,7 +163,7 @@ export function findHighlightMatches(
       // Fallback to punctuation-stripped needle if still not found
       if (normOccurrences.length === 0) {
         const strippedNeedle = stripPunctuation(needle);
-        if (strippedNeedle.length >= 4) {
+        if (strippedNeedle.length >= 2) {
           normOccurrences = findAllIndices(textMap.normalized, strippedNeedle, false);
         }
       }
@@ -175,12 +188,12 @@ export function findHighlightMatches(
     // 3. If no match yet, check for boundary overlaps:
     // E.g. user selected text starting in this paragraph and continuing into the next,
     // or starting in the previous paragraph and ending in this one.
-    if (!foundForThisHl && hlNormMap.normalized.length >= 10) {
+    if (!foundForThisHl && hlNormMap.normalized.length >= 6) {
       const hlNorm = hlNormMap.normalized;
       const textNorm = textMap.normalized;
 
       // Check if suffix of text matches prefix of hl (user started in this paragraph)
-      const minOverlap = 8;
+      const minOverlap = 4;
       let matchedOverlap = false;
 
       for (let len = Math.min(hlNorm.length, textNorm.length); len >= minOverlap; len--) {

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { HighlightColor } from '../types/features';
 import { HIGHLIGHT_TAG_CONFIG, addHighlight } from '../data/highYieldVaultData';
 import { Highlighter, Plus, X, Tag, Sparkles, Check } from 'lucide-react';
@@ -25,37 +25,53 @@ export const HighlightToolbar: React.FC<HighlightToolbarProps> = ({
   const [selectedColor, setSelectedColor] = useState<HighlightColor>('yellow');
   const [successNotice, setSuccessNotice] = useState<boolean>(false);
 
+  const toolbarRef = useRef<HTMLDivElement>(null);
+  const selectedTextRef = useRef<string>('');
+
   useEffect(() => {
-    const handleSelection = () => {
+    const handleSelection = (e?: Event) => {
+      // If user interacted inside the toolbar, do not close or clear text
+      if (e && toolbarRef.current && toolbarRef.current.contains(e.target as Node)) {
+        return;
+      }
+
       const selection = window.getSelection();
       if (!selection || selection.isCollapsed) {
         if (!showPromptInput) {
           setPosition(null);
           setSelectedText('');
+          selectedTextRef.current = '';
         }
         return;
       }
 
       const text = selection.toString().trim();
-      if (text.length < 3) {
+      if (text.length < 2) {
         if (!showPromptInput) {
           setPosition(null);
           setSelectedText('');
+          selectedTextRef.current = '';
         }
         return;
       }
 
       // Check if selection has a bounding rect
-      const range = selection.getRangeAt(0);
-      const rect = range.getBoundingClientRect();
-      if (rect.width === 0 && rect.height === 0) return;
+      try {
+        const range = selection.getRangeAt(0);
+        const rect = range.getBoundingClientRect();
+        if (rect.width === 0 && rect.height === 0) return;
 
-      setSelectedText(text);
-      const toolbarWidth = 300;
-      const toolbarHeight = 48;
-      const x = Math.max(12, Math.min(window.innerWidth - toolbarWidth - 12, rect.left + rect.width / 2 - toolbarWidth / 2));
-      const y = rect.top >= toolbarHeight + 16 ? rect.top - toolbarHeight - 10 : rect.bottom + 10;
-      setPosition({ x, y });
+        setSelectedText(text);
+        selectedTextRef.current = text;
+        const toolbarWidth = 300;
+        const toolbarHeight = 52;
+        const x = Math.max(12, Math.min(window.innerWidth - toolbarWidth - 12, rect.left + rect.width / 2 - toolbarWidth / 2));
+        const rawY = rect.top >= toolbarHeight + 16 ? rect.top - toolbarHeight - 10 : rect.bottom + 10;
+        const y = Math.max(10, Math.min(window.innerHeight - toolbarHeight - 10, rawY));
+        setPosition({ x, y });
+      } catch {
+        // Selection range may be invalidated
+      }
     };
 
     document.addEventListener('mouseup', handleSelection);
@@ -67,7 +83,8 @@ export const HighlightToolbar: React.FC<HighlightToolbarProps> = ({
   }, [showPromptInput]);
 
   const handleSave = (color: HighlightColor) => {
-    if (!selectedText) return;
+    const textToSave = selectedText || selectedTextRef.current;
+    if (!textToSave) return;
 
     if (!isAuthenticated && onRequireAuth) {
       onRequireAuth('Personal High-Yield Highlights');
@@ -77,7 +94,7 @@ export const HighlightToolbar: React.FC<HighlightToolbarProps> = ({
     addHighlight({
       chapterNumber,
       chapterTitle,
-      text: selectedText,
+      text: textToSave,
       prompt: prompt.trim() || undefined,
       category: HIGHLIGHT_TAG_CONFIG[color].label,
       tagColor: color,
@@ -93,6 +110,7 @@ export const HighlightToolbar: React.FC<HighlightToolbarProps> = ({
       setShowPromptInput(false);
       setPosition(null);
       setSelectedText('');
+      selectedTextRef.current = '';
       setPrompt('');
       window.getSelection()?.removeAllRanges();
     }, 750);
@@ -102,7 +120,16 @@ export const HighlightToolbar: React.FC<HighlightToolbarProps> = ({
 
   return (
     <div
-      className="fixed z-50 transition-all duration-150 animate-fadeIn"
+      ref={toolbarRef}
+      onMouseDown={(e) => {
+        // CRITICAL: Prevent mousedown from blurring text and collapsing window.getSelection()
+        e.preventDefault();
+        e.stopPropagation();
+      }}
+      onTouchStart={(e) => {
+        e.stopPropagation();
+      }}
+      className="fixed z-50 transition-all duration-150 animate-fadeIn select-none"
       style={{ top: `${position.y}px`, left: `${position.x}px` }}
     >
       <div className="bg-slate-900 text-slate-100 border border-slate-700/80 rounded-xl shadow-2xl p-2 flex flex-col gap-2 backdrop-blur-md min-w-[280px]">

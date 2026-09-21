@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { authClient, signIn, signUp } from '../lib/auth-client';
-import { getStoredHighlights, saveStoredHighlights } from '../data/highYieldVaultData';
+import { getStoredHighlights, saveStoredHighlights, loadHighlightsFromServer } from '../data/highYieldVaultData';
 import { 
   Lock, 
   Mail, 
@@ -47,7 +47,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
     setError(null);
     setSuccessMsg(null);
 
-    const trimmedEmail = email.trim();
+    const trimmedEmail = email.trim().toLowerCase();
     if (!trimmedEmail || !password) {
       setError('Please provide email and password.');
       return;
@@ -91,17 +91,9 @@ export const AuthModal: React.FC<AuthModalProps> = ({
         setSuccessMsg('Welcome back! Loading your profile...');
       }
 
-      // Sync user highlights with server
+      // Seamlessly sync & load user highlights from cloud SQLite
       try {
-        const localHighlights = getStoredHighlights();
-        const syncRes = await fetch('/api/user/highlights', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ highlights: localHighlights })
-        });
-        if (syncRes.ok) {
-          console.log('[Auth] Synced highlights with server.');
-        }
+        await loadHighlightsFromServer();
       } catch (syncErr) {
         console.warn('[Auth] Offline or background sync deferred', syncErr);
       }
@@ -110,7 +102,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
         setLoading(false);
         onSuccess?.();
         onClose();
-      }, 700);
+      }, 600);
     } catch (err: any) {
       console.error('[Auth Error]', err);
       setError(err.message || 'An unexpected error occurred. Please try again.');

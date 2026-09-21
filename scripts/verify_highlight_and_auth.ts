@@ -124,50 +124,126 @@ for (let i = 0; i < mOver.length - 1; i++) {
 }
 assert(noOverlap, 'Merged ranges are strictly non-overlapping');
 
+// 7. Short 2-letter radiology acronyms (kV, mA, Pb, Al)
+const mockHl2Letter: HighYieldPoint = {
+  id: 'h2Letter',
+  chapterNumber: 4,
+  chapterTitle: 'Ch 4',
+  text: 'Pb',
+  category: 'Radiation Protection',
+  tagColor: 'purple',
+  createdAt: new Date().toISOString()
+};
+const m2Letter = findHighlightMatches('Primary barrier requires 1.6 mm Pb equivalent.', [mockHl2Letter]);
+assert(m2Letter.length === 1, 'Matches short 2-letter radiation symbols (Pb)');
+assert(m2Letter[0].start === 32 && m2Letter[0].end === 34, 'Accurate 2-letter symbol boundary');
+
+// 8. Greek letters & mathematical symbols
+const mockHlGreek: HighYieldPoint = {
+  id: 'hGreek',
+  chapterNumber: 3,
+  chapterTitle: 'Ch 3',
+  text: 'c = f × λ',
+  category: 'Formula',
+  tagColor: 'green',
+  createdAt: new Date().toISOString()
+};
+const mGreek = findHighlightMatches('Wave velocity formula: c = f × λ holds in vacuum.', [mockHlGreek]);
+assert(mGreek.length === 1, 'Preserves and matches Greek letters (λ, μ, α, β)');
+
+// 9. Multi-paragraph selection containing short middle paragraph (length < 10, e.g. "E = mc²")
+const mockHlShortMiddle: HighYieldPoint = {
+  id: 'hShortMid',
+  chapterNumber: 1,
+  chapterTitle: 'Ch 1',
+  text: 'Conservation of matter and energy.\n\nE = mc²\n\nAll matter has mass.',
+  category: 'Core Concept',
+  tagColor: 'yellow',
+  createdAt: new Date().toISOString()
+};
+const middlePara = 'E = mc²';
+const mMid = findHighlightMatches(middlePara, [mockHlShortMiddle]);
+assert(mMid.length === 1, 'Matches short fully contained paragraphs in multi-paragraph selections');
+
 console.log('\n=== TEST SUITE 2: BETTER AUTH & BACKEND API ===');
 
-import { auth } from '../server';
+import { auth, startServer } from '../server';
 
-// 1. Sign up new test user
+// Start test server instance
+const testServer = startServer(3002);
+
+// 1. Sign up new test user via HTTP endpoint
 const testEmail = `rad_tester_${Date.now()}@polytronx.com`;
 const testPassword = 'SecureBushongPassword2026!';
 
-const signupRes = await auth.api.signUpEmail({
-  body: {
+const signupHttpRes = await fetch('http://localhost:3002/api/auth/sign-up/email', {
+  method: 'POST',
+  headers: { 'Content-Type': 'application/json' },
+  body: JSON.stringify({
     email: testEmail,
     password: testPassword,
     name: 'RadSci Tester'
-  }
+  })
 });
+assert(signupHttpRes.status === 200, 'Better Auth HTTP sign-up succeeds with 200');
+const signupData = await signupHttpRes.json();
+assert(!!signupData.user, 'Better Auth sign-up returns user object');
+assert(signupData.user.email === testEmail, 'User email matches registered email');
+assert(signupData.user.name === 'RadSci Tester', 'User name matches');
 
-assert(!!signupRes.user, 'Better Auth sign-up creates user');
-assert(signupRes.user.email === testEmail, 'User email matches');
-assert(signupRes.user.name === 'RadSci Tester', 'User name matches');
-assert(!!signupRes.token, 'Session token issued upon registration');
-
-// 2. Sign in with same user
-const signinRes = await auth.api.signInEmail({
-  body: {
+// 2. Sign in via HTTP endpoint and extract signed session cookie
+const signinHttpRes = await fetch('http://localhost:3002/api/auth/sign-in/email', {
+  method: 'POST',
+  headers: { 'Content-Type': 'application/json' },
+  body: JSON.stringify({
     email: testEmail,
     password: testPassword
+  })
+});
+assert(signinHttpRes.status === 200, 'Better Auth HTTP sign-in succeeds with 200');
+const setCookieHeader = signinHttpRes.headers.get('set-cookie');
+assert(!!setCookieHeader, 'Set-Cookie header received from sign-in');
+const sessionCookie = setCookieHeader ? setCookieHeader.split(';')[0] : '';
+assert(sessionCookie.includes('better-auth.session_token='), 'Contains signed session_token cookie');
+
+// 3. Sign in with wrong password via HTTP endpoint
+const badLoginRes = await fetch('http://localhost:3002/api/auth/sign-in/email', {
+  method: 'POST',
+  headers: { 'Content-Type': 'application/json' },
+  body: JSON.stringify({
+    email: testEmail,
+    password: 'WrongPassword!'
+  })
+});
+assert(badLoginRes.status === 401, 'Better Auth rejects invalid password with 401 Unauthorized');
+
+// 4. Cloud Highlights API Sync Roundtrip
+const postHlRes = await fetch('http://localhost:3002/api/user/highlights', {
+  method: 'POST',
+  headers: {
+    'Content-Type': 'application/json',
+    'Cookie': sessionCookie
+  },
+  body: JSON.stringify({
+    highlights: [mockHlGreek, mockHl2Letter]
+  })
+});
+assert(postHlRes.status === 200, 'POST /api/user/highlights returns 200 OK');
+const postJson = await postHlRes.json();
+assert(postJson.success === true && postJson.count === 2, 'POST /api/user/highlights saved 2 highlights');
+
+const getHlRes = await fetch('http://localhost:3002/api/user/highlights', {
+  method: 'GET',
+  headers: {
+    'Cookie': sessionCookie
   }
 });
+assert(getHlRes.status === 200, 'GET /api/user/highlights returns 200 OK');
+const getJson = await getHlRes.json();
+assert(Array.isArray(getJson.highlights) && getJson.highlights.length === 2, 'GET /api/user/highlights retrieved 2 cloud highlights');
+assert(getJson.highlights[0].id === 'hGreek', 'Retrieved cloud highlight preserves data integrity');
 
-assert(!!signinRes.user, 'Better Auth sign-in authenticates registered user');
-assert(signinRes.user.id === signupRes.user.id, 'User ID matches across sessions');
-
-// 3. Sign in with wrong password
-try {
-  const badLogin = await auth.api.signInEmail({
-    body: {
-      email: testEmail,
-      password: 'WrongPassword!'
-    }
-  });
-  assert(false, 'Should throw or fail on wrong password');
-} catch (err: any) {
-  assert(true, 'Better Auth rejects invalid password');
-}
+testServer.stop();
 
 console.log(`\n========================================`);
 console.log(`RESULTS: ${testsPassed} passed, ${testsFailed} failed`);

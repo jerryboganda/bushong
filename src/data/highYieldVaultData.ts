@@ -414,8 +414,88 @@ export function saveStoredHighlights(points: HighYieldPoint[]): void {
   try {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(points));
     window.dispatchEvent(new CustomEvent('rad_highlights_updated', { detail: points }));
+    queueSyncHighlightsToServer(points);
   } catch (err) {
     console.error('Failed to save highlights to localStorage', err);
+  }
+}
+
+let syncTimeout: any = null;
+
+/**
+ * Persists highlights to SQLite via Better Auth session
+ */
+export async function syncHighlightsToServer(points?: HighYieldPoint[]): Promise<boolean> {
+  if (typeof window === 'undefined') return false;
+  const highlights = points || getStoredHighlights();
+  try {
+    const res = await fetch('/api/user/highlights', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      credentials: 'include',
+      body: JSON.stringify({ highlights })
+    });
+    return res.ok;
+  } catch (e) {
+    console.warn('[Sync] Background sync to server deferred:', e);
+    return false;
+  }
+}
+
+export function queueSyncHighlightsToServer(points?: HighYieldPoint[]): void {
+  if (typeof window === 'undefined') return;
+  if (syncTimeout) clearTimeout(syncTimeout);
+  syncTimeout = setTimeout(() => {
+    syncHighlightsToServer(points);
+  }, 300);
+}
+
+/**
+ * Loads cloud highlights from SQLite, merging with local user points
+ */
+export async function loadHighlightsFromServer(): Promise<HighYieldPoint[] | null> {
+  if (typeof window === 'undefined') return null;
+  try {
+    const res = await fetch('/api/user/highlights', {
+      method: 'GET',
+      credentials: 'include'
+    });
+    if (!res.ok) return null;
+    const data = await res.json();
+    if (!data || !Array.isArray(data.highlights)) return null;
+
+    const serverList: HighYieldPoint[] = data.highlights;
+    const localList = getStoredHighlights();
+
+    // Merge: Keep all server highlights, and add any local user-created highlights not present on server
+    const serverIds = new Set(serverList.map(h => h.id));
+    const localUserExtras = localList.filter(h => h.isUserCreated && !serverIds.has(h.id));
+
+    const merged = [...localUserExtras, ...serverList];
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(merged));
+    window.dispatchEvent(new CustomEvent('rad_highlights_updated', { detail: merged }));
+
+    if (localUserExtras.length > 0) {
+      // Push merged highlights up to server
+      syncHighlightsToServer(merged);
+    }
+    return merged;
+  } catch (err) {
+    console.warn('[Sync] Failed to load highlights from server:', err);
+    return null;
+  }
+}
+
+/**
+ * Clears user highlights on logout
+ */
+export function clearUserHighlights(): void {
+  if (typeof window === 'undefined') return;
+  try {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(INITIAL_CURATED_POINTS));
+    window.dispatchEvent(new CustomEvent('rad_highlights_updated', { detail: INITIAL_CURATED_POINTS }));
+  } catch (err) {
+    console.error('Failed to reset highlights in localStorage', err);
   }
 }
 
