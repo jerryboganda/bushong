@@ -30,7 +30,12 @@ import {
 export default function App() {
   const [activeView, setActiveView] = useState<'overview' | 'reader' | 'search' | 'study' | 'calculators' | 'glossary' | 'reference'>('overview');
   const [currentChapterNum, setCurrentChapterNum] = useState<number>(1);
-  const [sidebarOpen, setSidebarOpen] = useState<boolean>(false);
+  const [sidebarOpen, setSidebarOpen] = useState<boolean>(() => {
+    if (typeof window !== 'undefined') {
+      return window.innerWidth >= 1024;
+    }
+    return false;
+  });
   const [isOnline, setIsOnline] = useState<boolean>(navigator.onLine);
   const [installPrompt, setInstallPrompt] = useState<any>(null);
   const [installed, setInstalled] = useState<boolean>(false);
@@ -92,7 +97,9 @@ export default function App() {
   const handleSelectChapter = (num: number) => {
     setCurrentChapterNum(num);
     setActiveView('reader');
-    setSidebarOpen(false);
+    if (typeof window !== 'undefined' && window.innerWidth < 1024) {
+      setSidebarOpen(false);
+    }
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
@@ -106,9 +113,14 @@ export default function App() {
           {/* Brand & Drawer Toggle */}
           <div className="flex items-center gap-3">
             <button
-              onClick={() => setSidebarOpen(!sidebarOpen)}
-              className="p-2 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800 transition-colors"
-              title="Toggle chapter menu"
+              onClick={() => setSidebarOpen(prev => !prev)}
+              className={`p-2 rounded-lg transition-colors ${
+                sidebarOpen 
+                  ? 'text-cyan-400 bg-slate-800/80 hover:bg-slate-800' 
+                  : 'text-slate-400 hover:text-white hover:bg-slate-800'
+              }`}
+              title={sidebarOpen ? "Hide chapter menu" : "Show chapter menu"}
+              aria-label={sidebarOpen ? "Hide chapter menu" : "Show chapter menu"}
             >
               {sidebarOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
             </button>
@@ -286,17 +298,27 @@ export default function App() {
       <div className="flex-1 flex max-w-7xl w-full mx-auto relative">
         {/* Left Sidebar / Drawer */}
         <aside
-          className={`fixed inset-y-0 left-0 z-50 w-80 bg-slate-900 border-r border-slate-800 p-4 transform transition-transform duration-200 ease-in-out lg:static lg:translate-x-0 lg:z-0 lg:h-[calc(100vh-4rem)] lg:sticky lg:top-16 overflow-y-auto ${
-            sidebarOpen ? 'translate-x-0 shadow-2xl' : '-translate-x-full'
+          className={`fixed inset-y-0 left-0 z-50 w-80 bg-slate-900 border-r border-slate-800 p-4 transform transition-all duration-200 ease-in-out lg:static lg:z-0 lg:h-[calc(100vh-4rem)] lg:sticky lg:top-16 overflow-y-auto ${
+            sidebarOpen
+              ? 'translate-x-0 shadow-2xl lg:block lg:translate-x-0'
+              : '-translate-x-full lg:hidden'
           }`}
         >
-          <div className="flex items-center justify-between pb-3 mb-3 border-b border-slate-800 lg:hidden">
-            <span className="font-bold text-sm text-white">Select Chapter</span>
+          <div className="flex items-center justify-between pb-3 mb-3 border-b border-slate-800">
+            <div className="flex items-center gap-2">
+              <BookOpen className="w-4 h-4 text-cyan-400" />
+              <span className="font-bold text-sm text-white">Chapters</span>
+              <span className="text-[11px] font-mono px-1.5 py-0.5 rounded bg-cyan-500/10 text-cyan-400 border border-cyan-500/20">
+                {ALL_CHAPTERS.length}
+              </span>
+            </div>
             <button
               onClick={() => setSidebarOpen(false)}
-              className="p-1 rounded text-slate-400 hover:text-white"
+              className="p-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800 transition-colors"
+              title="Hide chapter menu"
+              aria-label="Hide chapter menu"
             >
-              <X className="w-5 h-5" />
+              <X className="w-4 h-4" />
             </button>
           </div>
 
