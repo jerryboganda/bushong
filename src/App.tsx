@@ -146,8 +146,9 @@ export default function App() {
       if (pathname === '/login' || pathname === '/register' || pathname === '/signin' || pathname === '/signup') {
         const urlParams = new URLSearchParams(window.location.search);
         const redirect = urlParams.get('redirect');
-        if (redirect && VALID_VIEWS.includes(redirect.replace(/^\/+/, '') as AppView)) {
-          const targetView = redirect.replace(/^\/+/, '') as AppView;
+        const cleanRedirect = redirect ? redirect.replace(/^\/+/, '').toLowerCase() : '';
+        if (cleanRedirect && VALID_VIEWS.includes(cleanRedirect as AppView)) {
+          const targetView = cleanRedirect as AppView;
           setActiveView(targetView);
           window.history.replaceState(null, '', `/${targetView}`);
         } else {
@@ -285,19 +286,8 @@ export default function App() {
     return (
       <AuthGate
         initialMode={authMode}
-        onSuccess={async () => {
-          await refetch?.();
-          if (typeof window !== 'undefined') {
-            const urlParams = new URLSearchParams(window.location.search);
-            const redirect = urlParams.get('redirect');
-            if (redirect && VALID_VIEWS.includes(redirect.replace(/^\/+/, '') as AppView)) {
-              const target = redirect.replace(/^\/+/, '') as AppView;
-              setActiveView(target);
-              window.history.replaceState(null, '', `/${target}`);
-            } else {
-              window.history.replaceState(null, '', '/');
-            }
-          }
+        onSuccess={() => {
+          refetch?.();
         }}
       />
     );
