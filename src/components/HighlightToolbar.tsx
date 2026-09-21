@@ -1,0 +1,207 @@
+import React, { useState, useEffect } from 'react';
+import { HighlightColor } from '../types/features';
+import { HIGHLIGHT_TAG_CONFIG, addHighlight } from '../data/highYieldVaultData';
+import { Highlighter, Plus, X, Tag, Sparkles, Check } from 'lucide-react';
+
+interface HighlightToolbarProps {
+  chapterNumber: number;
+  chapterTitle: string;
+  onHighlightSaved?: () => void;
+}
+
+export const HighlightToolbar: React.FC<HighlightToolbarProps> = ({
+  chapterNumber,
+  chapterTitle,
+  onHighlightSaved
+}) => {
+  const [position, setPosition] = useState<{ x: number; y: number } | null>(null);
+  const [selectedText, setSelectedText] = useState<string>('');
+  const [showPromptInput, setShowPromptInput] = useState<boolean>(false);
+  const [prompt, setPrompt] = useState<string>('');
+  const [selectedColor, setSelectedColor] = useState<HighlightColor>('yellow');
+  const [successNotice, setSuccessNotice] = useState<boolean>(false);
+
+  useEffect(() => {
+    const handleSelection = () => {
+      const selection = window.getSelection();
+      if (!selection || selection.isCollapsed) {
+        if (!showPromptInput) {
+          setPosition(null);
+          setSelectedText('');
+        }
+        return;
+      }
+
+      const text = selection.toString().trim();
+      if (text.length < 5) {
+        if (!showPromptInput) {
+          setPosition(null);
+          setSelectedText('');
+        }
+        return;
+      }
+
+      // Check if selection is within the reader container
+      const range = selection.getRangeAt(0);
+      const rect = range.getBoundingClientRect();
+      if (rect.width === 0 || rect.height === 0) return;
+
+      setSelectedText(text);
+      setPosition({
+        x: Math.max(10, Math.min(window.innerWidth - 300, rect.left + rect.width / 2 - 150)),
+        y: Math.max(10, rect.top - 54 + window.scrollY)
+      });
+    };
+
+    document.addEventListener('mouseup', handleSelection);
+    document.addEventListener('touchend', handleSelection);
+    return () => {
+      document.removeEventListener('mouseup', handleSelection);
+      document.removeEventListener('touchend', handleSelection);
+    };
+  }, [showPromptInput]);
+
+  const handleSave = (color: HighlightColor) => {
+    if (!selectedText) return;
+
+    addHighlight({
+      chapterNumber,
+      chapterTitle,
+      text: selectedText,
+      prompt: prompt.trim() || undefined,
+      category: HIGHLIGHT_TAG_CONFIG[color].label,
+      tagColor: color,
+      starred: color === 'red' // auto-star high-yield exam traps
+    });
+
+    setSuccessNotice(true);
+    setTimeout(() => {
+      setSuccessNotice(false);
+      setShowPromptInput(false);
+      setPosition(null);
+      setSelectedText('');
+      setPrompt('');
+      window.getSelection()?.removeAllRanges();
+      onHighlightSaved?.();
+    }, 900);
+  };
+
+  if (!position || !selectedText) return null;
+
+  return (
+    <div
+      className="absolute z-50 transition-all duration-150 animate-fadeIn"
+      style={{ top: `${position.y}px`, left: `${position.x}px` }}
+    >
+      <div className="bg-slate-900 text-slate-100 border border-slate-700/80 rounded-xl shadow-2xl p-2 flex flex-col gap-2 backdrop-blur-md min-w-[280px]">
+        {successNotice ? (
+          <div className="flex items-center justify-center gap-2 py-1.5 text-xs text-emerald-400 font-semibold">
+            <Check className="w-4 h-4" /> Saved to High-Yield Vault!
+          </div>
+        ) : !showPromptInput ? (
+          <div className="flex items-center gap-1.5 justify-between">
+            <div className="flex items-center gap-1">
+              {(['yellow', 'red', 'green', 'purple', 'blue'] as HighlightColor[]).map(color => (
+                <button
+                  key={color}
+                  onClick={() => handleSave(color)}
+                  className={`w-6 h-6 rounded-full border transition-transform hover:scale-110 active:scale-95 ${
+                    color === 'yellow'
+                      ? 'bg-amber-400 border-amber-300'
+                      : color === 'red'
+                      ? 'bg-rose-500 border-rose-400'
+                      : color === 'green'
+                      ? 'bg-emerald-400 border-emerald-300'
+                      : color === 'purple'
+                      ? 'bg-purple-400 border-purple-300'
+                      : 'bg-cyan-400 border-cyan-300'
+                  }`}
+                  title={`Save as ${HIGHLIGHT_TAG_CONFIG[color].label}`}
+                />
+              ))}
+            </div>
+
+            <div className="h-4 w-px bg-slate-700 mx-1" />
+
+            <button
+              onClick={() => setShowPromptInput(true)}
+              className="text-[11px] font-semibold text-cyan-300 hover:text-white px-2 py-1 rounded bg-slate-800 hover:bg-slate-700 flex items-center gap-1 transition-colors"
+              title="Add a question prompt or note"
+            >
+              <Tag className="w-3 h-3" /> +Prompt
+            </button>
+
+            <button
+              onClick={() => {
+                setPosition(null);
+                setSelectedText('');
+                window.getSelection()?.removeAllRanges();
+              }}
+              className="p-1 text-slate-400 hover:text-white rounded hover:bg-slate-800"
+            >
+              <X className="w-3.5 h-3.5" />
+            </button>
+          </div>
+        ) : (
+          <div className="space-y-2 p-1 text-xs">
+            <div className="flex items-center justify-between text-slate-300 font-semibold">
+              <span className="flex items-center gap-1 text-cyan-400">
+                <Sparkles className="w-3.5 h-3.5" /> Save High-Yield One-Liner
+              </span>
+              <button
+                onClick={() => setShowPromptInput(false)}
+                className="text-slate-400 hover:text-white"
+              >
+                <X className="w-3.5 h-3.5" />
+              </button>
+            </div>
+
+            <p className="text-[11px] text-slate-400 line-clamp-2 italic bg-slate-950 p-1.5 rounded border border-slate-800">
+              "{selectedText}"
+            </p>
+
+            <input
+              type="text"
+              placeholder="Question prompt or recall hint (optional)..."
+              value={prompt}
+              onChange={e => setPrompt(e.target.value)}
+              className="w-full bg-slate-950 border border-slate-700 rounded px-2.5 py-1.5 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-cyan-400"
+              autoFocus
+            />
+
+            <div className="flex items-center justify-between pt-1">
+              <div className="flex items-center gap-1.5">
+                {(['yellow', 'red', 'green', 'purple', 'blue'] as HighlightColor[]).map(color => (
+                  <button
+                    key={color}
+                    onClick={() => setSelectedColor(color)}
+                    className={`w-5 h-5 rounded-full border transition-all ${
+                      selectedColor === color ? 'ring-2 ring-white scale-110' : 'opacity-70 hover:opacity-100'
+                    } ${
+                      color === 'yellow'
+                        ? 'bg-amber-400 border-amber-300'
+                        : color === 'red'
+                        ? 'bg-rose-500 border-rose-400'
+                        : color === 'green'
+                        ? 'bg-emerald-400 border-emerald-300'
+                        : color === 'purple'
+                        ? 'bg-purple-400 border-purple-300'
+                        : 'bg-cyan-400 border-cyan-300'
+                    }`}
+                  />
+                ))}
+              </div>
+
+              <button
+                onClick={() => handleSave(selectedColor)}
+                className="px-3 py-1 bg-cyan-500 hover:bg-cyan-400 text-slate-950 font-bold rounded text-xs transition-colors flex items-center gap-1 shadow"
+              >
+                <Plus className="w-3.5 h-3.5" /> Save
+              </button>
+            </div>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+};

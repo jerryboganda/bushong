@@ -9,6 +9,11 @@ import { StudyDeck } from './components/StudyDeck';
 import { BookOverview } from './components/BookOverview';
 import { GlossaryView } from './components/GlossaryView';
 import { ReferenceGuide } from './components/ReferenceGuide';
+import { HighYieldVault } from './components/HighYieldVault';
+import { MockExamSimulator } from './components/MockExamSimulator';
+import { ExamTrapsCenter } from './components/ExamTrapsCenter';
+import { MasteryDashboard } from './components/MasteryDashboard';
+import { BackupSyncModal } from './components/BackupSyncModal';
 import { 
   BookOpen, 
   Search, 
@@ -19,16 +24,22 @@ import {
   Download, 
   Wifi, 
   WifiOff, 
-  Bookmark,
-  ChevronDown,
-  Layers,
-  Award,
-  BookA,
-  Compass
+  Bookmark, 
+  ChevronDown, 
+  Layers, 
+  Award, 
+  BookA, 
+  Compass,
+  Highlighter,
+  AlertTriangle,
+  TrendingUp,
+  HardDrive
 } from 'lucide-react';
 
 export default function App() {
-  const [activeView, setActiveView] = useState<'overview' | 'reader' | 'search' | 'study' | 'calculators' | 'glossary' | 'reference'>('overview');
+  const [activeView, setActiveView] = useState<
+    'overview' | 'reader' | 'search' | 'study' | 'calculators' | 'glossary' | 'reference' | 'vault' | 'mock-exam' | 'traps' | 'mastery'
+  >('overview');
   const [currentChapterNum, setCurrentChapterNum] = useState<number>(1);
   const [sidebarOpen, setSidebarOpen] = useState<boolean>(() => {
     if (typeof window !== 'undefined') {
@@ -40,6 +51,7 @@ export default function App() {
   const [installPrompt, setInstallPrompt] = useState<any>(null);
   const [installed, setInstalled] = useState<boolean>(false);
   const [glossaryQuery, setGlossaryQuery] = useState<string>('');
+  const [showBackupModal, setShowBackupModal] = useState<boolean>(false);
 
   // Online / Offline listeners
   useEffect(() => {
@@ -107,6 +119,11 @@ export default function App() {
 
   return (
     <div className="min-h-screen bg-slate-950 text-slate-100 flex flex-col font-sans">
+      {/* Backup and Sync Modal */}
+      {showBackupModal && (
+        <BackupSyncModal onClose={() => setShowBackupModal(false)} />
+      )}
+
       {/* Top Header Bar */}
       <header className="sticky top-0 z-40 bg-slate-900/90 backdrop-blur-md border-b border-slate-800">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between gap-4">
@@ -143,11 +160,11 @@ export default function App() {
             </div>
           </div>
 
-          {/* Center Navigation Tabs */}
-          <nav className="hidden md:flex items-center gap-1 bg-slate-950 p-1 rounded-xl border border-slate-800 text-xs font-semibold">
+          {/* Center Navigation Tabs (Desktop) */}
+          <nav className="hidden lg:flex items-center gap-1 bg-slate-950 p-1 rounded-xl border border-slate-800 text-xs font-semibold">
             <button
               onClick={() => setActiveView('overview')}
-              className={`px-3 py-1.5 rounded-lg transition-all ${
+              className={`px-2.5 py-1.5 rounded-lg transition-all ${
                 activeView === 'overview'
                   ? 'bg-slate-800 text-white shadow-sm'
                   : 'text-slate-400 hover:text-slate-200'
@@ -157,64 +174,107 @@ export default function App() {
             </button>
             <button
               onClick={() => setActiveView('reader')}
-              className={`px-3 py-1.5 rounded-lg transition-all ${
+              className={`px-2.5 py-1.5 rounded-lg transition-all ${
                 activeView === 'reader'
                   ? 'bg-slate-800 text-white shadow-sm'
                   : 'text-slate-400 hover:text-slate-200'
               }`}
             >
-              Chapters ({ALL_CHAPTERS.length})
+              Chapters
+            </button>
+            <button
+              onClick={() => setActiveView('vault')}
+              className={`px-2.5 py-1.5 rounded-lg transition-all flex items-center gap-1 ${
+                activeView === 'vault'
+                  ? 'bg-purple-600 text-white font-bold shadow-sm'
+                  : 'text-purple-300 hover:text-white'
+              }`}
+              title="High-Yield Revision Vault & One-Liner MCQs"
+            >
+              <Highlighter className="w-3.5 h-3.5" /> Vault
+            </button>
+            <button
+              onClick={() => setActiveView('mock-exam')}
+              className={`px-2.5 py-1.5 rounded-lg transition-all flex items-center gap-1 ${
+                activeView === 'mock-exam'
+                  ? 'bg-rose-600 text-white font-bold shadow-sm'
+                  : 'text-rose-300 hover:text-white'
+              }`}
+              title="Timed ARRT Board Mock Exam Simulator"
+            >
+              <Award className="w-3.5 h-3.5" /> ARRT Mock
+            </button>
+            <button
+              onClick={() => setActiveView('traps')}
+              className={`px-2.5 py-1.5 rounded-lg transition-all flex items-center gap-1 ${
+                activeView === 'traps'
+                  ? 'bg-amber-500 text-slate-950 font-bold shadow-sm'
+                  : 'text-amber-300 hover:text-white'
+              }`}
+              title="Exam Traps & Comparative Matrices"
+            >
+              <AlertTriangle className="w-3.5 h-3.5" /> Traps
+            </button>
+            <button
+              onClick={() => setActiveView('study')}
+              className={`px-2.5 py-1.5 rounded-lg transition-all flex items-center gap-1 ${
+                activeView === 'study'
+                  ? 'bg-amber-500 text-slate-950 font-bold shadow-sm'
+                  : 'text-slate-400 hover:text-slate-200'
+              }`}
+            >
+              <Sparkles className="w-3.5 h-3.5" /> Study Deck
+            </button>
+            <button
+              onClick={() => setActiveView('mastery')}
+              className={`px-2.5 py-1.5 rounded-lg transition-all flex items-center gap-1 ${
+                activeView === 'mastery'
+                  ? 'bg-cyan-500 text-slate-950 font-bold shadow-sm'
+                  : 'text-slate-400 hover:text-slate-200'
+              }`}
+            >
+              <TrendingUp className="w-3.5 h-3.5" /> Mastery
+            </button>
+            <button
+              onClick={() => setActiveView('calculators')}
+              className={`px-2.5 py-1.5 rounded-lg transition-all flex items-center gap-1 ${
+                activeView === 'calculators'
+                  ? 'bg-cyan-500 text-slate-950 font-bold shadow-sm'
+                  : 'text-slate-400 hover:text-slate-200'
+              }`}
+            >
+              <Calculator className="w-3.5 h-3.5" /> Simulators
             </button>
             <button
               onClick={() => {
                 setGlossaryQuery('');
                 setActiveView('glossary');
               }}
-              className={`px-3 py-1.5 rounded-lg transition-all flex items-center gap-1 ${
+              className={`px-2.5 py-1.5 rounded-lg transition-all flex items-center gap-1 ${
                 activeView === 'glossary'
                   ? 'bg-cyan-500 text-slate-950 font-bold shadow-sm'
                   : 'text-slate-400 hover:text-slate-200'
               }`}
             >
-              <BookA className="w-3.5 h-3.5" /> Glossary ({BUSHONG_GLOSSARY.length})
+              <BookA className="w-3.5 h-3.5" /> Glossary
             </button>
             <button
               onClick={() => setActiveView('reference')}
-              className={`px-3 py-1.5 rounded-lg transition-all flex items-center gap-1 ${
+              className={`px-2.5 py-1.5 rounded-lg transition-all flex items-center gap-1 ${
                 activeView === 'reference'
                   ? 'bg-cyan-500 text-slate-950 font-bold shadow-sm'
                   : 'text-slate-400 hover:text-slate-200'
               }`}
             >
-              <Compass className="w-3.5 h-3.5" /> Reference
-            </button>
-            <button
-              onClick={() => setActiveView('study')}
-              className={`px-3 py-1.5 rounded-lg transition-all flex items-center gap-1 ${
-                activeView === 'study'
-                  ? 'bg-amber-500 text-slate-950 font-bold shadow-sm'
-                  : 'text-amber-400 hover:text-amber-300'
-              }`}
-            >
-              <Sparkles className="w-3.5 h-3.5" /> Study Deck
-            </button>
-            <button
-              onClick={() => setActiveView('calculators')}
-              className={`px-3 py-1.5 rounded-lg transition-all flex items-center gap-1 ${
-                activeView === 'calculators'
-                  ? 'bg-cyan-500 text-slate-950 font-bold shadow-sm'
-                  : 'text-cyan-400 hover:text-cyan-300'
-              }`}
-            >
-              <Calculator className="w-3.5 h-3.5" /> Calculators
+              <Compass className="w-3.5 h-3.5" /> Ref
             </button>
           </nav>
 
-          {/* Right Actions: Search & PWA Status */}
+          {/* Right Actions: Search, Backup, Install & Status */}
           <div className="flex items-center gap-2">
             <button
               onClick={() => setActiveView('search')}
-              className={`flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-medium border transition-all ${
+              className={`flex items-center gap-2 px-2.5 py-1.5 rounded-lg text-xs font-medium border transition-all ${
                 activeView === 'search'
                   ? 'bg-cyan-500 text-slate-950 border-cyan-400 font-bold'
                   : 'bg-slate-950 border-slate-800 text-slate-400 hover:text-white hover:border-slate-700'
@@ -227,6 +287,15 @@ export default function App() {
               </kbd>
             </button>
 
+            {/* Backup & Sync Button */}
+            <button
+              onClick={() => setShowBackupModal(true)}
+              className="p-1.5 rounded-lg bg-slate-950 border border-slate-800 text-slate-400 hover:text-cyan-300 hover:border-slate-700 transition-colors"
+              title="Backup & Restore Study Data (JSON Sync)"
+            >
+              <HardDrive className="w-4 h-4" />
+            </button>
+
             {/* Install PWA Button */}
             {installPrompt && !installed && (
               <button
@@ -234,7 +303,7 @@ export default function App() {
                 className="hidden sm:flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-cyan-600 hover:bg-cyan-500 text-white text-xs font-semibold shadow transition-all"
                 title="Install offline PWA to your desktop/mobile"
               >
-                <Download className="w-3.5 h-3.5" /> Install App
+                <Download className="w-3.5 h-3.5" /> Install
               </button>
             )}
 
@@ -245,13 +314,13 @@ export default function App() {
                 : 'bg-amber-500/10 text-amber-400 border-amber-500/20'
             }`}>
               {isOnline ? <Wifi className="w-3 h-3" /> : <WifiOff className="w-3 h-3" />}
-              <span className="hidden sm:inline">{isOnline ? 'Online' : 'Offline (Cached)'}</span>
+              <span className="hidden xl:inline">{isOnline ? 'Online' : 'Offline'}</span>
             </div>
           </div>
         </div>
 
-        {/* Mobile Horizontal Navigation Strip */}
-        <div className="md:hidden flex items-center gap-1 overflow-x-auto px-4 py-2 bg-slate-950/80 border-t border-slate-800 text-xs font-medium no-scrollbar">
+        {/* Mobile / Tablet Horizontal Navigation Strip */}
+        <div className="lg:hidden flex items-center gap-1.5 overflow-x-auto px-4 py-2 bg-slate-950/80 border-t border-slate-800 text-xs font-medium no-scrollbar">
           <button
             onClick={() => setActiveView('overview')}
             className={`px-2.5 py-1 rounded-md flex-shrink-0 transition-all ${activeView === 'overview' ? 'bg-slate-800 text-white font-bold' : 'text-slate-400'}`}
@@ -265,31 +334,55 @@ export default function App() {
             Chapters
           </button>
           <button
-            onClick={() => {
-              setGlossaryQuery('');
-              setActiveView('glossary');
-            }}
-            className={`px-2.5 py-1 rounded-md flex-shrink-0 transition-all ${activeView === 'glossary' ? 'bg-purple-500/20 text-purple-300 font-bold' : 'text-slate-400'}`}
+            onClick={() => setActiveView('vault')}
+            className={`px-2.5 py-1 rounded-md flex-shrink-0 transition-all flex items-center gap-1 ${activeView === 'vault' ? 'bg-purple-500/20 text-purple-300 font-bold' : 'text-purple-400'}`}
           >
-            Glossary ({BUSHONG_GLOSSARY.length})
+            <Highlighter className="w-3 h-3" /> Vault
+          </button>
+          <button
+            onClick={() => setActiveView('mock-exam')}
+            className={`px-2.5 py-1 rounded-md flex-shrink-0 transition-all flex items-center gap-1 ${activeView === 'mock-exam' ? 'bg-rose-500/20 text-rose-300 font-bold' : 'text-rose-400'}`}
+          >
+            <Award className="w-3 h-3" /> ARRT Mock
+          </button>
+          <button
+            onClick={() => setActiveView('traps')}
+            className={`px-2.5 py-1 rounded-md flex-shrink-0 transition-all flex items-center gap-1 ${activeView === 'traps' ? 'bg-amber-500/20 text-amber-300 font-bold' : 'text-amber-400'}`}
+          >
+            <AlertTriangle className="w-3 h-3" /> Traps
           </button>
           <button
             onClick={() => setActiveView('study')}
-            className={`px-2.5 py-1 rounded-md flex-shrink-0 transition-all ${activeView === 'study' ? 'bg-amber-500/20 text-amber-400 font-bold' : 'text-slate-400'}`}
+            className={`px-2.5 py-1 rounded-md flex-shrink-0 transition-all flex items-center gap-1 ${activeView === 'study' ? 'bg-amber-500/20 text-amber-400 font-bold' : 'text-slate-400'}`}
           >
-            Study Deck ({ALL_QUESTIONS.length})
+            <Sparkles className="w-3 h-3" /> Study Deck
           </button>
           <button
-            onClick={() => setActiveView('reference')}
-            className={`px-2.5 py-1 rounded-md flex-shrink-0 transition-all ${activeView === 'reference' ? 'bg-indigo-500/20 text-indigo-300 font-bold' : 'text-slate-400'}`}
+            onClick={() => setActiveView('mastery')}
+            className={`px-2.5 py-1 rounded-md flex-shrink-0 transition-all flex items-center gap-1 ${activeView === 'mastery' ? 'bg-cyan-500/20 text-cyan-400 font-bold' : 'text-slate-400'}`}
           >
-            Reference
+            <TrendingUp className="w-3 h-3" /> Mastery
           </button>
           <button
             onClick={() => setActiveView('calculators')}
             className={`px-2.5 py-1 rounded-md flex-shrink-0 transition-all ${activeView === 'calculators' ? 'bg-cyan-500/20 text-cyan-400 font-bold' : 'text-slate-400'}`}
           >
             Calculators
+          </button>
+          <button
+            onClick={() => {
+              setGlossaryQuery('');
+              setActiveView('glossary');
+            }}
+            className={`px-2.5 py-1 rounded-md flex-shrink-0 transition-all ${activeView === 'glossary' ? 'bg-purple-500/20 text-purple-300 font-bold' : 'text-slate-400'}`}
+          >
+            Glossary
+          </button>
+          <button
+            onClick={() => setActiveView('reference')}
+            className={`px-2.5 py-1 rounded-md flex-shrink-0 transition-all ${activeView === 'reference' ? 'bg-indigo-500/20 text-indigo-300 font-bold' : 'text-slate-400'}`}
+          >
+            Reference
           </button>
         </div>
       </header>
@@ -387,6 +480,11 @@ export default function App() {
                 setActiveView('glossary');
               }}
               onOpenReference={() => setActiveView('reference')}
+              onOpenVault={() => setActiveView('vault')}
+              onOpenMockExam={() => setActiveView('mock-exam')}
+              onOpenExamTraps={() => setActiveView('traps')}
+              onOpenMastery={() => setActiveView('mastery')}
+              onOpenBackupSync={() => setShowBackupModal(true)}
             />
           )}
 
@@ -396,6 +494,32 @@ export default function App() {
               onSelectChapter={handleSelectChapter}
               allChaptersCount={ALL_CHAPTERS.length}
               onOpenCalculators={() => setActiveView('calculators')}
+              onOpenGlossary={(term) => {
+                setGlossaryQuery(term || '');
+                setActiveView('glossary');
+              }}
+              onOpenVault={() => setActiveView('vault')}
+            />
+          )}
+
+          {activeView === 'vault' && (
+            <HighYieldVault onNavigateToChapter={handleSelectChapter} />
+          )}
+
+          {activeView === 'mock-exam' && (
+            <MockExamSimulator onNavigateToChapter={handleSelectChapter} />
+          )}
+
+          {activeView === 'traps' && (
+            <ExamTrapsCenter />
+          )}
+
+          {activeView === 'mastery' && (
+            <MasteryDashboard
+              onNavigateToChapter={handleSelectChapter}
+              onOpenMockExam={() => setActiveView('mock-exam')}
+              onOpenStudyDeck={() => setActiveView('study')}
+              onOpenVault={() => setActiveView('vault')}
             />
           )}
 
@@ -433,9 +557,16 @@ export default function App() {
           <p>
             {BOOK_METADATA.title} — {BOOK_METADATA.edition} Edition ({BOOK_METADATA.year}). Authored by {BOOK_METADATA.author}.
           </p>
-          <p className="font-mono text-[11px] text-slate-400">
-            PWA Offline Reader • ARRT Radiography Physics Companion
-          </p>
+          <div className="flex items-center gap-3 font-mono text-[11px] text-slate-400">
+            <span>PWA Offline Reader</span>
+            <span>•</span>
+            <button
+              onClick={() => setShowBackupModal(true)}
+              className="text-cyan-400 hover:text-cyan-300 underline"
+            >
+              Backup & Device Sync
+            </button>
+          </div>
         </div>
       </footer>
     </div>

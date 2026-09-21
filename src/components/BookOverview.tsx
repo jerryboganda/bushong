@@ -2,7 +2,21 @@ import React from 'react';
 import { BOOK_METADATA, BOOK_PARTS } from '../data/bookMeta';
 import { ALL_CHAPTERS, ALL_QUESTIONS, ALL_PENGUINS, ALL_FORMULAS } from '../data/allChapters';
 import { BUSHONG_GLOSSARY } from '../data/glossaryData';
-import { Book, Award, CheckCircle, ArrowRight, Shield, Zap, Database, Download } from 'lucide-react';
+import { 
+  Book, 
+  Award, 
+  CheckCircle, 
+  ArrowRight, 
+  Shield, 
+  Zap, 
+  Database, 
+  Download, 
+  Sparkles, 
+  AlertTriangle, 
+  TrendingUp, 
+  Layers, 
+  Highlighter 
+} from 'lucide-react';
 
 interface BookOverviewProps {
   onSelectChapter: (num: number) => void;
@@ -10,6 +24,11 @@ interface BookOverviewProps {
   onOpenCalculators: () => void;
   onOpenGlossary?: () => void;
   onOpenReference?: () => void;
+  onOpenVault?: () => void;
+  onOpenMockExam?: () => void;
+  onOpenExamTraps?: () => void;
+  onOpenMastery?: () => void;
+  onOpenBackupSync?: () => void;
 }
 
 export const BookOverview: React.FC<BookOverviewProps> = ({
@@ -17,7 +36,12 @@ export const BookOverview: React.FC<BookOverviewProps> = ({
   onOpenStudyDeck,
   onOpenCalculators,
   onOpenGlossary,
-  onOpenReference
+  onOpenReference,
+  onOpenVault,
+  onOpenMockExam,
+  onOpenExamTraps,
+  onOpenMastery,
+  onOpenBackupSync
 }) => {
   return (
     <div className="space-y-8 max-w-4xl mx-auto pb-16">
@@ -67,37 +91,104 @@ export const BookOverview: React.FC<BookOverviewProps> = ({
             >
               <Book className="w-4 h-4" /> Start Reading Ch. 1
             </button>
+
+            {onOpenVault && (
+              <button
+                onClick={onOpenVault}
+                className="px-5 py-2.5 rounded-xl bg-purple-500/20 hover:bg-purple-500/30 text-purple-300 font-bold text-xs sm:text-sm flex items-center justify-center gap-2 border border-purple-500/40 transition-all shadow-sm"
+              >
+                <Highlighter className="w-4 h-4 text-purple-400" /> High-Yield Vault & Cloze Mode
+              </button>
+            )}
+
+            {onOpenMockExam && (
+              <button
+                onClick={onOpenMockExam}
+                className="px-5 py-2.5 rounded-xl bg-rose-500/20 hover:bg-rose-500/30 text-rose-300 font-bold text-xs sm:text-sm flex items-center justify-center gap-2 border border-rose-500/40 transition-all"
+              >
+                <Award className="w-4 h-4 text-rose-400" /> ARRT Mock Exam Simulator
+              </button>
+            )}
+
             <button
               onClick={onOpenStudyDeck}
               className="px-5 py-2.5 rounded-xl bg-amber-500/20 hover:bg-amber-500/30 text-amber-300 font-bold text-xs sm:text-sm flex items-center justify-center gap-2 border border-amber-500/40 transition-all"
             >
-              <Award className="w-4 h-4 text-amber-400" /> ARRT Study Deck ({ALL_QUESTIONS.length} Qs)
+              <Sparkles className="w-4 h-4 text-amber-400" /> SM-2 Study Deck ({ALL_QUESTIONS.length} Qs)
             </button>
-            {onOpenGlossary && (
-              <button
-                onClick={onOpenGlossary}
-                className="px-5 py-2.5 rounded-xl bg-purple-500/20 hover:bg-purple-500/30 text-purple-300 font-semibold text-xs sm:text-sm flex items-center justify-center gap-2 border border-purple-500/40 transition-all"
-              >
-                <Database className="w-4 h-4 text-purple-400" /> Complete Glossary ({BUSHONG_GLOSSARY.length})
-              </button>
-            )}
+
             <div className="flex items-center gap-2">
-              <button
-                onClick={onOpenCalculators}
-                className="flex-1 px-3 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 font-semibold text-xs flex items-center justify-center gap-1.5 border border-slate-700 transition-all"
-              >
-                <Zap className="w-3.5 h-3.5 text-cyan-400" /> Calculators
-              </button>
-              {onOpenReference && (
+              {onOpenExamTraps && (
                 <button
-                  onClick={onOpenReference}
+                  onClick={onOpenExamTraps}
                   className="flex-1 px-3 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 font-semibold text-xs flex items-center justify-center gap-1.5 border border-slate-700 transition-all"
                 >
-                  <Shield className="w-3.5 h-3.5 text-indigo-400" /> Reference
+                  <AlertTriangle className="w-3.5 h-3.5 text-amber-400" /> Exam Traps
+                </button>
+              )}
+              {onOpenMastery && (
+                <button
+                  onClick={onOpenMastery}
+                  className="flex-1 px-3 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 font-semibold text-xs flex items-center justify-center gap-1.5 border border-slate-700 transition-all"
+                >
+                  <TrendingUp className="w-3.5 h-3.5 text-cyan-400" /> Mastery
                 </button>
               )}
             </div>
           </div>
+        </div>
+      </div>
+
+      {/* Feature Highlights Grid */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        {onOpenVault && (
+          <div
+            onClick={onOpenVault}
+            className="bg-slate-900 border border-slate-800 hover:border-purple-500/50 rounded-2xl p-5 cursor-pointer transition-all shadow-md group"
+          >
+            <div className="w-10 h-10 rounded-xl bg-purple-500/20 text-purple-400 flex items-center justify-center mb-3 group-hover:scale-110 transition-transform">
+              <Highlighter className="w-5 h-5" />
+            </div>
+            <h3 className="text-sm font-bold text-white group-hover:text-purple-300 transition-colors">High-Yield Vault</h3>
+            <p className="text-xs text-slate-400 mt-1">Capture one-liner MCQ pearls, cram with keyboard shortcuts, and test recall with Cloze blanks.</p>
+          </div>
+        )}
+
+        {onOpenMockExam && (
+          <div
+            onClick={onOpenMockExam}
+            className="bg-slate-900 border border-slate-800 hover:border-rose-500/50 rounded-2xl p-5 cursor-pointer transition-all shadow-md group"
+          >
+            <div className="w-10 h-10 rounded-xl bg-rose-500/20 text-rose-400 flex items-center justify-center mb-3 group-hover:scale-110 transition-transform">
+              <Award className="w-5 h-5" />
+            </div>
+            <h3 className="text-sm font-bold text-white group-hover:text-rose-300 transition-colors">ARRT Mock Simulator</h3>
+            <p className="text-xs text-slate-400 mt-1">Timed 20 to 200 question board practice with option strike-through and scaled scores.</p>
+          </div>
+        )}
+
+        {onOpenExamTraps && (
+          <div
+            onClick={onOpenExamTraps}
+            className="bg-slate-900 border border-slate-800 hover:border-amber-500/50 rounded-2xl p-5 cursor-pointer transition-all shadow-md group"
+          >
+            <div className="w-10 h-10 rounded-xl bg-amber-500/20 text-amber-400 flex items-center justify-center mb-3 group-hover:scale-110 transition-transform">
+              <AlertTriangle className="w-5 h-5" />
+            </div>
+            <h3 className="text-sm font-bold text-white group-hover:text-amber-300 transition-colors">Exam Traps Center</h3>
+            <p className="text-xs text-slate-400 mt-1">Side-by-side matrices comparing Compton vs Photoelectric, Line-focus, Grid cutoffs, and LNT.</p>
+          </div>
+        )}
+
+        <div
+          onClick={onOpenCalculators}
+          className="bg-slate-900 border border-slate-800 hover:border-cyan-500/50 rounded-2xl p-5 cursor-pointer transition-all shadow-md group"
+        >
+          <div className="w-10 h-10 rounded-xl bg-cyan-500/20 text-cyan-400 flex items-center justify-center mb-3 group-hover:scale-110 transition-transform">
+            <Zap className="w-5 h-5" />
+          </div>
+          <h3 className="text-sm font-bold text-white group-hover:text-cyan-300 transition-colors">Physics Simulators</h3>
+          <p className="text-xs text-slate-400 mt-1">Interactive X-Ray Emission Spectrum curve, Heat Units, GCF, and 15% rule calculators.</p>
         </div>
       </div>
 
@@ -138,11 +229,11 @@ export const BookOverview: React.FC<BookOverviewProps> = ({
                           <span>•</span>
                           <span className="truncate">{ch.pages}</span>
                         </div>
-                        <h4 className="text-sm font-semibold text-white group-hover:text-cyan-200 line-clamp-1 transition-colors">
+                        <h4 className="text-xs sm:text-sm font-semibold text-slate-200 group-hover:text-white transition-colors mt-0.5">
                           {ch.title}
                         </h4>
                       </div>
-                      <ArrowRight className="w-4 h-4 text-slate-600 group-hover:text-cyan-400 transition-transform group-hover:translate-x-0.5 flex-shrink-0" />
+                      <ArrowRight className="w-4 h-4 text-slate-600 group-hover:text-cyan-400 group-hover:translate-x-1 transition-all flex-shrink-0" />
                     </button>
                   ))}
                 </div>

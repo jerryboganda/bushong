@@ -1,10 +1,33 @@
 import React, { useState, useMemo, useEffect } from 'react';
 import { ALL_PENGUINS, ALL_QUESTIONS, ALL_FORMULAS, ALL_CHAPTERS } from '../data/allChapters';
 import { Penguin, ChallengeQuestion, Formula } from '../types/book';
-import { Sparkles, HelpCircle, CheckCircle2, ChevronRight, ChevronLeft, Bookmark, RotateCcw, Lightbulb, Search, Shuffle, Filter, Check } from 'lucide-react';
+import { SrsRating, SrsCardState } from '../types/features';
+import { getAllSrsCards, processSrsReview, isCardDue, getDueStats } from '../utils/srsEngine';
+import { 
+  Sparkles, 
+  HelpCircle, 
+  CheckCircle2, 
+  ChevronRight, 
+  ChevronLeft, 
+  Bookmark, 
+  RotateCcw, 
+  Lightbulb, 
+  Search, 
+  Shuffle, 
+  Filter, 
+  Check,
+  Clock,
+  Flame,
+  Award
+} from 'lucide-react';
 
 export const StudyDeck: React.FC<{ onNavigateToChapter: (ch: number) => void }> = ({ onNavigateToChapter }) => {
   const [mode, setMode] = useState<'penguins' | 'questions' | 'formulas'>('penguins');
+
+  // SRS State
+  const [srsMap, setSrsMap] = useState<Record<string, SrsCardState>>(() => getAllSrsCards());
+  const [filterDueOnly, setFilterDueOnly] = useState<boolean>(false);
+  const dueStats = useMemo(() => getDueStats(), [srsMap]);
 
   // Penguin Flashcards State
   const [penguinIdx, setPenguinIdx] = useState(0);
@@ -39,10 +62,22 @@ export const StudyDeck: React.FC<{ onNavigateToChapter: (ch: number) => void }> 
   const [formulaChapterFilter, setFormulaChapterFilter] = useState<number | 'all'>('all');
   const [formulaSearch, setFormulaSearch] = useState<string>('');
 
+  // Handle SRS Rating Action
+  const handleRateCard = (id: string, type: 'penguin' | 'question' | 'formula', rating: SrsRating) => {
+    processSrsReview(id, type, rating);
+    setSrsMap(getAllSrsCards());
+    if (mode === 'penguins') {
+      nextPenguin();
+    } else if (mode === 'questions') {
+      nextQuestion();
+    }
+  };
+
   // Filtered Penguins
   const filteredPenguins = useMemo(() => {
     return ALL_PENGUINS.filter(p => {
       if (filterBookmarksOnly && !bookmarkedPenguins.includes(p.id)) return false;
+      if (filterDueOnly && !isCardDue(srsMap[p.id])) return false;
       if (penguinChapterFilter !== 'all' && p.chapterNumber !== penguinChapterFilter) return false;
       if (penguinSearch.trim()) {
         const s = penguinSearch.toLowerCase();
@@ -50,7 +85,7 @@ export const StudyDeck: React.FC<{ onNavigateToChapter: (ch: number) => void }> 
       }
       return true;
     });
-  }, [filterBookmarksOnly, bookmarkedPenguins, penguinChapterFilter, penguinSearch]);
+  }, [filterBookmarksOnly, bookmarkedPenguins, filterDueOnly, srsMap, penguinChapterFilter, penguinSearch]);
 
   const safePenguinIdx = Math.min(penguinIdx, Math.max(0, filteredPenguins.length - 1));
   const currentPenguin: Penguin | undefined = filteredPenguins[safePenguinIdx];
@@ -100,6 +135,7 @@ export const StudyDeck: React.FC<{ onNavigateToChapter: (ch: number) => void }> 
   const filteredQuestions = useMemo(() => {
     return ALL_QUESTIONS.filter(q => {
       if (filterQuestionBookmarksOnly && !bookmarkedQuestions.includes(q.id)) return false;
+      if (filterDueOnly && !isCardDue(srsMap[q.id])) return false;
       if (questionChapterFilter !== 'all' && q.chapterNumber !== questionChapterFilter) return false;
       if (questionSearch.trim()) {
         const s = questionSearch.toLowerCase();
@@ -110,7 +146,7 @@ export const StudyDeck: React.FC<{ onNavigateToChapter: (ch: number) => void }> 
       }
       return true;
     });
-  }, [filterQuestionBookmarksOnly, bookmarkedQuestions, questionChapterFilter, questionSearch]);
+  }, [filterQuestionBookmarksOnly, bookmarkedQuestions, filterDueOnly, srsMap, questionChapterFilter, questionSearch]);
 
   const safeQIdx = Math.min(qIdx, Math.max(0, filteredQuestions.length - 1));
   const currentQuestion: ChallengeQuestion | undefined = filteredQuestions[safeQIdx];
@@ -139,12 +175,12 @@ export const StudyDeck: React.FC<{ onNavigateToChapter: (ch: number) => void }> 
 
   const shuffleQuestions = () => {
     if (filteredQuestions.length > 1) {
-      setShowAnswer(false);
       let randomIdx = safeQIdx;
       while (randomIdx === safeQIdx) {
         randomIdx = Math.floor(Math.random() * filteredQuestions.length);
       }
       setQIdx(randomIdx);
+      setShowAnswer(false);
     }
   };
 
@@ -154,84 +190,100 @@ export const StudyDeck: React.FC<{ onNavigateToChapter: (ch: number) => void }> 
     setShowAnswer(false);
   };
 
-  // Keyboard navigation for power-study sessions
-  useEffect(() => {
-    const handleKeyDown = (e: KeyboardEvent) => {
-      const target = e.target as HTMLElement | null;
-      if (target?.tagName === 'INPUT' || target?.tagName === 'TEXTAREA' || target?.tagName === 'SELECT') {
-        return;
-      }
-      if (mode === 'questions') {
-        if (e.key === 'ArrowRight') {
-          e.preventDefault();
-          nextQuestion();
-        } else if (e.key === 'ArrowLeft') {
-          e.preventDefault();
-          prevQuestion();
-        } else if (e.key === ' ' || e.key === 'Enter') {
-          e.preventDefault();
-          setShowAnswer(prev => !prev);
-        } else if (e.key.toLowerCase() === 'b' || e.key.toLowerCase() === 's') {
-          e.preventDefault();
-          if (currentQuestion) toggleQuestionBookmark(currentQuestion.id);
-        } else if (e.key.toLowerCase() === 'r') {
-          e.preventDefault();
-          shuffleQuestions();
-        }
-      } else if (mode === 'penguins') {
-        if (e.key === 'ArrowRight') {
-          e.preventDefault();
-          nextPenguin();
-        } else if (e.key === 'ArrowLeft') {
-          e.preventDefault();
-          prevPenguin();
-        } else if (e.key.toLowerCase() === 'b' || e.key.toLowerCase() === 's') {
-          e.preventDefault();
-          if (currentPenguin) togglePenguinBookmark(currentPenguin.id);
-        } else if (e.key.toLowerCase() === 'r') {
-          e.preventDefault();
-          shufflePenguins();
-        }
-      }
-    };
-    window.addEventListener('keydown', handleKeyDown);
-    return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [mode, safeQIdx, safePenguinIdx, filteredQuestions.length, filteredPenguins.length, currentQuestion, currentPenguin]);
-
   // Filtered Formulas
   const filteredFormulas = useMemo(() => {
-    return ALL_FORMULAS.filter(formula => {
-      if (formulaChapterFilter !== 'all' && formula.chapterNumber !== formulaChapterFilter) return false;
+    return ALL_FORMULAS.filter(f => {
+      if (formulaChapterFilter !== 'all' && f.chapterNumber !== formulaChapterFilter) return false;
       if (formulaSearch.trim()) {
         const s = formulaSearch.toLowerCase();
-        const matchN = formula.name.toLowerCase().includes(s);
-        const matchF = formula.formula.toLowerCase().includes(s);
-        const matchD = formula.description.toLowerCase().includes(s);
-        if (!matchN && !matchF && !matchD) return false;
+        return f.name.toLowerCase().includes(s) || f.formula.toLowerCase().includes(s) || f.description.toLowerCase().includes(s);
       }
       return true;
     });
   }, [formulaChapterFilter, formulaSearch]);
 
+  // Keyboard navigation & SRS ratings
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.target instanceof HTMLInputElement || e.target instanceof HTMLTextAreaElement) return;
+
+      if (mode === 'penguins' && currentPenguin) {
+        if (e.key === 'ArrowRight' || e.key === 'j') nextPenguin();
+        else if (e.key === 'ArrowLeft' || e.key === 'k') prevPenguin();
+        else if (e.key === 's' || e.key === 'S') togglePenguinBookmark(currentPenguin.id);
+        else if (e.key === 'r' || e.key === 'R') shufflePenguins();
+        else if (e.key === '1') handleRateCard(currentPenguin.id, 'penguin', 1);
+        else if (e.key === '2') handleRateCard(currentPenguin.id, 'penguin', 2);
+        else if (e.key === '3') handleRateCard(currentPenguin.id, 'penguin', 3);
+        else if (e.key === '4') handleRateCard(currentPenguin.id, 'penguin', 4);
+      } else if (mode === 'questions' && currentQuestion) {
+        if (e.key === ' ' || e.key === 'Enter') {
+          e.preventDefault();
+          setShowAnswer(prev => !prev);
+        } else if (e.key === 'ArrowRight' || e.key === 'j') nextQuestion();
+        else if (e.key === 'ArrowLeft' || e.key === 'k') prevQuestion();
+        else if (e.key === 's' || e.key === 'S') toggleQuestionBookmark(currentQuestion.id);
+        else if (e.key === 'r' || e.key === 'R') shuffleQuestions();
+        else if (e.key === '1') handleRateCard(currentQuestion.id, 'question', 1);
+        else if (e.key === '2') handleRateCard(currentQuestion.id, 'question', 2);
+        else if (e.key === '3') handleRateCard(currentQuestion.id, 'question', 3);
+        else if (e.key === '4') handleRateCard(currentQuestion.id, 'question', 4);
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [mode, safePenguinIdx, safeQIdx, currentPenguin, currentQuestion, showAnswer]);
+
   return (
-    <div className="bg-slate-900 border border-slate-800 rounded-2xl p-4 sm:p-6 text-slate-100 shadow-xl space-y-6">
-      {/* Header */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-4 border-b border-slate-800">
-        <div>
-          <h2 className="text-xl font-bold tracking-tight text-white flex items-center gap-2">
-            <Sparkles className="w-5 h-5 text-amber-400" />
-            Registry Review & Study Deck
-          </h2>
-          <p className="text-xs text-slate-400 mt-0.5">Authoritative Bushong 11th Edition ARRT Exam Prep: 795 Challenge Problems, 226 Penguin Insights & 88 Physics Formulas</p>
+    <div className="space-y-6 max-w-5xl mx-auto pb-16">
+      {/* Top Header */}
+      <div className="bg-slate-900 border border-slate-800 rounded-2xl p-6 sm:p-8 flex flex-col md:flex-row md:items-center justify-between gap-4 shadow-xl">
+        <div className="space-y-1">
+          <div className="flex items-center gap-2">
+            <span className="p-2 rounded-xl bg-amber-500/10 text-amber-400 border border-amber-500/20">
+              <Sparkles className="w-5 h-5" />
+            </span>
+            <h1 className="text-xl sm:text-2xl font-black tracking-tight text-white">
+              Spaced Repetition Flashcard Deck
+            </h1>
+          </div>
+          <p className="text-xs sm:text-sm text-slate-400">
+            Scientifically optimized SM-2 spaced repetition engine covering 226 Penguins, 795 Questions, and 88 Formulas.
+          </p>
         </div>
-        <div className="flex items-center gap-1.5 bg-slate-950 p-1 rounded-xl border border-slate-800 self-start md:self-auto flex-wrap">
+
+        {/* Due Today Filter Button */}
+        <div className="flex items-center gap-2 self-start md:self-auto">
+          <button
+            onClick={() => setFilterDueOnly(!filterDueOnly)}
+            className={`flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-bold border transition-all ${
+              filterDueOnly
+                ? 'bg-amber-500 text-slate-950 border-amber-400 shadow-md shadow-amber-500/20'
+                : 'bg-slate-950 text-slate-300 border-slate-800 hover:border-slate-700'
+            }`}
+          >
+            <Clock className="w-3.5 h-3.5" />
+            <span>Due for Review Today</span>
+            <span className={`px-1.5 py-0.2 rounded-full font-mono text-[10px] ${
+              filterDueOnly ? 'bg-slate-900 text-amber-300' : 'bg-amber-500/20 text-amber-400'
+            }`}>
+              {dueStats.dueCount}
+            </span>
+          </button>
+        </div>
+      </div>
+
+      {/* Mode Switcher Tabs */}
+      <div className="flex items-center justify-between gap-2 overflow-x-auto pb-1">
+        <div className="flex items-center gap-1.5 bg-slate-950 p-1 rounded-xl border border-slate-800">
           <button
             onClick={() => setMode('penguins')}
             className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${
               mode === 'penguins' ? 'bg-amber-500 text-slate-950 shadow-md shadow-amber-500/20' : 'text-slate-400 hover:text-white'
             }`}
           >
-            Penguin Rules ({ALL_PENGUINS.length})
+            Penguin Key Points ({ALL_PENGUINS.length})
           </button>
           <button
             onClick={() => setMode('questions')}
@@ -328,17 +380,26 @@ export const StudyDeck: React.FC<{ onNavigateToChapter: (ch: number) => void }> 
                     Chapter {currentPenguin.chapterNumber}
                   </button>
                 </div>
-                <button
-                  onClick={() => togglePenguinBookmark(currentPenguin.id)}
-                  className={`px-2.5 py-1 rounded-lg border flex items-center gap-1 transition-all ${
-                    bookmarkedPenguins.includes(currentPenguin.id)
-                      ? 'bg-amber-500 text-slate-950 border-amber-400 font-semibold'
-                      : 'bg-slate-950 text-slate-400 border-slate-800 hover:text-white'
-                  }`}
-                >
-                  <Bookmark className="w-3.5 h-3.5" />
-                  {bookmarkedPenguins.includes(currentPenguin.id) ? 'Saved' : 'Save'}
-                </button>
+
+                <div className="flex items-center gap-2">
+                  {/* SRS interval badge */}
+                  {srsMap[currentPenguin.id] && srsMap[currentPenguin.id].lastReviewDate && (
+                    <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-slate-800 text-slate-300 border border-slate-700">
+                      Interval: {srsMap[currentPenguin.id].interval}d (Rep: {srsMap[currentPenguin.id].repetition})
+                    </span>
+                  )}
+                  <button
+                    onClick={() => togglePenguinBookmark(currentPenguin.id)}
+                    className={`px-2.5 py-1 rounded-lg border flex items-center gap-1 transition-all ${
+                      bookmarkedPenguins.includes(currentPenguin.id)
+                        ? 'bg-amber-500 text-slate-950 border-amber-400 font-semibold'
+                        : 'bg-slate-950 text-slate-400 border-slate-800 hover:text-white'
+                    }`}
+                  >
+                    <Bookmark className="w-3.5 h-3.5" />
+                    {bookmarkedPenguins.includes(currentPenguin.id) ? 'Saved' : 'Save'}
+                  </button>
+                </div>
               </div>
 
               <div className="min-h-[220px] bg-gradient-to-br from-slate-950 via-slate-900 to-amber-950/20 border border-amber-500/30 rounded-2xl p-6 flex flex-col justify-between shadow-lg relative overflow-hidden">
@@ -366,7 +427,42 @@ export const StudyDeck: React.FC<{ onNavigateToChapter: (ch: number) => void }> 
                 </div>
               </div>
 
-              <div className="flex items-center justify-between mt-4">
+              {/* SM-2 Spaced Repetition Rating Bar */}
+              <div className="mt-4 p-3 bg-slate-900 border border-slate-800 rounded-xl space-y-2">
+                <div className="flex items-center justify-between text-xs font-semibold text-slate-300 px-1">
+                  <span>How well did you know this concept? (SM-2 Interval Scheduling)</span>
+                  <span className="text-slate-500 text-[10px] hidden sm:inline">Keys 1, 2, 3, 4</span>
+                </div>
+                <div className="grid grid-cols-4 gap-2 text-xs font-bold">
+                  <button
+                    onClick={() => handleRateCard(currentPenguin.id, 'penguin', 1)}
+                    className="py-2.5 rounded-lg bg-rose-950/40 hover:bg-rose-900/60 border border-rose-500/40 text-rose-300 transition-all text-center"
+                  >
+                    Again (1d)
+                  </button>
+                  <button
+                    onClick={() => handleRateCard(currentPenguin.id, 'penguin', 2)}
+                    className="py-2.5 rounded-lg bg-amber-950/40 hover:bg-amber-900/60 border border-amber-500/40 text-amber-300 transition-all text-center"
+                  >
+                    Hard (2d)
+                  </button>
+                  <button
+                    onClick={() => handleRateCard(currentPenguin.id, 'penguin', 3)}
+                    className="py-2.5 rounded-lg bg-emerald-950/40 hover:bg-emerald-900/60 border border-emerald-500/40 text-emerald-300 transition-all text-center"
+                  >
+                    Good (4d)
+                  </button>
+                  <button
+                    onClick={() => handleRateCard(currentPenguin.id, 'penguin', 4)}
+                    className="py-2.5 rounded-lg bg-cyan-950/40 hover:bg-cyan-900/60 border border-cyan-500/40 text-cyan-300 transition-all text-center"
+                  >
+                    Easy (7d)
+                  </button>
+                </div>
+              </div>
+
+              {/* Prev / Next controls */}
+              <div className="flex items-center justify-between mt-3">
                 <button
                   onClick={prevPenguin}
                   className="flex items-center gap-1.5 px-4 py-2 rounded-lg bg-slate-950 hover:bg-slate-800 text-slate-200 text-xs font-semibold border border-slate-800 transition-all"
@@ -383,17 +479,11 @@ export const StudyDeck: React.FC<{ onNavigateToChapter: (ch: number) => void }> 
                   Next <ChevronRight className="w-4 h-4" />
                 </button>
               </div>
-
-              <div className="flex items-center justify-between text-[11px] text-slate-500 pt-2 px-1 font-mono">
-                <span>
-                  Keyboard: <kbd className="px-1.5 py-0.5 rounded bg-slate-950 border border-slate-800 text-slate-400">←</kbd> <kbd className="px-1.5 py-0.5 rounded bg-slate-950 border border-slate-800 text-slate-400">→</kbd> navigate • <kbd className="px-1.5 py-0.5 rounded bg-slate-950 border border-slate-800 text-slate-400">S</kbd> bookmark • <kbd className="px-1.5 py-0.5 rounded bg-slate-950 border border-slate-800 text-slate-400">R</kbd> shuffle flashcards
-                </span>
-              </div>
             </div>
           ) : (
             <div className="text-center py-12 text-slate-400 bg-slate-950/50 rounded-2xl border border-slate-800">
               <Lightbulb className="w-8 h-8 text-slate-600 mx-auto mb-2" />
-              <p className="text-sm">No penguins match your current filter or search.</p>
+              <p className="text-sm">No penguins match your current filter or due date.</p>
             </div>
           )}
         </div>
@@ -477,17 +567,25 @@ export const StudyDeck: React.FC<{ onNavigateToChapter: (ch: number) => void }> 
                     Chapter {currentQuestion.chapterNumber}
                   </button>
                 </div>
-                <button
-                  onClick={() => toggleQuestionBookmark(currentQuestion.id)}
-                  className={`px-2.5 py-1 rounded-lg border flex items-center gap-1 transition-all ${
-                    bookmarkedQuestions.includes(currentQuestion.id)
-                      ? 'bg-cyan-500 text-slate-950 border-cyan-400 font-semibold'
-                      : 'bg-slate-950 text-slate-400 border-slate-800 hover:text-white'
-                  }`}
-                >
-                  <Bookmark className="w-3.5 h-3.5" />
-                  {bookmarkedQuestions.includes(currentQuestion.id) ? 'Saved' : 'Save'}
-                </button>
+
+                <div className="flex items-center gap-2">
+                  {srsMap[currentQuestion.id] && srsMap[currentQuestion.id].lastReviewDate && (
+                    <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-slate-800 text-slate-300 border border-slate-700">
+                      Interval: {srsMap[currentQuestion.id].interval}d (Rep: {srsMap[currentQuestion.id].repetition})
+                    </span>
+                  )}
+                  <button
+                    onClick={() => toggleQuestionBookmark(currentQuestion.id)}
+                    className={`px-2.5 py-1 rounded-lg border flex items-center gap-1 transition-all ${
+                      bookmarkedQuestions.includes(currentQuestion.id)
+                        ? 'bg-cyan-500 text-slate-950 border-cyan-400 font-semibold'
+                        : 'bg-slate-950 text-slate-400 border-slate-800 hover:text-white'
+                    }`}
+                  >
+                    <Bookmark className="w-3.5 h-3.5" />
+                    {bookmarkedQuestions.includes(currentQuestion.id) ? 'Saved' : 'Save'}
+                  </button>
+                </div>
               </div>
 
               <div className="min-h-[220px] bg-slate-950 border border-slate-800 rounded-2xl p-6 flex flex-col justify-between shadow-lg">
@@ -545,6 +643,42 @@ export const StudyDeck: React.FC<{ onNavigateToChapter: (ch: number) => void }> 
                 </div>
               </div>
 
+              {/* SM-2 Rating for Questions */}
+              {showAnswer && (
+                <div className="mt-4 p-3 bg-slate-900 border border-slate-800 rounded-xl space-y-2 animate-fadeIn">
+                  <div className="flex items-center justify-between text-xs font-semibold text-slate-300 px-1">
+                    <span>Rate your recall quality to schedule next review:</span>
+                    <span className="text-slate-500 text-[10px] hidden sm:inline">Keys 1, 2, 3, 4</span>
+                  </div>
+                  <div className="grid grid-cols-4 gap-2 text-xs font-bold">
+                    <button
+                      onClick={() => handleRateCard(currentQuestion.id, 'question', 1)}
+                      className="py-2.5 rounded-lg bg-rose-950/40 hover:bg-rose-900/60 border border-rose-500/40 text-rose-300 transition-all text-center"
+                    >
+                      Again (1d)
+                    </button>
+                    <button
+                      onClick={() => handleRateCard(currentQuestion.id, 'question', 2)}
+                      className="py-2.5 rounded-lg bg-amber-950/40 hover:bg-amber-900/60 border border-amber-500/40 text-amber-300 transition-all text-center"
+                    >
+                      Hard (2d)
+                    </button>
+                    <button
+                      onClick={() => handleRateCard(currentQuestion.id, 'question', 3)}
+                      className="py-2.5 rounded-lg bg-emerald-950/40 hover:bg-emerald-900/60 border border-emerald-500/40 text-emerald-300 transition-all text-center"
+                    >
+                      Good (4d)
+                    </button>
+                    <button
+                      onClick={() => handleRateCard(currentQuestion.id, 'question', 4)}
+                      className="py-2.5 rounded-lg bg-cyan-950/40 hover:bg-cyan-900/60 border border-cyan-500/40 text-cyan-300 transition-all text-center"
+                    >
+                      Easy (7d)
+                    </button>
+                  </div>
+                </div>
+              )}
+
               <div className="flex items-center justify-between mt-4">
                 <button
                   onClick={prevQuestion}
@@ -562,17 +696,11 @@ export const StudyDeck: React.FC<{ onNavigateToChapter: (ch: number) => void }> 
                   Next <ChevronRight className="w-4 h-4" />
                 </button>
               </div>
-
-              <div className="flex items-center justify-between text-[11px] text-slate-500 pt-2 px-1 font-mono">
-                <span>
-                  Keyboard: <kbd className="px-1.5 py-0.5 rounded bg-slate-950 border border-slate-800 text-slate-400">←</kbd> <kbd className="px-1.5 py-0.5 rounded bg-slate-950 border border-slate-800 text-slate-400">→</kbd> navigate • <kbd className="px-1.5 py-0.5 rounded bg-slate-950 border border-slate-800 text-slate-400">Space</kbd> reveal solution • <kbd className="px-1.5 py-0.5 rounded bg-slate-950 border border-slate-800 text-slate-400">S</kbd> bookmark • <kbd className="px-1.5 py-0.5 rounded bg-slate-950 border border-slate-800 text-slate-400">R</kbd> shuffle drill
-                </span>
-              </div>
             </div>
           ) : (
             <div className="text-center py-12 text-slate-400 bg-slate-950/50 rounded-2xl border border-slate-800">
               <HelpCircle className="w-8 h-8 text-slate-600 mx-auto mb-2" />
-              <p className="text-sm">No challenge questions match your current filter or search.</p>
+              <p className="text-sm">No challenge questions match your current filter or due date.</p>
             </div>
           )}
         </div>

@@ -1,12 +1,15 @@
 import React, { useState } from 'react';
-import { Calculator as CalcIcon, RefreshCw, ArrowRight, Zap, Shield, Eye, Layers } from 'lucide-react';
+import { Calculator as CalcIcon, RefreshCw, ArrowRight, Zap, Shield, Eye, Layers, Activity } from 'lucide-react';
+import { SpectrumSimulator } from './SpectrumSimulator';
 
 export const Calculators: React.FC = () => {
   const [activeTab, setActiveTab] = useState<
+    | 'spectrum-sim'
     | 'inverse-square'
     | 'mas-distance'
     | 'fifteen-percent'
     | 'heat-units'
+    | 'gcf-calc'
     | 'magnification'
     | 'focal-spot-blur'
     | 'ct-calc'
@@ -16,7 +19,7 @@ export const Calculators: React.FC = () => {
     | 'ct-dosimetry'
     | 'dap-calc'
     | 'dose-limit'
-  >('inverse-square');
+  >('spectrum-sim');
 
   // 1. Inverse Square Law
   const [islI1, setIslI1] = useState<number>(100);
@@ -46,6 +49,12 @@ export const Calculators: React.FC = () => {
   const [huExposures, setHuExposures] = useState<number>(1);
   const totalHu = (huKvp * huMa * huTime * huGen * huExposures).toFixed(0);
   const totalJoules = (parseFloat(totalHu) * 0.705).toFixed(0);
+
+  // 4b. Grid Conversion Factor (GCF / Bucky Factor)
+  const [masGcfOrig, setMasGcfOrig] = useState<number>(10);
+  const [gcfOrig, setGcfOrig] = useState<number>(1); // No grid = 1
+  const [gcfNew, setGcfNew] = useState<number>(4); // 8:1 grid = 4
+  const masGcfResult = gcfOrig > 0 ? ((masGcfOrig * gcfNew) / gcfOrig).toFixed(1) : '0';
 
   // 5. Magnification Factor & Object Size
   const [magSid, setMagSid] = useState<number>(100);
@@ -126,6 +135,17 @@ export const Calculators: React.FC = () => {
       {/* Tabs */}
       <div className="flex flex-wrap gap-2 mb-6 text-xs font-medium">
         <button
+          onClick={() => setActiveTab('spectrum-sim')}
+          className={`px-3 py-2 rounded-lg transition-all flex items-center gap-1.5 ${
+            activeTab === 'spectrum-sim'
+              ? 'bg-cyan-500 text-slate-950 font-bold shadow-md shadow-cyan-500/20'
+              : 'bg-slate-800/80 text-cyan-300 hover:bg-slate-800 hover:text-white border border-cyan-500/30'
+          }`}
+        >
+          <Activity className="w-3.5 h-3.5" />
+          Emission Spectrum Simulator
+        </button>
+        <button
           onClick={() => setActiveTab('inverse-square')}
           className={`px-3 py-2 rounded-lg transition-all ${
             activeTab === 'inverse-square'
@@ -154,6 +174,16 @@ export const Calculators: React.FC = () => {
           }`}
         >
           15% kVp Rule
+        </button>
+        <button
+          onClick={() => setActiveTab('gcf-calc')}
+          className={`px-3 py-2 rounded-lg transition-all ${
+            activeTab === 'gcf-calc'
+              ? 'bg-cyan-500 text-slate-950 font-bold shadow-md shadow-cyan-500/20'
+              : 'bg-slate-800/80 text-slate-300 hover:bg-slate-800 hover:text-white'
+          }`}
+        >
+          Grid Conversion (GCF)
         </button>
         <button
           onClick={() => setActiveTab('heat-units')}
@@ -259,6 +289,84 @@ export const Calculators: React.FC = () => {
 
       {/* Content Panels */}
       <div className="bg-slate-950/60 border border-slate-800/80 rounded-xl p-5">
+        {/* 0. Spectrum Simulator */}
+        {activeTab === 'spectrum-sim' && (
+          <div>
+            <SpectrumSimulator />
+          </div>
+        )}
+
+        {/* 0b. Grid Conversion Factor (GCF) */}
+        {activeTab === 'gcf-calc' && (
+          <div>
+            <div className="flex items-center justify-between mb-4">
+              <div>
+                <h3 className="text-base font-semibold text-white">Grid Conversion Factor (Bucky Factor) Rule</h3>
+                <p className="text-xs text-cyan-400 font-mono">mAs₂ = mAs₁ × (GCF₂ / GCF₁)</p>
+              </div>
+              <span className="text-xs px-2.5 py-1 rounded bg-slate-800 text-slate-300 border border-slate-700">Ch. 12</span>
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+              <div>
+                <label className="block text-xs text-slate-400 mb-1">Original Technique (mAs₁)</label>
+                <div className="relative">
+                  <input
+                    type="number"
+                    value={masGcfOrig}
+                    onChange={(e) => setMasGcfOrig(parseFloat(e.target.value) || 0)}
+                    className="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-cyan-500"
+                  />
+                  <span className="absolute right-3 top-2 text-xs text-slate-500">mAs</span>
+                </div>
+              </div>
+              <div>
+                <label className="block text-xs text-slate-400 mb-1">Original Grid Ratio (GCF₁)</label>
+                <select
+                  value={gcfOrig}
+                  onChange={(e) => setGcfOrig(parseInt(e.target.value) || 1)}
+                  className="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-cyan-500"
+                >
+                  <option value={1}>No Grid (GCF = 1)</option>
+                  <option value={2}>5:1 Grid (GCF = 2)</option>
+                  <option value={3}>6:1 Grid (GCF = 3)</option>
+                  <option value={4}>8:1 Grid (GCF = 4)</option>
+                  <option value={5}>12:1 Grid (GCF = 5)</option>
+                  <option value={6}>16:1 Grid (GCF = 6)</option>
+                </select>
+              </div>
+              <div>
+                <label className="block text-xs text-slate-400 mb-1">New Target Grid Ratio (GCF₂)</label>
+                <select
+                  value={gcfNew}
+                  onChange={(e) => setGcfNew(parseInt(e.target.value) || 1)}
+                  className="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-cyan-500"
+                >
+                  <option value={1}>No Grid (GCF = 1)</option>
+                  <option value={2}>5:1 Grid (GCF = 2)</option>
+                  <option value={3}>6:1 Grid (GCF = 3)</option>
+                  <option value={4}>8:1 Grid (GCF = 4)</option>
+                  <option value={5}>12:1 Grid (GCF = 5)</option>
+                  <option value={6}>16:1 Grid (GCF = 6)</option>
+                </select>
+              </div>
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="bg-cyan-950/40 border border-cyan-500/30 rounded-lg p-4">
+                <span className="text-xs text-cyan-300 font-medium">Required New Technique (mAs₂)</span>
+                <div className="text-2xl font-bold text-cyan-400 mt-0.5">{masGcfResult} <span className="text-sm font-normal text-cyan-300">mAs</span></div>
+                <p className="text-xs text-slate-400 mt-1">
+                  Adjusted factor: ×{(gcfNew / gcfOrig).toFixed(2)} exposure adjustment
+                </p>
+              </div>
+              <div className="bg-slate-900 border border-slate-800 rounded-lg p-4">
+                <span className="text-xs text-slate-300 font-medium">Bushong GCF Standard Factors</span>
+                <p className="text-xs text-slate-300 mt-1">No grid = 1 • 5:1 = 2 • 6:1 = 3 • 8:1 = 4 • 12:1 = 5 • 16:1 = 6</p>
+                <p className="text-xs text-slate-400 mt-1">Higher ratio grids absorb more scatter but increase required patient dose.</p>
+              </div>
+            </div>
+          </div>
+        )}
+
         {/* 1. Inverse Square Law */}
         {activeTab === 'inverse-square' && (
           <div>
