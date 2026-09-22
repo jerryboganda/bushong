@@ -64,9 +64,9 @@ export const HighlightToolbar: React.FC<HighlightToolbarProps> = ({
         setSelectedText(text);
         selectedTextRef.current = text;
         const screenW = typeof window !== 'undefined' ? window.innerWidth : 360;
-        const effectiveWidth = Math.min(290, Math.max(260, screenW - 24));
+        const effectiveWidth = Math.min(280, Math.max(220, screenW - 24));
         const toolbarHeight = 56;
-        const x = Math.max(12, Math.min(screenW - effectiveWidth - 12, rect.left + rect.width / 2 - effectiveWidth / 2));
+        const x = Math.max(8, Math.min(screenW - effectiveWidth - 8, rect.left + rect.width / 2 - effectiveWidth / 2));
         const rawY = rect.top >= toolbarHeight + 16 ? rect.top - toolbarHeight - 10 : rect.bottom + 10;
         const y = Math.max(10, Math.min(window.innerHeight - toolbarHeight - 10, rawY));
         setPosition({ x, y });
@@ -133,7 +133,7 @@ export const HighlightToolbar: React.FC<HighlightToolbarProps> = ({
       className="fixed z-50 transition-all duration-150 animate-fadeIn select-none max-w-[calc(100vw-24px)]"
       style={{ top: `${position.y}px`, left: `${position.x}px` }}
     >
-      <div className="bg-slate-900 text-slate-100 border border-slate-700/80 rounded-xl shadow-2xl p-2 flex flex-col gap-2 backdrop-blur-md w-auto max-w-[calc(100vw-24px)] min-w-[260px] xs:min-w-[280px]">
+      <div className="bg-slate-900 text-slate-100 border border-slate-700/80 rounded-xl shadow-2xl p-2 flex flex-col gap-2 backdrop-blur-md w-auto max-w-[calc(100vw-16px)] min-w-[220px] xs:min-w-[260px]">
         {successNotice ? (
           <div className="flex items-center justify-center gap-2 py-2 text-xs text-emerald-400 font-semibold">
             <Check className="w-4 h-4" /> Saved to High-Yield Vault!

@@ -1,8 +1,8 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Calculator as CalcIcon, RefreshCw, ArrowRight, Zap, Shield, Eye, Layers, Activity } from 'lucide-react';
 import { SpectrumSimulator } from './SpectrumSimulator';
 
-export const Calculators: React.FC = () => {
+export const Calculators: React.FC<{ initialTab?: string }> = ({ initialTab }) => {
   const [activeTab, setActiveTab] = useState<
     | 'spectrum-sim'
     | 'inverse-square'
@@ -19,7 +19,13 @@ export const Calculators: React.FC = () => {
     | 'ct-dosimetry'
     | 'dap-calc'
     | 'dose-limit'
-  >('spectrum-sim');
+  >((initialTab as any) || 'spectrum-sim');
+
+  useEffect(() => {
+    if (initialTab) {
+      setActiveTab(initialTab as any);
+    }
+  }, [initialTab]);
 
   // 1. Inverse Square Law
   const [islI1, setIslI1] = useState<number>(100);

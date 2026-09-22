@@ -443,9 +443,11 @@ export const MockExamSimulator: React.FC<{ onNavigateToChapter?: (ch: number) =>
 
               <button
                 onClick={() => setNavDrawerOpen(!navDrawerOpen)}
-                className="px-2 xs:px-2.5 py-1 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-semibold flex items-center gap-1 min-h-[32px]"
+                className="px-2 xs:px-2.5 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-semibold flex items-center gap-1 min-h-[36px]"
               >
-                <Layers className="w-3.5 h-3.5" /> Grid ({Object.keys(userAnswers).length}/{activeQuestions.length})
+                <Layers className="w-3.5 h-3.5 shrink-0" />
+                <span className="hidden xs:inline">Grid</span>
+                <span className="font-mono text-[11px]">({Object.keys(userAnswers).length}/{activeQuestions.length})</span>
               </button>
 
               <button

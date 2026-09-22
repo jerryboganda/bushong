@@ -12,7 +12,8 @@ import {
   ChevronUp, 
   HelpCircle,
   Zap,
-  Bookmark
+  Bookmark,
+  ArrowRight
 } from 'lucide-react';
 
 export const ExamTrapsCenter: React.FC = () => {
@@ -149,6 +150,17 @@ export const ExamTrapsCenter: React.FC = () => {
                         {matrix.examTrapWarning}
                       </p>
                     </div>
+                  </div>
+
+                  {/* Mobile Horizontal Scroll Indicator */}
+                  <div className="flex items-center justify-between text-[11px] text-slate-400 px-1 sm:hidden">
+                    <span className="flex items-center gap-1 font-semibold text-cyan-400">
+                      <Layers className="w-3 h-3" /> Comparison Matrix
+                    </span>
+                    <span className="flex items-center gap-1 text-slate-400 font-mono">
+                      <span>Swipe columns</span>
+                      <ArrowRight className="w-3 h-3 text-cyan-400 animate-pulse" />
+                    </span>
                   </div>
 
                   {/* Comparative Matrix Table */}

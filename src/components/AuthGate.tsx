@@ -188,20 +188,20 @@ export const AuthGate: React.FC<AuthGateProps> = ({ onSuccess, initialMode = 'si
         {/* Left / Brand Overview Column */}
         <div className="flex-1 text-center lg:text-left space-y-6 max-w-lg">
           {/* Edition & ARRT Badge */}
-          <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-slate-900 border border-slate-800 text-xs font-semibold text-slate-300 shadow-sm">
+          <div className="inline-flex flex-wrap items-center justify-center gap-1.5 xs:gap-2 px-3 py-1.5 rounded-full bg-slate-900 border border-slate-800 text-[11px] xs:text-xs font-semibold text-slate-300 shadow-sm max-w-full text-center">
             <span className="flex h-2 w-2 rounded-full bg-cyan-400 animate-ping" />
             <span className="text-cyan-400 font-mono">11th Edition</span>
-            <span className="text-slate-500">•</span>
+            <span className="text-slate-500 hidden xs:inline">•</span>
             <span>ARRT Board Preparation Platform</span>
           </div>
 
           {/* Book Branding Title */}
           <div className="space-y-2">
-            <div className="flex items-center justify-center lg:justify-start gap-3">
-              <div className="w-12 h-12 rounded-2xl bg-gradient-to-tr from-cyan-600 to-blue-600 flex items-center justify-center text-white shadow-xl shadow-cyan-500/20 border border-cyan-400/30">
-                <Atom className="w-7 h-7 text-white animate-spin-slow" />
+            <div className="flex items-center justify-center lg:justify-start gap-2.5 xs:gap-3">
+              <div className="w-10 h-10 xs:w-12 xs:h-12 rounded-2xl bg-gradient-to-tr from-cyan-600 to-blue-600 flex items-center justify-center text-white shadow-xl shadow-cyan-500/20 border border-cyan-400/30 flex-shrink-0">
+                <Atom className="w-6 h-6 xs:w-7 xs:h-7 text-white animate-spin-slow" />
               </div>
-              <h1 className="text-2xl sm:text-3xl lg:text-4xl font-black text-white tracking-tight leading-tight">
+              <h1 className="text-xl xs:text-2xl sm:text-3xl lg:text-4xl font-black text-white tracking-tight leading-tight">
                 Radiologic Science
               </h1>
             </div>

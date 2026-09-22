@@ -142,12 +142,21 @@ export const ReferenceGuide: React.FC = () => {
       {/* Tab 2: Radiologic Units */}
       {activeTab === 'radiologic-units' && (
         <div className="space-y-6">
-          <div className="flex items-center justify-between">
-            <h2 className="text-xl font-bold text-white flex items-center gap-2">
-              <Activity className="w-5 h-5 text-cyan-400" />
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1">
+            <h2 className="text-lg xs:text-xl font-bold text-white flex items-center gap-2">
+              <Activity className="w-5 h-5 text-cyan-400 shrink-0" />
               Special Quantities of Radiologic Science
             </h2>
             <span className="text-xs text-slate-400">Pages 3 & 42 of Textbook</span>
+          </div>
+
+          {/* Mobile Horizontal Scroll Indicator */}
+          <div className="flex items-center justify-between text-[11px] text-slate-400 px-1 sm:hidden">
+            <span className="text-cyan-400 font-semibold">Special Quantities Table</span>
+            <span className="flex items-center gap-1 font-mono">
+              <span>Swipe table</span>
+              <ArrowRight className="w-3 h-3 text-cyan-400 animate-pulse" />
+            </span>
           </div>
 
           <div className="bg-slate-900 border border-slate-800 rounded-xl overflow-hidden shadow-lg">
@@ -225,9 +234,15 @@ export const ReferenceGuide: React.FC = () => {
 
           {/* Derived Units */}
           <div>
-            <h3 className="text-sm font-bold uppercase tracking-wider text-cyan-400 mb-3">
-              SI Derived Units With Special Names
-            </h3>
+            <div className="flex items-center justify-between mb-2">
+              <h3 className="text-sm font-bold uppercase tracking-wider text-cyan-400">
+                SI Derived Units With Special Names
+              </h3>
+              <span className="flex items-center gap-1 text-[11px] font-mono text-slate-400 sm:hidden">
+                <span>Swipe</span>
+                <ArrowRight className="w-3 h-3 text-cyan-400 animate-pulse" />
+              </span>
+            </div>
             <div className="bg-slate-900 border border-slate-800 rounded-xl overflow-hidden">
               <div className="overflow-x-auto no-scrollbar touch-scroll">
                 <table className="w-full min-w-[500px] text-left text-xs text-slate-300 font-mono">
@@ -318,9 +333,15 @@ export const ReferenceGuide: React.FC = () => {
 
           {/* Mass-Energy */}
           <div>
-            <h3 className="text-sm font-bold uppercase tracking-wider text-cyan-400 mb-3">
-              Mass-Energy Equivalents (1 J = 10⁷ ergs; 4.19 J = 1 cal; 1 BTU = 1.06 × 10¹⁰ ergs)
-            </h3>
+            <div className="flex flex-col xs:flex-row xs:items-center justify-between gap-1 mb-2">
+              <h3 className="text-sm font-bold uppercase tracking-wider text-cyan-400">
+                Mass-Energy Equivalents
+              </h3>
+              <span className="flex items-center gap-1 text-[11px] font-mono text-slate-400 sm:hidden">
+                <span>Swipe table</span>
+                <ArrowRight className="w-3 h-3 text-cyan-400 animate-pulse" />
+              </span>
+            </div>
             <div className="bg-slate-900 border border-slate-800 rounded-xl overflow-hidden">
               <div className="overflow-x-auto no-scrollbar touch-scroll">
                 <table className="w-full min-w-[480px] text-left text-xs font-mono">
@@ -349,9 +370,15 @@ export const ReferenceGuide: React.FC = () => {
 
           {/* Time */}
           <div>
-            <h3 className="text-sm font-bold uppercase tracking-wider text-cyan-400 mb-3">
-              Time Equivalents
-            </h3>
+            <div className="flex items-center justify-between mb-2">
+              <h3 className="text-sm font-bold uppercase tracking-wider text-cyan-400">
+                Time Equivalents
+              </h3>
+              <span className="flex items-center gap-1 text-[11px] font-mono text-slate-400 sm:hidden">
+                <span>Swipe table</span>
+                <ArrowRight className="w-3 h-3 text-cyan-400 animate-pulse" />
+              </span>
+            </div>
             <div className="bg-slate-900 border border-slate-800 rounded-xl overflow-hidden">
               <div className="overflow-x-auto no-scrollbar touch-scroll">
                 <table className="w-full min-w-[450px] text-left text-xs font-mono">

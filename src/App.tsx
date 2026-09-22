@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { ALL_CHAPTERS, ALL_PENGUINS, ALL_FORMULAS, ALL_QUESTIONS } from './data/allChapters';
 import { BUSHONG_GLOSSARY } from './data/glossaryData';
 import { BOOK_PARTS, BOOK_METADATA } from './data/bookMeta';
@@ -42,7 +42,8 @@ import {
   Lock,
   User as UserIcon,
   LogOut,
-  Loader2
+  Loader2,
+  Activity
 } from 'lucide-react';
 
 type AppView = 'overview' | 'reader' | 'search' | 'study' | 'calculators' | 'glossary' | 'reference' | 'vault' | 'mock-exam' | 'traps' | 'mastery';
@@ -170,6 +171,32 @@ export default function App() {
   const [glossaryQuery, setGlossaryQuery] = useState<string>('');
   const [drawerSearch, setDrawerSearch] = useState<string>('');
   const [showBackupModal, setShowBackupModal] = useState<boolean>(false);
+  const [calculatorTab, setCalculatorTab] = useState<string>('spectrum-sim');
+  const [studyMode, setStudyMode] = useState<'penguins' | 'questions' | 'formulas'>('penguins');
+
+  // Swipe dismissal gesture tracking for mobile drawer
+  const touchStartXRef = useRef<number | null>(null);
+  const touchCurrentXRef = useRef<number | null>(null);
+
+  const handleDrawerTouchStart = (e: React.TouchEvent) => {
+    touchStartXRef.current = e.touches[0].clientX;
+    touchCurrentXRef.current = e.touches[0].clientX;
+  };
+
+  const handleDrawerTouchMove = (e: React.TouchEvent) => {
+    touchCurrentXRef.current = e.touches[0].clientX;
+  };
+
+  const handleDrawerTouchEnd = () => {
+    if (touchStartXRef.current !== null && touchCurrentXRef.current !== null) {
+      const deltaX = touchStartXRef.current - touchCurrentXRef.current;
+      if (deltaX > 45) {
+        setSidebarOpen(false);
+      }
+    }
+    touchStartXRef.current = null;
+    touchCurrentXRef.current = null;
+  };
 
   // Online / Offline listeners
   useEffect(() => {
@@ -555,69 +582,111 @@ export default function App() {
           </div>
         </div>
 
-        {/* Mobile / Tablet Horizontal Navigation Strip with Touch Scroll */}
+        {/* Mobile / Tablet Horizontal Navigation Strip with Touch Scroll & Fade Edges */}
         <div className="lg:hidden relative border-t border-slate-800 bg-slate-950/90 backdrop-blur-md">
+          {/* Edge fade indicators */}
+          <div className="pointer-events-none absolute left-0 top-0 bottom-0 w-3 bg-gradient-to-r from-slate-950 to-transparent z-10" />
+          <div className="pointer-events-none absolute right-0 top-0 bottom-0 w-6 bg-gradient-to-l from-slate-950 to-transparent z-10" />
           <div className="flex items-center gap-1.5 overflow-x-auto px-3 py-2 text-xs font-medium no-scrollbar touch-scroll">
             <button
-              onClick={() => setActiveView('overview')}
-              className={`px-3 py-1.5 rounded-lg flex-shrink-0 transition-all ${
+              onClick={() => {
+                setActiveView('overview');
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+              }}
+              className={`px-3 py-1.5 min-h-[36px] rounded-lg flex-shrink-0 transition-all flex items-center justify-center ${
                 activeView === 'overview' ? 'bg-slate-800 text-white font-bold shadow-sm' : 'text-slate-400 hover:text-slate-200'
               }`}
             >
               Overview
             </button>
             <button
-              onClick={() => setActiveView('reader')}
-              className={`px-3 py-1.5 rounded-lg flex-shrink-0 transition-all ${
+              onClick={() => {
+                setActiveView('reader');
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+              }}
+              className={`px-3 py-1.5 min-h-[36px] rounded-lg flex-shrink-0 transition-all flex items-center justify-center ${
                 activeView === 'reader' ? 'bg-cyan-500/20 text-cyan-300 font-bold border border-cyan-500/30' : 'text-slate-400 hover:text-slate-200'
               }`}
             >
               Chapters
             </button>
             <button
-              onClick={() => setActiveView('vault')}
-              className={`px-3 py-1.5 rounded-lg flex-shrink-0 transition-all flex items-center gap-1 ${
+              onClick={() => {
+                setActiveView('vault');
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+              }}
+              className={`px-3 py-1.5 min-h-[36px] rounded-lg flex-shrink-0 transition-all flex items-center justify-center gap-1 ${
                 activeView === 'vault' ? 'bg-purple-600 text-white font-bold shadow-sm' : 'text-purple-400 hover:text-purple-300'
               }`}
             >
               <Highlighter className="w-3.5 h-3.5" /> Vault
             </button>
             <button
-              onClick={() => setActiveView('mock-exam')}
-              className={`px-3 py-1.5 rounded-lg flex-shrink-0 transition-all flex items-center gap-1 ${
+              onClick={() => {
+                setActiveView('mock-exam');
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+              }}
+              className={`px-3 py-1.5 min-h-[36px] rounded-lg flex-shrink-0 transition-all flex items-center justify-center gap-1 ${
                 activeView === 'mock-exam' ? 'bg-rose-600 text-white font-bold shadow-sm' : 'text-rose-400 hover:text-rose-300'
               }`}
             >
-              <Award className="w-3.5 h-3.5" /> ARRT Mock
+              <Award className="w-3.5 h-3.5" /> Mock
             </button>
             <button
-              onClick={() => setActiveView('traps')}
-              className={`px-3 py-1.5 rounded-lg flex-shrink-0 transition-all flex items-center gap-1 ${
+              onClick={() => {
+                setActiveView('study');
+                setStudyMode('penguins');
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+              }}
+              className={`px-3 py-1.5 min-h-[36px] rounded-lg flex-shrink-0 transition-all flex items-center justify-center gap-1 ${
+                activeView === 'study' && studyMode !== 'formulas' ? 'bg-amber-500 text-slate-950 font-bold shadow-sm' : 'text-slate-400 hover:text-slate-200'
+              }`}
+            >
+              <Sparkles className="w-3.5 h-3.5" /> Study Deck
+            </button>
+            <button
+              onClick={() => {
+                setActiveView('study');
+                setStudyMode('formulas');
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+              }}
+              className={`px-3 py-1.5 min-h-[36px] rounded-lg flex-shrink-0 transition-all flex items-center justify-center gap-1 ${
+                activeView === 'study' && studyMode === 'formulas' ? 'bg-emerald-500 text-slate-950 font-bold shadow-sm' : 'text-emerald-400 hover:text-emerald-300'
+              }`}
+            >
+              <Calculator className="w-3.5 h-3.5" /> Formulas
+            </button>
+            <button
+              onClick={() => {
+                setActiveView('traps');
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+              }}
+              className={`px-3 py-1.5 min-h-[36px] rounded-lg flex-shrink-0 transition-all flex items-center justify-center gap-1 ${
                 activeView === 'traps' ? 'bg-amber-500 text-slate-950 font-bold shadow-sm' : 'text-amber-400 hover:text-amber-300'
               }`}
             >
               <AlertTriangle className="w-3.5 h-3.5" /> Traps
             </button>
             <button
-              onClick={() => setActiveView('study')}
-              className={`px-3 py-1.5 rounded-lg flex-shrink-0 transition-all flex items-center gap-1 ${
-                activeView === 'study' ? 'bg-amber-500 text-slate-950 font-bold shadow-sm' : 'text-slate-400 hover:text-slate-200'
+              onClick={() => {
+                setActiveView('calculators');
+                setCalculatorTab('spectrum-sim');
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+              }}
+              className={`px-3 py-1.5 min-h-[36px] rounded-lg flex-shrink-0 transition-all flex items-center justify-center gap-1 ${
+                activeView === 'calculators' && calculatorTab === 'spectrum-sim' ? 'bg-cyan-500 text-slate-950 font-bold shadow-sm' : 'text-cyan-300 hover:text-cyan-200'
               }`}
             >
-              <Sparkles className="w-3.5 h-3.5" /> Study Deck
+              <Activity className="w-3.5 h-3.5" /> Spectrum
             </button>
             <button
-              onClick={() => setActiveView('mastery')}
-              className={`px-3 py-1.5 rounded-lg flex-shrink-0 transition-all flex items-center gap-1 ${
-                activeView === 'mastery' ? 'bg-cyan-500 text-slate-950 font-bold shadow-sm' : 'text-slate-400 hover:text-slate-200'
-              }`}
-            >
-              <TrendingUp className="w-3.5 h-3.5" /> Mastery
-            </button>
-            <button
-              onClick={() => setActiveView('calculators')}
-              className={`px-3 py-1.5 rounded-lg flex-shrink-0 transition-all flex items-center gap-1 ${
-                activeView === 'calculators' ? 'bg-cyan-500 text-slate-950 font-bold shadow-sm' : 'text-slate-400 hover:text-slate-200'
+              onClick={() => {
+                setActiveView('calculators');
+                setCalculatorTab('inverse-square');
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+              }}
+              className={`px-3 py-1.5 min-h-[36px] rounded-lg flex-shrink-0 transition-all flex items-center justify-center gap-1 ${
+                activeView === 'calculators' && calculatorTab !== 'spectrum-sim' ? 'bg-cyan-500 text-slate-950 font-bold shadow-sm' : 'text-slate-400 hover:text-slate-200'
               }`}
             >
               <Calculator className="w-3.5 h-3.5" /> Simulators
@@ -626,20 +695,35 @@ export default function App() {
               onClick={() => {
                 setGlossaryQuery('');
                 setActiveView('glossary');
+                window.scrollTo({ top: 0, behavior: 'smooth' });
               }}
-              className={`px-3 py-1.5 rounded-lg flex-shrink-0 transition-all flex items-center gap-1 ${
-                activeView === 'glossary' ? 'bg-cyan-500 text-slate-950 font-bold shadow-sm' : 'text-slate-400 hover:text-slate-200'
+              className={`px-3 py-1.5 min-h-[36px] rounded-lg flex-shrink-0 transition-all flex items-center justify-center gap-1 ${
+                activeView === 'glossary' ? 'bg-pink-500 text-white font-bold shadow-sm' : 'text-slate-400 hover:text-slate-200'
               }`}
             >
               <BookA className="w-3.5 h-3.5" /> Glossary
             </button>
             <button
-              onClick={() => setActiveView('reference')}
-              className={`px-3 py-1.5 rounded-lg flex-shrink-0 transition-all flex items-center gap-1 ${
-                activeView === 'reference' ? 'bg-cyan-500 text-slate-950 font-bold shadow-sm' : 'text-slate-400 hover:text-slate-200'
+              onClick={() => {
+                setActiveView('reference');
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+              }}
+              className={`px-3 py-1.5 min-h-[36px] rounded-lg flex-shrink-0 transition-all flex items-center justify-center gap-1 ${
+                activeView === 'reference' ? 'bg-indigo-500 text-white font-bold shadow-sm' : 'text-slate-400 hover:text-slate-200'
               }`}
             >
-              <Compass className="w-3.5 h-3.5" /> Ref
+              <Compass className="w-3.5 h-3.5" /> Reference
+            </button>
+            <button
+              onClick={() => {
+                setActiveView('mastery');
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+              }}
+              className={`px-3 py-1.5 min-h-[36px] rounded-lg flex-shrink-0 transition-all flex items-center justify-center gap-1 ${
+                activeView === 'mastery' ? 'bg-cyan-500 text-slate-950 font-bold shadow-sm' : 'text-slate-400 hover:text-slate-200'
+              }`}
+            >
+              <TrendingUp className="w-3.5 h-3.5" /> Readiness
             </button>
           </div>
         </div>
@@ -649,6 +733,9 @@ export default function App() {
       <div className="flex-1 flex max-w-7xl w-full mx-auto relative">
         {/* Left Sidebar / Drawer */}
         <aside
+          onTouchStart={handleDrawerTouchStart}
+          onTouchMove={handleDrawerTouchMove}
+          onTouchEnd={handleDrawerTouchEnd}
           className={`fixed inset-y-0 left-0 z-50 w-80 max-w-[85vw] bg-slate-900 border-r border-slate-800 p-4 transform transition-all duration-200 ease-in-out lg:static lg:z-0 lg:h-[calc(100vh-4rem)] lg:sticky lg:top-16 overflow-y-auto ${
             sidebarOpen
               ? 'translate-x-0 shadow-2xl lg:block lg:translate-x-0'
@@ -673,42 +760,98 @@ export default function App() {
             </button>
           </div>
 
+          {/* Mobile User Profile Card in Drawer */}
+          <div className="lg:hidden mb-4 p-3 rounded-2xl bg-gradient-to-br from-slate-950 via-slate-900 to-cyan-950/40 border border-slate-800 shadow-lg">
+            <div className="flex items-center justify-between gap-2.5 mb-2.5">
+              <div className="flex items-center gap-2.5 min-w-0">
+                <div className="w-9 h-9 rounded-xl bg-gradient-to-tr from-cyan-600 to-blue-600 flex items-center justify-center text-white font-bold text-sm shadow-md shadow-cyan-500/20 flex-shrink-0">
+                  {user?.name ? user.name.charAt(0).toUpperCase() : 'U'}
+                </div>
+                <div className="min-w-0">
+                  <p className="font-bold text-xs text-white truncate">
+                    {user?.name || 'Radiology Technologist'}
+                  </p>
+                  <p className="text-[10px] text-slate-400 truncate">
+                    {user?.email || 'Student Account'}
+                  </p>
+                </div>
+              </div>
+              <div className={`flex items-center gap-1 text-[10px] px-2 py-0.5 rounded-full border font-mono flex-shrink-0 ${
+                isOnline 
+                  ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20' 
+                  : 'bg-amber-500/10 text-amber-400 border-amber-500/20'
+              }`}>
+                {isOnline ? <Wifi className="w-2.5 h-2.5" /> : <WifiOff className="w-2.5 h-2.5" />}
+                <span>{isOnline ? 'Online' : 'Offline'}</span>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-2 gap-2 pt-2 border-t border-slate-800/80">
+              <button
+                onClick={() => {
+                  setShowBackupModal(true);
+                  setSidebarOpen(false);
+                }}
+                className="flex items-center justify-center gap-1.5 py-2 px-2.5 rounded-xl bg-slate-950 hover:bg-slate-800 border border-slate-800 text-[11px] font-semibold text-slate-300 transition-colors min-h-[38px]"
+              >
+                <HardDrive className="w-3.5 h-3.5 text-cyan-400" />
+                <span>Backup Sync</span>
+              </button>
+              <button
+                onClick={() => {
+                  handleSignOut();
+                  setSidebarOpen(false);
+                }}
+                className="flex items-center justify-center gap-1.5 py-2 px-2.5 rounded-xl bg-rose-950/30 hover:bg-rose-900/50 border border-rose-500/30 text-[11px] font-semibold text-rose-300 transition-colors min-h-[38px]"
+              >
+                <LogOut className="w-3.5 h-3.5 text-rose-400" />
+                <span>Sign Out</span>
+              </button>
+            </div>
+          </div>
+
           {/* Quick Platform Views Links inside Mobile Drawer */}
           <div className="lg:hidden mb-4 pb-3 border-b border-slate-800">
             <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 px-1 block mb-2">
-              Quick Navigation
+              All Platform Views
             </span>
             <div className="grid grid-cols-2 gap-1.5 text-xs font-medium">
               {[
-                { id: 'overview', label: 'Overview', icon: BookOpen, color: 'text-slate-200' },
-                { id: 'vault', label: 'Vault', icon: Highlighter, color: 'text-purple-400' },
-                { id: 'mock-exam', label: 'ARRT Mock', icon: Award, color: 'text-rose-400' },
-                { id: 'traps', label: 'Exam Traps', icon: AlertTriangle, color: 'text-amber-400' },
-                { id: 'study', label: 'Study Deck', icon: Sparkles, color: 'text-amber-300' },
-                { id: 'mastery', label: 'Mastery', icon: TrendingUp, color: 'text-cyan-400' },
-                { id: 'calculators', label: 'Simulators', icon: Calculator, color: 'text-cyan-300' },
-                { id: 'glossary', label: 'Glossary', icon: BookA, color: 'text-pink-400' },
-                { id: 'reference', label: 'Reference', icon: Compass, color: 'text-indigo-400' },
-                { id: 'search', label: 'Search', icon: Search, color: 'text-cyan-400' }
+                { id: 'overview', label: 'Overview', icon: BookOpen, color: 'text-slate-200', action: () => { setActiveView('overview'); } },
+                { id: 'reader', label: 'Chapters', icon: Layers, color: 'text-cyan-400', action: () => { setActiveView('reader'); } },
+                { id: 'vault', label: 'High-Yield Vault', icon: Highlighter, color: 'text-purple-400', action: () => { setActiveView('vault'); } },
+                { id: 'mock-exam', label: 'ARRT Mock Exam', icon: Award, color: 'text-rose-400', action: () => { setActiveView('mock-exam'); } },
+                { id: 'study-deck', label: 'Study Deck', icon: Sparkles, color: 'text-amber-300', action: () => { setActiveView('study'); setStudyMode('penguins'); } },
+                { id: 'formulas', label: 'Formulas', icon: Calculator, color: 'text-emerald-400', action: () => { setActiveView('study'); setStudyMode('formulas'); } },
+                { id: 'traps', label: 'Common Confusions', icon: AlertTriangle, color: 'text-amber-400', action: () => { setActiveView('traps'); } },
+                { id: 'spectrum-sim', label: 'Spectrum Simulator', icon: Activity, color: 'text-cyan-300', action: () => { setActiveView('calculators'); setCalculatorTab('spectrum-sim'); } },
+                { id: 'calculators', label: 'Calculators', icon: Calculator, color: 'text-blue-400', action: () => { setActiveView('calculators'); setCalculatorTab('inverse-square'); } },
+                { id: 'glossary', label: 'Glossary', icon: BookA, color: 'text-pink-400', action: () => { setGlossaryQuery(''); setActiveView('glossary'); } },
+                { id: 'reference', label: 'Reference Guide', icon: Compass, color: 'text-indigo-400', action: () => { setActiveView('reference'); } },
+                { id: 'mastery', label: 'ARRT Readiness', icon: TrendingUp, color: 'text-cyan-400', action: () => { setActiveView('mastery'); } },
               ].map(item => {
                 const Icon = item.icon;
-                const isActive = activeView === item.id;
+                const isActive = 
+                  item.id === 'study-deck' ? (activeView === 'study' && studyMode !== 'formulas') :
+                  item.id === 'formulas' ? (activeView === 'study' && studyMode === 'formulas') :
+                  item.id === 'spectrum-sim' ? (activeView === 'calculators' && calculatorTab === 'spectrum-sim') :
+                  item.id === 'calculators' ? (activeView === 'calculators' && calculatorTab !== 'spectrum-sim') :
+                  activeView === item.id;
                 return (
                   <button
                     key={item.id}
                     onClick={() => {
-                      if (item.id === 'glossary') setGlossaryQuery('');
-                      setActiveView(item.id as AppView);
+                      item.action();
                       setSidebarOpen(false);
                       window.scrollTo({ top: 0, behavior: 'smooth' });
                     }}
-                    className={`flex items-center gap-1.5 p-2 rounded-lg text-left transition-colors ${
+                    className={`flex items-center gap-1.5 p-2 rounded-xl text-left transition-colors min-h-[40px] ${
                       isActive
                         ? 'bg-cyan-500/20 text-cyan-300 font-bold border border-cyan-500/30'
                         : 'bg-slate-950/80 text-slate-300 hover:bg-slate-800 border border-slate-800/80'
                     }`}
                   >
-                    <Icon className={`w-3.5 h-3.5 ${item.color}`} />
+                    <Icon className={`w-3.5 h-3.5 shrink-0 ${item.color}`} />
                     <span className="truncate">{item.label}</span>
                   </button>
                 );
@@ -954,7 +1097,7 @@ export default function App() {
                 'Daily streak tracking and retention velocity'
               ]}
             >
-              <StudyDeck onNavigateToChapter={handleSelectChapter} />
+              <StudyDeck onNavigateToChapter={handleSelectChapter} initialMode={studyMode} />
             </ProtectedGate>
           )}
 
@@ -967,7 +1110,7 @@ export default function App() {
           )}
 
           {activeView === 'calculators' && (
-            <Calculators />
+            <Calculators initialTab={calculatorTab} />
           )}
         </main>
       </div>
@@ -1001,7 +1144,7 @@ export default function App() {
             setActiveView('overview');
             window.scrollTo({ top: 0, behavior: 'smooth' });
           }}
-          className={`flex flex-col items-center gap-1 py-1 px-2.5 rounded-xl transition-all ${
+          className={`flex flex-col items-center justify-center gap-1 py-1 px-2 rounded-xl transition-all min-h-[44px] min-w-[44px] ${
             activeView === 'overview' ? 'text-cyan-400 font-bold' : 'text-slate-400 hover:text-slate-200'
           }`}
         >
@@ -1014,7 +1157,7 @@ export default function App() {
             setActiveView('reader');
             window.scrollTo({ top: 0, behavior: 'smooth' });
           }}
-          className={`flex flex-col items-center gap-1 py-1 px-2.5 rounded-xl transition-all ${
+          className={`flex flex-col items-center justify-center gap-1 py-1 px-2 rounded-xl transition-all min-h-[44px] min-w-[44px] ${
             activeView === 'reader' ? 'text-cyan-400 font-bold' : 'text-slate-400 hover:text-slate-200'
           }`}
         >
@@ -1027,7 +1170,7 @@ export default function App() {
             setActiveView('vault');
             window.scrollTo({ top: 0, behavior: 'smooth' });
           }}
-          className={`flex flex-col items-center gap-1 py-1 px-2.5 rounded-xl transition-all ${
+          className={`flex flex-col items-center justify-center gap-1 py-1 px-2 rounded-xl transition-all min-h-[44px] min-w-[44px] ${
             activeView === 'vault' ? 'text-purple-400 font-bold' : 'text-slate-400 hover:text-slate-200'
           }`}
         >
@@ -1040,7 +1183,7 @@ export default function App() {
             setActiveView('mock-exam');
             window.scrollTo({ top: 0, behavior: 'smooth' });
           }}
-          className={`flex flex-col items-center gap-1 py-1 px-2.5 rounded-xl transition-all ${
+          className={`flex flex-col items-center justify-center gap-1 py-1 px-2 rounded-xl transition-all min-h-[44px] min-w-[44px] ${
             activeView === 'mock-exam' ? 'text-rose-400 font-bold' : 'text-slate-400 hover:text-slate-200'
           }`}
         >
@@ -1051,9 +1194,10 @@ export default function App() {
         <button
           onClick={() => {
             setActiveView('study');
+            setStudyMode('penguins');
             window.scrollTo({ top: 0, behavior: 'smooth' });
           }}
-          className={`flex flex-col items-center gap-1 py-1 px-2.5 rounded-xl transition-all ${
+          className={`flex flex-col items-center justify-center gap-1 py-1 px-2 rounded-xl transition-all min-h-[44px] min-w-[44px] ${
             activeView === 'study' ? 'text-amber-400 font-bold' : 'text-slate-400 hover:text-slate-200'
           }`}
         >
@@ -1063,13 +1207,13 @@ export default function App() {
 
         <button
           onClick={() => setSidebarOpen(prev => !prev)}
-          className={`flex flex-col items-center gap-1 py-1 px-2.5 rounded-xl transition-all ${
+          className={`flex flex-col items-center justify-center gap-1 py-1 px-2 rounded-xl transition-all min-h-[44px] min-w-[44px] ${
             sidebarOpen ? 'text-cyan-400 font-bold' : 'text-slate-400 hover:text-slate-200'
           }`}
-          aria-label={sidebarOpen ? "Close menu" : "Open menu"}
+          aria-label={sidebarOpen ? "Close chapter drawer menu" : "Open chapter drawer menu"}
         >
-          <Menu className="w-4 h-4" />
-          <span>Menu</span>
+          {sidebarOpen ? <X className="w-4 h-4" /> : <Menu className="w-4 h-4" />}
+          <span>{sidebarOpen ? 'Close' : 'Menu'}</span>
         </button>
       </nav>
     </div>

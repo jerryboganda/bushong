@@ -308,16 +308,16 @@ export const HighYieldVault: React.FC<HighYieldVaultProps> = ({ onNavigateToChap
             </p>
           </div>
 
-          <div className="flex flex-wrap items-center gap-2">
+          <div className="flex flex-col xs:flex-row flex-wrap items-stretch xs:items-center gap-2">
             <button
               onClick={() => setShowAddModal(true)}
-              className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-cyan-500 hover:bg-cyan-400 text-slate-950 font-bold text-xs shadow-md shadow-cyan-500/20 transition-all min-h-[38px]"
+              className="w-full xs:w-auto flex items-center justify-center gap-1.5 px-4 py-2.5 rounded-xl bg-cyan-500 hover:bg-cyan-400 text-slate-950 font-bold text-xs shadow-md shadow-cyan-500/20 transition-all min-h-[42px]"
             >
               <Plus className="w-4 h-4" /> Add One-Liner
             </button>
 
             {/* Export Menu */}
-            <div className="flex flex-wrap items-center gap-1 bg-slate-950 p-1 rounded-xl border border-slate-800">
+            <div className="flex items-center justify-around xs:justify-start gap-1 bg-slate-950 p-1 rounded-xl border border-slate-800">
               <button
                 onClick={exportAnki}
                 className="px-2.5 py-1.5 rounded-lg text-xs font-medium text-slate-300 hover:text-white hover:bg-slate-800 transition-colors flex items-center gap-1 min-h-[32px]"
@@ -464,7 +464,9 @@ export const HighYieldVault: React.FC<HighYieldVaultProps> = ({ onNavigateToChap
                   </span>
                   <button
                     onClick={() => handleToggleStar(currentCramPoint.id)}
-                    className="p-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300"
+                    className="p-2 min-w-[40px] min-h-[40px] flex items-center justify-center rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 transition-colors"
+                    title={currentCramPoint.starred ? "Remove star" : "Star for review"}
+                    aria-label="Star card"
                   >
                     <Star className={`w-4 h-4 ${currentCramPoint.starred ? 'fill-amber-400 text-amber-400' : ''}`} />
                   </button>

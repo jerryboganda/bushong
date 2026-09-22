@@ -88,7 +88,7 @@ export const SpectrumSimulator: React.FC = () => {
     <div className="bg-slate-900 border border-slate-800 rounded-2xl p-4 xs:p-5 sm:p-8 space-y-5 sm:space-y-6 shadow-xl">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-4 border-b border-slate-800">
         <div>
-          <h2 className="text-lg sm:text-xl font-black text-white flex items-center gap-2">
+          <h2 className="text-base xs:text-lg sm:text-xl font-black text-white flex items-center gap-2">
             <Activity className="w-5 h-5 text-cyan-400 shrink-0" />
             Interactive X-Ray Emission Spectrum Simulator
           </h2>
@@ -105,9 +105,10 @@ export const SpectrumSimulator: React.FC = () => {
             setGenerator('hf');
             setTarget('tungsten');
           }}
-          className="px-3 py-2 min-h-[36px] rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-semibold flex items-center gap-1.5 self-start sm:self-auto transition-colors"
+          className="px-3 py-2 min-h-[40px] rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-semibold flex items-center justify-center gap-1.5 w-full sm:w-auto transition-colors"
         >
-          <RotateCcw className="w-3.5 h-3.5" /> Reset Standard (80 kVp / 200 mA @ 0.1s)
+          <RotateCcw className="w-3.5 h-3.5 shrink-0" />
+          <span>Reset <span className="hidden xs:inline">Standard (80 kVp / 200 mA)</span></span>
         </button>
       </div>
 

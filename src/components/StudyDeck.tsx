@@ -21,8 +21,17 @@ import {
   Award
 } from 'lucide-react';
 
-export const StudyDeck: React.FC<{ onNavigateToChapter: (ch: number) => void }> = ({ onNavigateToChapter }) => {
-  const [mode, setMode] = useState<'penguins' | 'questions' | 'formulas'>('penguins');
+export const StudyDeck: React.FC<{ 
+  onNavigateToChapter: (ch: number) => void;
+  initialMode?: 'penguins' | 'questions' | 'formulas';
+}> = ({ onNavigateToChapter, initialMode = 'penguins' }) => {
+  const [mode, setMode] = useState<'penguins' | 'questions' | 'formulas'>(initialMode);
+
+  useEffect(() => {
+    if (initialMode) {
+      setMode(initialMode);
+    }
+  }, [initialMode]);
 
   // SRS State
   const [srsMap, setSrsMap] = useState<Record<string, SrsCardState>>(() => getAllSrsCards());
@@ -1055,7 +1064,7 @@ export const StudyDeck: React.FC<{ onNavigateToChapter: (ch: number) => void }> 
                           </button>
                         </div>
                       </div>
-                      <div className="bg-slate-900/90 px-3 py-2 rounded-lg font-mono text-sm text-amber-300 mb-2 border border-slate-800 shadow-inner">
+                      <div className="bg-slate-900/90 px-3 py-2.5 rounded-lg font-mono text-xs xs:text-sm text-amber-300 mb-2 border border-slate-800 shadow-inner overflow-x-auto no-scrollbar touch-scroll break-words">
                         {formula.formula}
                       </div>
                       <p className="text-xs text-slate-300 leading-relaxed mb-3">{formula.description}</p>
@@ -1072,33 +1081,35 @@ export const StudyDeck: React.FC<{ onNavigateToChapter: (ch: number) => void }> 
                       </div>
 
                       {/* Quick SM-2 rating bar on card */}
-                      <div className="pt-2 border-t border-slate-900/80 flex items-center justify-between">
-                        <span className="text-[10px] text-slate-500 font-semibold">SRS Review:</span>
-                        <div className="flex items-center gap-1">
+                      <div className="pt-2.5 border-t border-slate-900/80 flex flex-col xs:flex-row xs:items-center justify-between gap-2">
+                        <span className="text-[11px] text-slate-400 font-semibold flex items-center gap-1">
+                          <Clock className="w-3 h-3 text-cyan-400" /> SM-2 Recall:
+                        </span>
+                        <div className="grid grid-cols-4 gap-1.5 w-full xs:w-auto">
                           <button
                             onClick={() => handleRateCard(formula.id, 'formula', 1)}
-                            className="px-1.5 py-0.5 rounded text-[10px] font-bold bg-rose-950/40 text-rose-300 border border-rose-500/30 hover:bg-rose-900/60"
+                            className="min-h-[36px] px-2 py-1.5 rounded-lg text-[11px] font-bold bg-rose-950/40 text-rose-300 border border-rose-500/30 hover:bg-rose-900/60 transition-colors flex items-center justify-center"
                             title="Again (1d)"
                           >
                             Again
                           </button>
                           <button
                             onClick={() => handleRateCard(formula.id, 'formula', 2)}
-                            className="px-1.5 py-0.5 rounded text-[10px] font-bold bg-amber-950/40 text-amber-300 border border-amber-500/30 hover:bg-amber-900/60"
+                            className="min-h-[36px] px-2 py-1.5 rounded-lg text-[11px] font-bold bg-amber-950/40 text-amber-300 border border-amber-500/30 hover:bg-amber-900/60 transition-colors flex items-center justify-center"
                             title="Hard (2d)"
                           >
                             Hard
                           </button>
                           <button
                             onClick={() => handleRateCard(formula.id, 'formula', 3)}
-                            className="px-1.5 py-0.5 rounded text-[10px] font-bold bg-emerald-950/40 text-emerald-300 border border-emerald-500/30 hover:bg-emerald-900/60"
+                            className="min-h-[36px] px-2 py-1.5 rounded-lg text-[11px] font-bold bg-emerald-950/40 text-emerald-300 border border-emerald-500/30 hover:bg-emerald-900/60 transition-colors flex items-center justify-center"
                             title="Good (4d)"
                           >
                             Good
                           </button>
                           <button
                             onClick={() => handleRateCard(formula.id, 'formula', 4)}
-                            className="px-1.5 py-0.5 rounded text-[10px] font-bold bg-cyan-950/40 text-cyan-300 border border-cyan-500/30 hover:bg-cyan-900/60"
+                            className="min-h-[36px] px-2 py-1.5 rounded-lg text-[11px] font-bold bg-cyan-950/40 text-cyan-300 border border-cyan-500/30 hover:bg-cyan-900/60 transition-colors flex items-center justify-center"
                             title="Easy (7d)"
                           >
                             Easy
